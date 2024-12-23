@@ -472,7 +472,7 @@ BEGIN
         sch.end_time
     FROM schedules sch
     WHERE sch.class_id = classId;
-END
+END //
 DELIMITER ;
 
 
