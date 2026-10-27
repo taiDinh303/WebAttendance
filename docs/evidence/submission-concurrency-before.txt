@@ -1,0 +1,37 @@
+
+> attendance-web@0.1.0 test
+> vitest run src/application/submissionFlow.test.ts -t shares concurrent sends
+
+
+ RUN  v5.0.5 D:/PHP/WebAttendance/atd_react
+
+ ❯ src/application/submissionFlow.test.ts (7 tests | 1 failed | 6 skipped) 24ms
+   ❯ SubmissionFlow (7)
+     × shares concurrent sends without duplicate uploads or receipt keys 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/application/submissionFlow.test.ts > SubmissionFlow > shares concurrent sends without duplicate uploads or receipt keys
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/application/submissionFlow.test.ts:84:25
+     82|     const files = [file];
+     83|     const first = flow.send(files, "Original note");
+     84|     expect(flow.locked).toBe(true);
+       |                         ^
+     85|     expect(() => flow.resetFiles()).toThrow();
+     86|     const second = flow.send(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 skipped (7)
+   Start at  00:11:42
+   Duration  468ms (transform 54%, import 24%, tests 16%, worker 6%)

@@ -18,7 +18,9 @@ export function StudentSubmit({
   const [step, setStep] = useState("");
   const [locked, setLocked] = useState(false);
   const [receipt, setReceipt] = useState<Submission | null>(null);
-  const [flow] = useState(() => new SubmissionFlow(classId, assignment.id));
+  const [flow] = useState(
+    () => new SubmissionFlow(classId, assignment.id, learningApi),
+  );
   const refresh = useRefresh();
   const previous = useResource(["submissions", assignment.id, 1], (s) =>
     learningApi.mine(1, s, assignment.id),

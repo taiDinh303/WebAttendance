@@ -61,3 +61,23 @@ Nguồn kỹ thuật tra ngày 2026-10-26: [framework composer 13.x](https://git
 ## Transaction/concurrency
 
 Join approval, QR check-in, submit quiz, grade publish và gửi chat phải atomic với outbox. Unique DB constraints chống double click; version/If-Match chống mất cập nhật; lock cửa sổ/bản attempt khi xử lý deadline/đóng phiên. Chỉ retry transaction an toàn; không tự retry mutation client nếu chưa có idempotency. Event chỉ broadcast sau commit; subscription không thay quyền REST.
+
+## Rà soát OOP/SOLID/Clean Code — TASK-022, 2026-10-28
+
+Phạm vi: source Laravel/React hiện hành, không bao gồm code PHP legacy trong lịch sử Git. Đã có OOP (Action/Policy/Resource/Model), phân trách nhiệm validation–authorization–serialization và các pattern Action, Policy, Adapter (API gateway), Transactional Outbox. SOLID là tiêu chí thiết kế; không cần thêm inheritance, interface hoặc generic repository cho mọi class.
+
+Điểm cần cải thiện qua khảo sát: `ManageSchedule` gộp recurrence/timezone với transaction; `SubmissionFlow` import concrete HTTP gateway dù đã có interface; hai lần `send` đồng thời có thể upload và tạo key riêng. Controller báo cáo vẫn chứa query dài; nhiều action còn dùng array và tuple thay DTO. Outbox hiện chỉ ghi durable event, chưa có dispatcher/realtime được kiểm chứng.
+
+Mục tiêu đánh giá nội bộ khoảng 8/10 cho phần đã triển khai: trách nhiệm rõ, dependency thay thế được ở boundary cần test, giữ policy/transaction và có bằng chứng kiểm thử. Đây là nhận định kỹ thuật có phạm vi, không phải chứng nhận toàn sản phẩm hoặc đo coverage 80%. Kết quả thực thi và giới hạn xem [06-testing](06-testing.md) và [worklog](worklog.md).
+
+IMPLEMENTED/VERIFIED LOCAL: `WeeklyOccurrences` không phụ thuộc Eloquent/Gate/container, nhận timezone và definition đã validate; `ManageSchedule` inject class này và giữ quyền/transaction/locking. `SubmissionFlow` chỉ nhận `SubmissionGateway`, UI cấp `learningApi`; ESLint chặn import infrastructure/React vào flow này. Các lệnh send đồng thời dùng chung Promise, chụp riêng mảng file đầu vào, không đổi payload/key khi ACK chưa chắc chắn. QR dùng constants30/60 và một snapshot server time trong mỗi lần issue.
+
+| Tiêu chí | Đánh giá nội bộ sau thay đổi | Căn cứ / khoảng cách còn lại |
+| --- | --- | --- |
+| OOP | 8/10 | Class đóng gói state gửi bài; Action/Policy/Resource và recurrence có trách nhiệm rõ; còn nhiều array/tuple |
+| SOLID | 7.5/10 | SRP và dependency injection được cải thiện; gateway interface nhỏ, có fake test; một số Action/controller vẫn nhiều trách nhiệm |
+| Design Patterns | 8/10 | Action, Policy, Adapter, Transactional Outbox dùng đúng nhu cầu; chưa có outbox dispatcher kiểm chứng |
+| Clean Code | 8/10 | Constants/typed contract/tên tham số rõ, recurrence không lặp phép normalize; còn query báo cáo dài và notification insert lặp |
+| Khả năng kiểm thử | 8/10 | Pure unit + HTTP/MySQL regression + frontend gateway tests; chưa đo coverage hoặc stress concurrency nhiều process |
+
+Tổng quan xấp xỉ8/10 theo các tiêu chí trên; phạm vi khảo sát source hiện hành và đọc sâu các flow lịch/QR/bài nộp, không tuyên bố audit từng dòng toàn repository. Không thêm abstraction hoặc pattern chỉ để tăng số lượng class.

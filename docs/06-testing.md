@@ -57,3 +57,20 @@ Mỗi lần chạy ghi ngày, commit/diff, shell/cwd, command, môi trường/fi
 ### Learning kết quả cuối
 
 Full suite51tests/574assertions và HTTP36checksPASS, [evidence](evidence/learning-validation.md). Đây là kết quả cuối thay phần đang chạy phía trên; các kiểm thử load/production/ClamAV thật chưa thực hiện.
+
+## TASK-022 — Unit tests và refactor kiểm chứng 2026-10-28
+
+VERIFIED LOCAL trên checkout `D:\PHP\WebAttendance`: PHP8.4.27, Laravel13.38.0, PHPUnit12.5.40, MySQL8.4.13 loopback33306, Node24.21.0 và dependencies từ lockfiles. DB mới `attendance_test`, user chỉ có quyền schema test; mail array, scanner local_validation. Không dùng dữ liệu/connection string cũ. Unit recurrence kế thừa PHPUnit TestCase, không bootstrap Laravel/DB; QR thuộc Feature vì dùng config/model/clock Laravel nhưng không ghi database.
+
+| Kiểm tra | Kết quả | Quy tắc / evidence |
+| --- | --- | --- |
+| Unit WeeklyOccurrences | 10 ca PASS | TC-014: timezone, ngày đầu/cuối, ngày UTC trước ngày local, weekday string, DST gap/fold, giới hạn104/105buổi và366/367ngày, không có ngày phù hợp |
+| Feature QrTokens | 13 ca PASS | TC-007/008: epoch30s, TTL60s, cap lúc đóng, đổi signing key, chữ ký giả, JSON/schema sai; kiểm hết hạn/quyền/version qua ScheduleAttendanceTest hiện hữu |
+| Full PHPUnit | 74tests/628assertions,0fail/0error | [JUnit](evidence/phpunit-quality-full.xml):10Unit +64Feature, gồm51test cũ; không cộng lượt chạy hẹp |
+| Full Vitest | 20tests PASS | [JSON](evidence/vitest-quality-full.json):7submission,7QR input,6HTTP; thêm4ca submission cho concurrency, empty, giới hạn đúng5file×20MiB, reset sau upload lỗi |
+| Regression trên code cũ | FAIL như dự kiến | [Log trước sửa](evidence/submission-concurrency-before.txt): test phát hiện flow chưa khóa trong khi upload; giữ nguyên test và chạy bản sửa thì PASS |
+| Công cụ chất lượng | PASS | React typecheck/lint/build; Pint `--dirty --format agent`; Composer validate strict; route discovery |
+
+Chạy lại từ root: `./scripts/artisan.ps1 test --compact` (cần `.env.testing` riêng); `./scripts/react.ps1 test`, `./scripts/react.ps1 typecheck`, `./scripts/react.ps1 lint`, `./scripts/react.ps1 build`. Unit độc lập: `./scripts/php.ps1 attendance_api/vendor/bin/phpunit -c attendance_api/phpunit.xml --testsuite Unit`.
+
+Lượt targeted ban đầu38ca có1error vì fixture AttendanceWindow constructor bỏ ID guarded; đã sửa fixture bằng forceFill trong test, QR13/13 rồi full74/74PASS. Đây là lỗi fixture, không thay assertion để che lỗi production. Test mới xác minh hành vi, dùng fake gateway/time có kiểm soát theo testing-best-practices của Laravel Boost. Chưa chạy lại browser E2E, SMTP/ClamAV thật, load/concurrency nhiều process, production; không đo coverage phần trăm. Test PASS là bằng chứng cho ca đã kiểm, không chứng minh mọi đầu vào có thể đều đúng.

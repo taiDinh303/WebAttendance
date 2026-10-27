@@ -9,13 +9,14 @@ use App\Models\ClassSession;
 use App\Models\SessionSeries;
 use App\Models\User;
 use Carbon\CarbonImmutable;
-use DateTimeZone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 final class ManageSchedule
 {
+    public function __construct(private readonly WeeklyOccurrences $weeklyOccurrences) {}
+
     public function create(User $actor, Classroom $classroom, array $data): ClassSession
     {
         return DB::transaction(function () use ($actor, $classroom, $data) {
@@ -33,7 +34,7 @@ final class ManageSchedule
     {
         Gate::forUser($actor)->authorize('update', $classroom);
         $this->requireActive($classroom);
-        $occurrences = $this->occurrences($classroom, $data);
+        $occurrences = $this->weeklyOccurrences->generate($classroom->timezone, $data);
 
         return ['timezone' => $classroom->timezone, 'count' => count($occurrences), 'occurrences' => array_map(fn ($item) => [
             'startsAt' => $item[0]->toISOString(), 'endsAt' => $item[1]->toISOString(),
@@ -45,7 +46,7 @@ final class ManageSchedule
     {
         return DB::transaction(function () use ($actor, $classroom, $data) {
             $class = $this->lockClass($actor, $classroom);
-            $occurrences = $this->occurrences($class, $data);
+            $occurrences = $this->weeklyOccurrences->generate($class->timezone, $data);
             foreach ($occurrences as [$start, $end]) {
                 $this->requireNoConflict($actor, $start, $end, null, $data['allowConflicts'] ?? false);
             }
@@ -153,49 +154,5 @@ final class ManageSchedule
         if (! $allow && $this->conflicts($actor, $start, $end, $except)->exists()) {
             throw new ApiException('SCHEDULE_CONFLICT', 'This overlaps another session. Preview and explicitly allow conflicts to continue.');
         }
-    }
-
-    private function occurrences(Classroom $class, array $data): array
-    {
-        $start = CarbonImmutable::createFromFormat('!Y-m-d', $data['startDate'], 'UTC');
-        $end = CarbonImmutable::createFromFormat('!Y-m-d', $data['endDate'], 'UTC');
-        if ($start->diffInDays($end) > 366) {
-            throw new ApiException('SERIES_TOO_LARGE', 'A recurrence range may not exceed 366 days.', 422);
-        }
-        $items = [];
-        for ($day = $start; $day->lte($end); $day = $day->addDay()) {
-            if (! in_array($day->dayOfWeekIso, array_map('intval', $data['weekdays']), true)) {
-                continue;
-            }
-            $items[] = [$this->localTime($day->toDateString().' '.$data['startTime'], $class->timezone), $this->localTime($day->toDateString().' '.$data['endTime'], $class->timezone)];
-            if (count($items) > 104) {
-                throw new ApiException('SERIES_TOO_LARGE', 'Create at most 104 sessions per series.', 422);
-            }
-        }
-        if (! $items) {
-            throw new ApiException('EMPTY_SERIES', 'There are no matching weekdays in this range.', 422);
-        }
-
-        return $items;
-    }
-
-    /** Reject DST gaps/folds instead of silently shifting or choosing an ambiguous local time. */
-    private function localTime(string $local, string $zone): CarbonImmutable
-    {
-        $naive = CarbonImmutable::createFromFormat('!Y-m-d H:i', $local, 'UTC')->getTimestamp();
-        $transitions = (new DateTimeZone($zone))->getTransitions($naive - 172800, $naive + 172800);
-        $offsets = array_unique(array_column($transitions, 'offset'));
-        $matches = [];
-        foreach ($offsets as $offset) {
-            $candidate = CarbonImmutable::createFromTimestampUTC($naive - $offset);
-            if ($candidate->setTimezone($zone)->format('Y-m-d H:i') === $local) {
-                $matches[] = $candidate;
-            }
-        }
-        if (count($matches) !== 1) {
-            throw new ApiException('AMBIGUOUS_LOCAL_TIME', 'A local time is missing or ambiguous at a daylight-saving transition.', 422);
-        }
-
-        return $matches[0];
     }
 }

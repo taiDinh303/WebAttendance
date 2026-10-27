@@ -40,6 +40,22 @@ export default ts.config(
     },
   },
   {
+    files: ["src/application/submissionFlow.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            "**/infrastructure/**",
+            "**/features/**",
+            "react",
+            "react-dom",
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["src/infrastructure/**/*.{ts,tsx}"],
     rules: {
       "no-restricted-imports": [
