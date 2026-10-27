@@ -1,0 +1,1 @@
+{"result":"PASS","date":"2026-10-27","phpunit":{"tests":51,"assertions":574,"failures":0,"errors":0},"http":{"checks":36},"apiOperations":79,"openapiVersion":"0.3.0","frontendFiles":0,"antivirusDaemonVerified":false,"scope":"Local core, calendar/attendance and assignment/file/submission/grade APIs; not full product"}

@@ -1,0 +1,6 @@
+{
+  "result": "PASS",
+  "checks": 36,
+  "scope": "Real HTTP + isolated MySQL: cookie/CSRF multipart upload, private files, assignment publish, idempotent submit, draft/published grade snapshots, averages, pagination, isolation",
+  "antivirus": "Local validation only; ClamAV daemon not exercised"
+}

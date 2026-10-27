@@ -1,0 +1,19 @@
+{
+  "Date": "2026-10-26",
+  "Scope": "DOCUMENTATION_ONLY",
+  "MarkdownFiles": 28,
+  "Encoding": "UTF-8 strict decoding passed",
+  "BrokenLocalLinksAndFenceErrors": [],
+  "CoverageCounts": {
+    "REQ": 16,
+    "TC": 22,
+    "TASK": 19,
+    "DEC": 8
+  },
+  "InventoryFiles": 1194,
+  "InventoryHashMismatches": [],
+  "LegacyHead": "02917e3d65f8659bc09560f40591c1f75be21e57",
+  "LegacyWorkingTreeClean": true,
+  "RuntimeTests": "NOT RUN",
+  "Result": "PASS_DOCUMENTATION_CHECKS"
+}

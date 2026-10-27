@@ -1,0 +1,14 @@
+{
+  "Date": "2026-10-27",
+  "Scope": "CORE_PLUS_SCHEDULE_ATTENDANCE",
+  "Tests": 44,
+  "Assertions": 446,
+  "Failures": 0,
+  "Errors": 0,
+  "HTTPChecks": 29,
+  "HTTPResult": "PASS",
+  "APIv1Operations": 59,
+  "FrontendFiles": 0,
+  "ProductionDeployed": false,
+  "LegacyDataImported": false
+}
