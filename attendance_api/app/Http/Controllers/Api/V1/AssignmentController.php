@@ -66,6 +66,6 @@ final class AssignmentController extends Controller
 
     public function close(VersionRequest $request, Classroom $classroom, string $assignmentId, ManageAssignments $action): JsonResponse
     {
-        return ApiResponse::success(new AssignmentResource($action->transition($request->user(),$classroom,$assignmentId,$request->integer('expectedVersion'),'closed')));
+        return ApiResponse::success(new AssignmentResource($action->transition($request->user(), $classroom, $assignmentId, $request->integer('expectedVersion'), 'closed')));
     }
 }

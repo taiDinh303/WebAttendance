@@ -112,7 +112,7 @@ final class FileController extends Controller
                 throw new ApiException('STATE_CONFLICT', 'The assignment is not accepting uploads.');
             }
             if ($a->due_at && now()->gt($a->due_at) && ! $a->allow_late) {
-                throw new ApiException('DEADLINE_PASSED','The deadline has passed.',422);
+                throw new ApiException('DEADLINE_PASSED', 'The deadline has passed.', 422);
             }
         }
     }

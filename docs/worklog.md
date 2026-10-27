@@ -111,3 +111,9 @@ CI React được thêm cho typecheck/lint/unit/build/npm audit; API workflow b�
 ### 2026-10-27 — Kiểm chứng trước khi commit bản nâng cấp
 
 Full API mới nhất PASS51tests/581assertions,0fail/0error (evidence/phpunit-publish-full.xml). Gồm7assertions bổ sung ở phaseReact, không còn chỉ dựa vào kết quả51/574 lịch sử. Kiểm source mới PASS284files, không trùng7runtime secrets local và không runtime/credentials path; source audit trong evidence/publish-source-audit.json. Git repository không shallow, baseline02917e3 là tổ tiênHEAD và origin/main vẫn có181commit gốc. Đang tách commit và publish; chưa gọi PR/main đã cập nhật trước khi có bằng chứng remote.
+
+### 2026-10-27 — GitHub branch và PR đã tạo
+
+Push thành công nhánh feat/attendanceweb-laravel-react:1baa30b docs,63acd93 Laravel API,99dd9d3 layered React. Remote main vẫn02917e3;184commit trên nhánh trước commit ghi nhận này, gồm181commit gốc. Git working tree sạch sau3commit; baseline là tổ tiên củaHEAD. PR draft #1: https://github.com/taiDinh303/WebAttendance/pull/1 đã được tạo và gắn vào chat. Không merge main, không force-push.
+
+GitHub connector thiếu quyền tạo PR (403integration), đã dùng cached Git credential của đúng taiDinh303 qua GitHub API; credentials chỉ ở memory, không ghi source/log. CI React remote PASS; API CI cũ FAIL vì3dòng format trong AssignmentController/FileController/GradeController. Chạy Pint với cache mới đã sửa3dòng, lượt formatter mới PASS; không đổi nghiệp vụ, giữ full API51/581 và React16test/build đã kiểm. Push commit fix riêng để CI xác nhận lại; trạng thái mới xem PR Checks. Mốc này không khẳng định CI remote đã PASS trước khi có kết quả.

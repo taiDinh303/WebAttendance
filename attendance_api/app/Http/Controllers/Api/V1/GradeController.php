@@ -84,6 +84,6 @@ final class GradeController extends Controller
 
         return ApiResponse::page($query->paginate($data['pageSize'] ?? 20, ['m.student_id'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($row) => [
             'studentId' => $row->student_id, 'studentName' => $row->display_name, 'membershipStatus' => $row->status,
-            'average' => $row->graded_count ? round((float) $row->average_score,2) : null, 'gradedCount' => (int) $row->graded_count, 'maxScore' => 10]);
+            'average' => $row->graded_count ? round((float) $row->average_score, 2) : null, 'gradedCount' => (int) $row->graded_count, 'maxScore' => 10]);
     }
 }

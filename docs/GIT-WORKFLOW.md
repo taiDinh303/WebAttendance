@@ -28,7 +28,7 @@ Nhánh được tách commit theo docs/baseline, Laravel API và React, rồi gh
 git switch feat/attendanceweb-laravel-react
 git status
 # Review diff trước khi stage; không git add các file .env/runtime đã ignore
-git add <cac-file-source-da-review>
+git add docs attendance_api atd_react scripts .github .gitignore README.md AGENTS.md
 git diff --cached --stat
 git commit -m "fix: describe the actual change"
 git push origin feat/attendanceweb-laravel-react
@@ -57,3 +57,9 @@ Nếu muốn tự merge bằng Git local thay GitHub: kiểm main/remote còn đ
 PHP vendor trước đây đã từng được track trong main được bỏ khỏi bản nâng cấp; composer.lock/package-lock vẫn được commit, dependencies cài bằng composer install/npm ci. Chạy app theo 10-setup-local; không upload MySQL portable hoặc data directory.
 
 Xem [worklog](worklog.md) cho kết quả publish thực tế, và evidence trước khi gọi module đã VERIFIED.
+
+## Nhánh và PR đã publish
+
+PR: https://github.com/taiDinh303/WebAttendance/pull/1 (draft), nhánh feat/attendanceweb-laravel-react → main. Ba commit nghiệp vụ đầu:1baa30b (docs),63acd93 (Laravel API/thay source cũ),99dd9d3 (React). Remote main được xác nhận vẫn ở02917e3, đầy đủ181commit gốc. Commit bổ sung format/ghi nhận publish không thay hoặc xóa các commit này.
+
+CI React ở99dd9d3 PASS; CI API đầu dừng do3controller chưa đúng Pint. Đã chạy formatter với cache mới, chỉ sửa3dòng khoảng trắng, lượt kiểm formatter sạch. GitHub sẽ kiểm lại ở commit mới; không dùng kết quả local để tự ghi CI remote PASS. Xem Checks của PR cho trạng thái mới nhất.
