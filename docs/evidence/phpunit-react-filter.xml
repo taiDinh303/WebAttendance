@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="D:\My Projects\AttendanceWeb\attendance_api\phpunit.xml" tests="7" assertions="135" errors="0" failures="0" skipped="0" time="147.851700">
+    <testsuite name="Feature" tests="7" assertions="135" errors="0" failures="0" skipped="0" time="147.851700">
+      <testsuite name="Tests\Feature\AssignmentsGradesTest" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" tests="7" assertions="135" errors="0" failures="0" skipped="0" time="147.851700">
+        <testcase name="test_file_material_is_private_until_attached_and_published_and_membership_is_rechecked" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="40" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="16" time="145.122671"/>
+        <testcase name="test_file_content_validation_scanner_failure_and_staged_deletion" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="56" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="15" time="0.222082"/>
+        <testcase name="test_deadline_resubmit_policy_and_revision_history_are_enforced" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="73" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="15" time="0.265569"/>
+        <testcase name="test_office_structure_and_size_limits_are_checked_and_production_requires_antivirus" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="92" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="10" time="0.525778"/>
+        <testcase name="test_submission_cannot_use_other_students_files_or_exceed_five_files" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="132" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="10" time="0.374664"/>
+        <testcase name="test_average_counts_only_current_published_scores_with_equal_weight_and_includes_zero" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="148" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="36" time="0.759862"/>
+        <testcase name="test_submission_and_published_grade_snapshots_are_private_and_idempotent" file="D:\My Projects\AttendanceWeb\attendance_api\tests\Feature\AssignmentsGradesTest.php" line="176" class="Tests\Feature\AssignmentsGradesTest" classname="Tests.Feature.AssignmentsGradesTest" assertions="33" time="0.581074"/>
+      </testsuite>
+    </testsuite>
+  </testsuite>
+</testsuites>

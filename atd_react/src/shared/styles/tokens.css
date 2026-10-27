@@ -1,0 +1,20 @@
+:root {
+  font-family:
+    "Manrope Variable",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: #233044;
+  background: #f6f8fb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --primary: #3659d9;
+  --primary-soft: #edf1ff;
+  --teal: #13776e;
+  --muted: #6d7788;
+  --border: #e7ebf1;
+  --surface: #fff;
+  --radius: 16px;
+  --shadow: 0 5px 24px #1d325105;
+}

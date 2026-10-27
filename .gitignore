@@ -1,0 +1,17 @@
+/.tools/
+/work/
+/.env
+/.env.*
+!/.env.example
+**/vendor/
+**/node_modules/
+**/.env
+**/.env.*
+!**/.env.example
+**/.phpunit.result.cache
+**/.phpunit.cache/
+**/coverage/
+**/storage/*.key
+**/storage/logs/*
+!**/storage/logs/.gitignore
+**/database/*.sqlite*

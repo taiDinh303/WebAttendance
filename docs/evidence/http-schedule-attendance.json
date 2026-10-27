@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "checks": 29,
+  "scope": "Real HTTP + isolated MySQL: weekly schedule, snapshot QR, check-in, manual correction, audit, summaries, cancellation, CSRF and ownership"
+}

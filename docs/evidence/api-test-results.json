@@ -1,0 +1,20 @@
+{
+  "Date": "2026-10-26",
+  "Scope": "API_CORE_ONLY",
+  "PHP": "8.4.27",
+  "Laravel": "13.38.0",
+  "Sanctum": "4.3.3",
+  "MySQL": "8.4.13",
+  "Tests": 29,
+  "Assertions": 224,
+  "Failures": 0,
+  "Errors": 0,
+  "HTTPChecks": 22,
+  "HTTPResult": "PASS",
+  "APIv1Operations": 40,
+  "FrontendFiles": 0,
+  "RealMailSent": false,
+  "LegacyImported": false,
+  "CloudDeployed": false,
+  "Result": "PASS_CORE_TESTS"
+}

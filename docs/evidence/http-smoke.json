@@ -1,0 +1,5 @@
+{
+  "result": "PASS",
+  "checks": 22,
+  "scope": "Real HTTP, cookie sessions, CSRF, CORS, isolated MySQL fixture; no browser UI"
+}
