@@ -8,15 +8,20 @@ use Carbon\CarbonImmutable;
 
 final class QrTokens
 {
+    private const ROTATION_SECONDS = 30;
+
+    private const TTL_SECONDS = 60;
+
     public function issue(AttendanceWindow $window): array
     {
-        $slot = intdiv(now()->getTimestamp(), 30) * 30;
-        $expiry = min($slot + 60, $window->closes_at->getTimestamp());
+        $now = now()->toImmutable();
+        $slot = intdiv($now->getTimestamp(), self::ROTATION_SECONDS) * self::ROTATION_SECONDS;
+        $expiry = min($slot + self::TTL_SECONDS, $window->closes_at->getTimestamp());
         $data = ['windowId' => $window->id, 'version' => $window->token_version, 'issuedAt' => $slot, 'expiresAt' => $expiry];
         $payload = $this->encode(json_encode($data, JSON_THROW_ON_ERROR));
         $signature = $this->encode(hash_hmac('sha256', $payload, config('app.key'), true));
 
-        return ['qrToken' => $payload.'.'.$signature, 'validUntil' => CarbonImmutable::createFromTimestampUTC($expiry)->toISOString(), 'rotatesAt' => CarbonImmutable::createFromTimestampUTC(min($slot + 30, $window->closes_at->getTimestamp()))->toISOString(), 'serverTime' => now()->toISOString()];
+        return ['qrToken' => $payload.'.'.$signature, 'validUntil' => CarbonImmutable::createFromTimestampUTC($expiry)->toISOString(), 'rotatesAt' => CarbonImmutable::createFromTimestampUTC(min($slot + self::ROTATION_SECONDS, $window->closes_at->getTimestamp()))->toISOString(), 'serverTime' => $now->toISOString()];
     }
 
     /** Signature verification only; authorization and time checks run after resource scoping. */

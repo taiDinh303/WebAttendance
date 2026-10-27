@@ -45,6 +45,8 @@ P3 và P4 có thể đổi thứ tự theo ưu tiên chủ dự án; không tri�
 
 TASK-020 — React core theo DEC-022/023: IMPLEMENTED; layered app/auth/class/calendar/learning/grades/attendance/inbox/settings/catalog. TASK-021 — verification UI/API: build/lint/Vitest và browser fixture theo evidence/react-validation.md. Các module chưa có backend không được gọi là hoàn thành.
 
+TASK-022 — Rà soát OOP/SOLID/Design Patterns/Clean Code và bổ sung unit test theo yêu cầu chủ dự án 2026-10-28. Owner: Codex. VERIFIED LOCAL trong phạm vi hiện hành: recurrence tách persistence, SubmissionGateway inject và send đồng thời dùng chung lần gửi, QR clock snapshot/constants; full PHP74tests/628assertions và React20testsPASS. Đánh giá khoảng8/10 có tiêu chí/giới hạn tại [03-architecture](03-architecture.md); lệnh, bằng chứng và phần chưa kiểm tại [06-testing](06-testing.md). Chưa hoàn tất các module sản phẩm còn OPEN.
+
 ## Definition of done cho module
 
 REQ và RULE đã chốt phần áp dụng; migration/index/policy có test; API contract khớp runtime; UI xử lý loading/empty/error/forbidden/conflict; pagination và ownership kiểm qua HTTP; kiểm file/realtime/job tương ứng; lưu evidence lệnh/kết quả và giới hạn vào worklog. Không gọi DONE vì đã tạo file, build pass hoặc chỉ có mock UI.

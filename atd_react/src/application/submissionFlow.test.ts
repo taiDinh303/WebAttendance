@@ -63,4 +63,92 @@ describe("SubmissionFlow", () => {
     expect(upload).toHaveBeenCalledTimes(3);
     expect(submit.mock.calls[0][2].fileIds).toEqual(["file-1", "file-2"]);
   });
+  it("shares concurrent sends without duplicate uploads or receipt keys", async () => {
+    let finishUpload!: (value: PrivateFile) => void;
+    const upload = vi.fn(
+      () =>
+        new Promise<PrivateFile>((resolve) => {
+          finishUpload = resolve;
+        }),
+    );
+    const submit = vi.fn().mockResolvedValue(receipt);
+    const keyFactory = vi.fn(() => "one-key");
+    const flow = new SubmissionFlow(
+      "class-1",
+      "assignment-1",
+      { upload, submit },
+      keyFactory,
+    );
+    const files = [file];
+    const first = flow.send(files, "Original note");
+    expect(flow.locked).toBe(true);
+    expect(() => flow.resetFiles()).toThrow();
+    const second = flow.send(
+      [new File(["different"], "other.txt")],
+      "Changed note",
+    );
+    files.length = 0;
+    expect(first).toBe(second);
+    finishUpload(stored);
+    await expect(first).resolves.toBe(receipt);
+    expect(upload).toHaveBeenCalledTimes(1);
+    expect(keyFactory).toHaveBeenCalledTimes(1);
+    expect(submit).toHaveBeenCalledExactlyOnceWith(
+      "class-1",
+      "assignment-1",
+      {
+        fileIds: ["file-1"],
+        note: "Original note",
+      },
+      "one-key",
+    );
+  });
+  it("rejects empty selection without calling the gateway", async () => {
+    const gateway = { upload: vi.fn(), submit: vi.fn() };
+    const flow = new SubmissionFlow("c", "a", gateway);
+    await expect(flow.send([], "")).rejects.toThrow("1 đến 5");
+    expect(flow.locked).toBe(false);
+    expect(gateway.upload).not.toHaveBeenCalled();
+    expect(gateway.submit).not.toHaveBeenCalled();
+  });
+  it("accepts exactly five files of at most 20 MiB", async () => {
+    const boundary = new File([new Uint8Array(20 * 1024 * 1024)], "limit.txt");
+    const files = [
+      boundary,
+      ...Array.from(
+        { length: 4 },
+        (_, index) => new File(["x"], `${index}.txt`),
+      ),
+    ];
+    const upload = vi
+      .fn()
+      .mockImplementation(async (_c, _a, _purpose, selected: File) => ({
+        ...stored,
+        id: selected.name,
+      }));
+    const submit = vi.fn().mockResolvedValue(receipt);
+    const flow = new SubmissionFlow("c", "a", { upload, submit });
+    await expect(flow.send(files, "")).resolves.toBe(receipt);
+    expect(upload).toHaveBeenCalledTimes(5);
+    expect(submit.mock.calls[0][2].fileIds).toEqual(
+      files.map((selected) => selected.name),
+    );
+  });
+  it("can discard staged uploads after a failed upload and choose new files", async () => {
+    const second = new File(["second"], "second.txt");
+    const upload = vi
+      .fn()
+      .mockResolvedValueOnce(stored)
+      .mockRejectedValueOnce(Error("offline"))
+      .mockResolvedValueOnce({ ...stored, id: "replacement" });
+    const submit = vi.fn().mockResolvedValue(receipt);
+    const flow = new SubmissionFlow("c", "a", { upload, submit });
+    await expect(flow.send([file, second], "")).rejects.toThrow("offline");
+    flow.resetFiles();
+    await flow.send([file], "new note");
+    expect(submit.mock.calls[0][2]).toEqual({
+      fileIds: ["replacement"],
+      note: "new note",
+    });
+  });
 });
