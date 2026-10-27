@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-27",
+  "repository": "taiDinh303/WebAttendance",
+  "pullRequest": "https://github.com/taiDinh303/WebAttendance/pull/1",
+  "merged": true,
+  "mergeMethod": "merge",
+  "mergeCommit": "e99269833c9df52a8c8c85e0fab9594bfca33b84",
+  "baseline": "02917e3d65f8659bc09560f40591c1f75be21e57",
+  "originalCommitsPreserved": 181,
+  "upgradeHead": "0c1cccca68d94f39ba1ee5864645bff3893bcf42",
+  "upgradeCommits": 5,
+  "commitsAtMerge": 187,
+  "baselineIsAncestor": true,
+  "upgradeHeadIsAncestor": true,
+  "mergedTreeMatchesUpgrade": true,
+  "legacyRootFilesAbsent": true,
+  "localBranch": "main",
+  "reviewedCodeCi": "API and React success at upgrade head",
+  "forcePush": false
+}

@@ -15,4 +15,4 @@ Bắt đầu tại [docs/00-README.md](docs/00-README.md). Xem [kế hoạch](do
 - `scripts/`: PowerShell gọi PHP/Composer/artisan/MySQL portable.
 - `.tools/`, `work/`: runtime/dev DB/secrets và scratch/evidence tạm, đã ignore Git.
 
-Không chạy migration, deploy hoặc import dữ liệu chỉ vì đọc được lệnh trong tài liệu. Đã nối lịch sử repository taiDinh303/WebAttendance trên nhánh nâng cấp; xem [Git workflow](docs/GIT-WORKFLOW.md) để push/merge mà giữ commit cũ.
+Không chạy migration, deploy hoặc import dữ liệu chỉ vì đọc được lệnh trong tài liệu. Bản nâng cấp Laravel/React đã merge vào main của taiDinh303/WebAttendance qua PR #1, giữ toàn bộ lịch sử cũ; xem [Git workflow](docs/GIT-WORKFLOW.md) để push/merge mà giữ commit cũ.

@@ -121,3 +121,9 @@ GitHub connector thiếu quyền tạo PR (403integration), đã dùng cached Gi
 ### 2026-10-27 — Sửa PHPUnit discovery trên checkout mới
 
 API CI1370947 đã qua Pint nhưng dừng trước test vì tests/Unit rỗng không được Git track, còn phpunit.xml có Unit suite. Thêm tests/Unit/.gitkeep để clone/CI có thư mục; không tạo test giả hoặc bỏ testsuite. Chưa gọi API remotePASS trước khi lượt CI commit mới kết thúc. Đây cũng sửa khả năng chạy PHPUnit từ snapshot source mới.
+
+### 2026-10-27 — Merge PR #1 về main theo yêu cầu trực tiếp
+
+Chủ dự án giao “merge vào main ... xóa ... cũ ... thay ... mới commit giữ lại”. Đã bỏ draft và merge bằng merge method merge với expected head0c1cccca68d94f39ba1ee5864645bff3893bcf42, không squash/rebase/force-push. GitHub xác nhận merged=true, merge commit e99269833c9df52a8c8c85e0fab9594bfca33b84. Mốc merge có187commit, đầy đủ181commit gốc và5commit nâng cấp; merge-base kiểm cả baseline và upgrade head đều là tổ tiên.
+
+Fetched origin/main và fast-forward local main với compare-and-swap từ baseline đã kiểm, rồi switch sang main; không checkout tạm code cũ hoặc ghi đè runtime. Tree main bằng tree upgrade đã qua CI. Root hiện hành không còn Account/Admin/Connect/Database/Image/LayoutPages/Mailer/Student/Teacher/vendor hay index/login/composer root; chỉ có source Laravel/React/docs/scripts và Git config files. Source tham khảo WebAttendance cũ không sửa. Tài liệu merge cập nhật trong commit riêng sau merge, không đổi nghiệp vụ; CI ở upgrade head đã PASS API/React.

@@ -22,7 +22,7 @@ git show 02917e3:Teacher/index.php
 
 Nhánh được tách commit theo docs/baseline, Laravel API và React, rồi ghi kết quả publish nếu cần. Evidence tests và docs là các tài liệu hỗ trợ; Git history là bằng chứng diff/cha-con thực tế, không thay thế thời gian làm việc lịch sử.
 
-## Push các thay đổi tiếp theo
+## Push vào nhánh nâng cấp (quy trình trước merge)
 
 ```powershell
 git switch feat/attendanceweb-laravel-react
@@ -37,6 +37,8 @@ git push origin feat/attendanceweb-laravel-react
 Lệnh push lần đầu: git push -u origin feat/attendanceweb-laravel-react. Không force-push và không sửa/xóa commit cũ.
 
 ## Merge về main
+
+PR #1 đã merge thành công ngày2026-10-27. Quy trình dưới đây được giữ làm hướng dẫn cho các PR tiếp theo.
 
 Mở Pull Request từ feat/attendanceweb-laravel-react → main, xem Files changed và CI. Khi đã sẵn sàng, chuyển draft sang ready rồi chọn Create a merge commit / Merge pull request để có mốc merge rõ ràng. Main giữ phiên bản cũ cho đến khi PR được merge; không tự coi push nhánh là đã cập nhật main.
 
@@ -58,8 +60,19 @@ PHP vendor trước đây đã từng được track trong main được bỏ kh
 
 Xem [worklog](worklog.md) cho kết quả publish thực tế, và evidence trước khi gọi module đã VERIFIED.
 
-## Nhánh và PR đã publish
+## Nhánh và PR đã publish — mốc trước merge
 
 PR: https://github.com/taiDinh303/WebAttendance/pull/1 (draft), nhánh feat/attendanceweb-laravel-react → main. Ba commit nghiệp vụ đầu:1baa30b (docs),63acd93 (Laravel API/thay source cũ),99dd9d3 (React). Remote main được xác nhận vẫn ở02917e3, đầy đủ181commit gốc. Commit bổ sung format/ghi nhận publish không thay hoặc xóa các commit này.
 
 CI React ở99dd9d3 PASS; CI API đầu dừng do3controller chưa đúng Pint. Đã chạy formatter với cache mới, chỉ sửa3dòng khoảng trắng, lượt kiểm formatter sạch. GitHub sẽ kiểm lại ở commit mới; không dùng kết quả local để tự ghi CI remote PASS. Xem Checks của PR cho trạng thái mới nhất.
+
+
+## Trạng thái hiện tại: đã merge main
+
+PR #1 merged: https://github.com/taiDinh303/WebAttendance/pull/1. Merge commit e99269833c9df52a8c8c85e0fab9594bfca33b84, dùng merge method merge. Main ở mốc merge có187commit:181commit gốc +5commit nâng cấp +1mergecommit. Cả baseline02917e3 và đầu nhánh nâng cấp0c1cccc đều là tổ tiên của main. Tree merge trùng tree code đã được CI API/React kiểm thành công.
+
+Root main chỉ còn .github, .gitignore, AGENTS.md, README.md, attendance_api, atd_react, docs và scripts. Các thư mục/file PHP cũ (Account/Admin/Connect/Database/Image/LayoutPages/Mailer/Student/Teacher/vendor/index.php/login_view.php/composer root) không còn trong tree hiện hành; vẫn xem được qua git show hoặc checkout commit cũ. Không xóa thư mục tham khảo D:\My Projects\WebAttendance.
+
+Thư mục AttendanceWeb local đã chuyển sang main và theo dõi origin/main. Commit tài liệu sau merge chỉ ghi nhận trạng thái, không thay nghiệp vụ. Từ đây dùng main mới hoặc tạo nhánh công việc tiếp theo từ main; không cần push lại nhánh nâng cấp đã merge để cập nhật main.
+
+Lấy phiên bản mới ở checkout khác: git fetch origin, git switch main, git pull --ff-only origin main khi không có thay đổi local cần giữ. Không dùng reset --hard để ghi đè thay đổi chưa commit.
