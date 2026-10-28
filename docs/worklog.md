@@ -163,3 +163,8 @@ Phạm vi2.0 hoàn tất local; quiz/chat/feed/export và vận hành production
 Sau lượt full4scenarioPASS, chạy lại riêng workspace1scenarioPASS để xác nhận menu đã rời viewport trước khi chụp ảnh (report react-v2-workspace-e2e.json). Không có thay đổi code nghiệp vụ sau full suite; ảnh cuối đã được xem trực tiếp trên desktop/mobile.
 
 Rà soát cuối phát hiện Pagination dùng trong form chọn catalog có thể implicit submit. Đã thêm type=button cho cả2nút, thêm browser regression với21môn/trang2 và xác nhận0POSTcreate. Targeted scenario mớiPASS, report react-v2-pagination-e2e.json; tổng5scenario khác nhau đã kiểm (full4 +1regression mới), không tính lượt chụp lại workspace thành scenario thứ6. Typecheck/lint/build được chạy lại sau thay đổi UI primitive.
+
+
+### 2026-10-28 — Push AttendanceWeb 2.0 lên nhánh nâng cấp
+
+Chủ dự án giao push toàn bộ thay đổi TASK-023 (dashboard/shell/workspace/evidence) lên feat/attendanceweb-laravel-react tại taiDinh303/WebAttendance. Đã fetch và xác nhận remote là tổ tiên của HEAD local trước khi tạo commit; staging gồm code, docs, evidence và script concurrency, không có file runtime/secret/local env. Commit thông thường không force; chưa merge main, chưa deploy, không dùng dữ liệu thật.
