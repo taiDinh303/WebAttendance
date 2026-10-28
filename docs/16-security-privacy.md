@@ -42,3 +42,11 @@ Không gửi SMTP thật hoặc import dump thật khi test. Dependency audit/li
 ## File bài tập hiện có — 2026-10-27
 
 File nằm private disk, download qua API kiểm membership/owner mỗi request; không expose storage key/sha256. Nội dung/MIME và cấu trúc Office được kiểm, không đồng nghĩa không có malware. FILE_SCANNER=local_validation chỉ dev/test, scanState validated_local; production fail closed và phải cấu hình ClamAV. Chưa cài scanner daemon, quarantine dashboard/quota/purge hoặc retention tự động. Chi tiết [ASSIGNMENTS-GRADES](ASSIGNMENTS-GRADES.md).
+
+## Admin — DEC-027 / TASK-024
+
+CONFIRMED: admin chỉ thống kê tổng hợp, tìm/lọc tài khoản, khóa/mở khóa có lý do và xem nhật ký quản trị. Không impersonation/đổi role/xóa user; không mặc định xem lớp, điểm, bài nộp, file hoặc chat. Không có public admin registration. Admin policy kiểm verified/active/role; action khóa lại actor từ DB trong transaction để chặn actor stale đã bị khóa. Khóa các admin theo id ổn định trước subject; expectedVersion ngăn ghi đè và invariant ít nhất1activeadmin/tự khóa được kiểm tại action.
+
+Dùng RevokeAccountSessions sẵn có: xóa database sessions của subject, đổi remember token và tăng auth_version/version khi lock và unlock; mở khóa không hồi sinh cookie cũ. Browser đã kiểm học sinh đang đăng nhập nhận401 sau khóa và vẫn401 sau mở khóa cho đến đăng nhập lại. Resource chỉ trả trường cần quản trị. Audit không chứa bài nộp/điểm/chat/password; lý do do admin nhập vẫn phải tránh dữ liệu nhạy cảm không cần thiết.
+
+Demo chỉ dữ liệu synthetic trên attendance_demo; password mạnh ngẫu nhiên ở ignored env/work, không trong docs/seed/report. local_validation cho APP_ENV=demo được chấp nhận như local/testing/http-smoke, **không phải antivirus scan**; production vẫn yêu cầu scanner thật và từ chối file chưa được duyệt. Raw browser traces/cookie jars/SQL dump/backup chỉ ở thư mục ignored, không chia sẻ công khai.

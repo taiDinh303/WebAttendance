@@ -72,3 +72,7 @@ Ghi nguyên ý, ngày và nguồn; chuyển Q sang ANSWERED, thêm DEC mới n�
 ## Phỏng vấn phiên bản 2.0 — 2026-10-28
 
 Chủ dự án giao làm theo đề xuất và xác nhận khoảng3giáo viên,90học sinh,30người điểm danh đồng thời (DEC-025/026). Đợt2.0 ưu tiên dashboard theo vai trò, giao diện mới Việt/sáng/xanh và hoàn thiện workspace/thao tác đang có API. Q-019 đã chốt phần ngôn ngữ/phong cách; brand/dark mode chưa chốt. Q-026 đã chốt workload, hosting/domain/ngân sách/thời hạn còn OPEN. Các Q-028/029/030 và Q-015/016 không có đáp án mới; hỏi trước module2.1/2.2 tương ứng.
+
+## Admin/demo — 2026-10-28
+
+Yêu cầu1admin/3teacher/90student,30check-in đồng thời và chuẩn chất lượng8nhóm khoảng8/10. Q-021 ANSWERED: admin tài khoản/thống kê/audit, giữ riêng nội dung lớp (DEC-027); không mặc định có quyền đọc điểm/bài/file/chat. DEC-028 cho seed local demo synthetic bền vững. Không cấp quyền deploy/mail thật/import cũ.

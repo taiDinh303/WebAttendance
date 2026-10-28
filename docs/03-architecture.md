@@ -81,3 +81,22 @@ IMPLEMENTED/VERIFIED LOCAL: `WeeklyOccurrences` không phụ thuộc Eloquent/Ga
 | Khả năng kiểm thử | 8/10 | Pure unit + HTTP/MySQL regression + frontend gateway tests; chưa đo coverage hoặc stress concurrency nhiều process |
 
 Tổng quan xấp xỉ8/10 theo các tiêu chí trên; phạm vi khảo sát source hiện hành và đọc sâu các flow lịch/QR/bài nộp, không tuyên bố audit từng dòng toàn repository. Không thêm abstraction hoặc pattern chỉ để tăng số lượng class.
+
+## TASK-024 — Admin và tiêu chí 8 nhóm (2026-10-28)
+
+IMPLEMENTED / VERIFIED LOCAL theo DEC-027/028. Không thay stack hoặc thêm dependency. Admin là vai trò riêng, không có Gate::before cấp quyền toàn hệ thống. Controller chỉ điều phối Request → Policy/Action → Resource; ReadAdminWorkspace giữ query tổng hợp/collection, ChangeAccountStatus giữ transaction và nghiệp vụ. Action inject RevokeAccountSessions; frontend AdminGuard + API adapter + typed contracts, cache theo actor.
+
+Đánh giá nội bộ khoảng **8/10 cho code và khả năng vận hành local của phần đã triển khai**, không phải chứng nhận toàn sản phẩm, coverage80% hay production readiness. Mỗi tiêu chí có bằng chứng và giới hạn:
+
+| Nhóm | Đánh giá | Bằng chứng / việc còn lại |
+| --- | --- | --- |
+| Kiến trúc & phân tầng | 8/10 | Laravel Action/Policy/Request/Resource; React app/application/domain/infrastructure/features/shared; admin không xuyên quyền lớp |
+| Phân chia trách nhiệm | 8/10 | ReadAdminWorkspace tách ChangeAccountStatus; seed/diagnostics ở command/action, không trong controller; một số module cũ còn query dài |
+| Quản lý dependency | 8/10 | DI session revocation, gateway frontend, lockfiles, không thêm package; Composer/npm audit0 advisory tại thời điểm chạy; chưa xác nhận CI remote đợt này |
+| Changeability | 8/10 | AccountStatus enum, expectedVersion, Resource allowlist, migration thêm bảng, API v1; test stale actor/version và seed không ghi đè |
+| Data & API | 8/10 | FK/index/ULID, reason/before-after audit cùng transaction, pagination/filter allowlist; 30 HTTP check-in + replay không trùng; OpenAPI85operations |
+| Config & Environment | 8/10 | Seed opt-in/DB allowlist/loopback/array mail; .env.demo riêng, không sửa dev/test; app:diagnose trả boolean không secret; production config là gate, chưa thử hạ tầng |
+| Quality & Security | 8/10 | PHP101/838, Vitest29, real-browser admin; revoke database sessions/auth_version, chặn tự khóa, default deny nội dung lớp; chưa pentest độc lập |
+| Deployment & vận hành | ~8/10 local; production chưa chấm | Launcher foreground, health/schema/diagnostics, CI source và runbook; restore local35bảng/52FK/45filehash PASS; thiếu hosting/TLS/mail/ClamAV/monitor/RPO-RTO thực tế |
+
+Các bằng chứng tại [06-testing](06-testing.md), quy trình tại [08-deploy-detail](08-deploy-detail.md). Quiz/chat/outbox dispatcher và các Q chặn riêng vẫn chưa hoàn tất; không mở rộng đặc quyền admin để làm tắt các module đó.

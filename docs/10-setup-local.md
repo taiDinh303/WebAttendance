@@ -44,3 +44,26 @@ Terminal1 MySQL + Laravel8000 như trên. Terminal2 từ root: `.\scripts\react.
 Browser test dùng database attendance_http_test và file env riêng đã ignore, không .env dev. Nếu cần tạo credentials synthetic mới: `.\scripts\php.ps1 scripts/create-e2e-fixture.php`; helper chỉ cho database attendance_http_test, APP_ENV=http-smoke, MAIL_MAILER=array, password ngẫu nhiên và lưu work/http-credentials.json ignored. Helper không cấu hình database; chuẩn bị env đúng trước. Helper mới đã syntax-check, E2E đợt này dùng fixture đã có. API fixture8001 `--env=http-smoke`, frontend5173 cần `$env:API_PROXY_TARGET='http://127.0.0.1:8001'` ở terminal chạy Vite. Chạy npm run test:e2e, dùng Edge cài trên máy. Sau test dừng fixture, bỏ API_PROXY_TARGET và chạy lại frontend proxy8000. Raw traces có thể chứa session/file/QR, không chia sẻ.
 
 Tài khoản bình thường phải đăng ký/xác minh email; MAIL_MAILER=array không gửi email thật. Không tự tạo tài khoản dev mặc định, không bỏ qua email verification hoặc Policy để trình diễn. Xem [FRONTEND-IMPLEMENTATION](FRONTEND-IMPLEMENTATION.md) và [React evidence](evidence/react-validation.md).
+
+## Demo admin + 3 giáo viên + 90 học sinh — TASK-024
+
+Máy hiện tại đã tạo DB riêng attendance_demo, migrate và demo:seed thành công. Không cần migrate:fresh/reset. Từ root, dùng hai terminal foreground:
+
+~~~powershell
+.\scripts\mysql.ps1 -Action start
+.\scripts\demo.ps1 api
+# Terminal thứ hai:
+.\scripts\demo.ps1 web
+# Kiểm cổng:
+.\scripts\demo.ps1 status
+~~~
+
+Mở http://127.0.0.1:5173; admin tự vào /admin. Tài khoản: admin@demo.attendance.test; teacher01..03@demo.attendance.test; student001..090@demo.attendance.test. Mật khẩu ban đầu chỉ ở work/demo-accounts-demo.json (ignored), không commit file này. Chỉ dùng cho localdemo; không triển khai tài khoản mẫu lên production. Dừng API/Vite bằng Ctrl+C ở terminal tương ứng. Đổi API đang chạy trên8000 cần dừng đúng process của dự án trước; không tắt process không xác định.
+
+Để chạy lại seed: .\scripts\artisan.ps1 demo:seed --env=demo. Seed giữ password/status/lớp và không dời buổi học khi chạy lại; QR/window có thời gian thực sẽ hết hạn. Khi demo ngày khác, teacher tạo buổi và mở cửa sổ mới qua UI; không reset dữ liệu để kéo dài token. Kiểm cấu hình: .\scripts\artisan.ps1 app:diagnose --env=demo --json.
+
+Máy mới: chuẩn bị MySQL/PHP/Node và cài dependencies từ lock; tạo schema/user riêng attendance_demo bằng credential mới; tạo .env.demo từ .env.example nếu chưa tồn tại, điền APP_ENV=demo/DB local/mail array/private file local_validation, opt-in và password mạnh ở env ignored; chỉ generate key cho file mới. Chạy migrate --env=demo rồi demo:seed --env=demo, không dùng env/DB dev hay config cũ. Launcher yêu cầu .env.demo và không có cached config.
+
+E2E admin: từ atd_react chạy npx playwright test admin.spec.ts với demo đang chạy; script khóa/mở lại student090 và ghi audit synthetic. Các test learning/workspace cũ cần API http-smoke/fixture riêng, không chạy chúng vào demo. PLAYWRIGHT_BASE_URL có thể chọn Vite fixture riêng. Chạy HTTP load sau E2E (không song song để tránh login throttle cùngIP): .\scripts\php.ps1 scripts/verify-demo-http-load.php. Script gửi30HTTP thật, tôn trọng Retry-After ở bước login, tạo riêng buổi/window mới; không tắt throttle. File cookie/credential/raw trace chỉ trong work/test-results ignored.
+
+Nếu npm run dev báo Port 5173 is already in use: bản demo hoặc một terminal Vite đang chạy. Dùng trang đang mở hoặc Ctrl+C tại terminal Vite đó trước khi chạy lại. Chỉ chạy một frontend trên5173; kiểm PID/command line trước khi dừng process. Không tự đổi port vì cookie/CORS/stateful config đang dùng5173.

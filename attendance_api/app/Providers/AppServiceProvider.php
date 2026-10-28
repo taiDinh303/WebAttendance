@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\Course;
 use App\Models\Semester;
+use App\Models\User;
+use App\Policies\AdminUserPolicy;
 use App\Policies\TeacherCatalogPolicy;
 use App\Support\ApiDocumentation;
 use Dedoc\Scramble\Scramble;
@@ -29,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
         }
         Gate::policy(Course::class, TeacherCatalogPolicy::class);
         Gate::policy(Semester::class, TeacherCatalogPolicy::class);
+        Gate::policy(User::class, AdminUserPolicy::class);
         ResetPassword::createUrlUsing(fn ($user, string $token) => rtrim(config('app.frontend_url'), '/').'/reset-password?'.http_build_query(['token' => $token, 'email' => $user->email]));
         foreach (['login' => 5, 'register' => 5, 'recovery' => 5, 'verification' => 2, 'join' => 10, 'check-in' => 30, 'upload' => 10, 'submit' => 10] as $name => $attempts) {
             RateLimiter::for($name, function (Request $request) use ($attempts, $name) {

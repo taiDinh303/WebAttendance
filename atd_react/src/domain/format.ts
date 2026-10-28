@@ -22,6 +22,7 @@ export const iso = (value: FormDataEntryValue | null) =>
 export const text = (form: FormData, name: string) =>
   String(form.get(name) ?? "").trim();
 export const statusLabel: Record<string, string> = {
+  locked: "Đã khóa",
   active: "Đang hoạt động",
   archived: "Đã lưu trữ",
   pending: "Chờ duyệt",

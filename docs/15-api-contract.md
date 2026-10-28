@@ -193,3 +193,17 @@ GET /api/v1/me/submissions?assignmentId={ULID} lọc đúng assignment, vẫn b�
 Summary chung: activeClasses/todaySessions/upcomingSessions/unreadCount. Teacher thêm pendingRequests/pendingReviews, preview requests (nhóm theo lớp, tối đa5lớp) và reviews (latest revision chưa chấm hoặc grade draft, tối đa5bài nộp). Student thêm pendingAssignments/publishedGrades, assignments published chưa có bài nộp (tối đa5; dueAt sớm trước, không hạn cuối), grades từ publication pointer của riêng actor (tối đa5). Không trả draft score/feedback hoặc teacher queues cho student. Counts tính toàn bộ scope, không lấy count từ preview. Hôm nay dựa timezone tài khoản; timestamp response UTC. Đây là bản tổng hợp đọc, có thể thay đổi giữa các lần query khi dữ liệu đang được cập nhật, không phải snapshot transaction toàn dashboard.
 
 `GET /classes/{id}` thêm membershipVersion khi student được phép xem lớp, chỉ version của membership active hiện tại; dùng expectedVersion cho POST leave, không dùng version của class. Attendance list thêm studentName/sessionTitle/sessionStartsAt theo eager-loaded relations, không trả email hoặc dữ liệu hồ sơ khác; quyền owner/self giữ nguyên.
+
+## API-011 — Quản trị tài khoản (DEC-027, IMPLEMENTED/VERIFIED LOCAL)
+
+Tất cả route bên dưới cần cookie auth + active + verified + AdminUserPolicy viewAny. Teacher/student403, guest401 kể cả không có Accept JSON. Không thêm quyền admin vào Policy lớp/file/điểm.
+
+| Method/path /api/v1 | Request | Response data |
+| --- | --- | --- |
+| GET admin/summary | Không chọn actor/class | users/admins/teachers/students/lockedAccounts/classes/activeClasses/assignments/submissions/attendanceRecords/openAttendanceWindows/adminEvents/serverTime; chỉ số tổng hợp |
+| GET admin/users | q ≤200, role admin/teacher/student, status active/locked, sort name/-name/createdAt/-createdAt, pageNumber/pageSize | Page AdminUser |
+| POST admin/users/{userId}/lock | reason3..500 sau trim, expectedVersion≥1 | AdminUser mới |
+| POST admin/users/{userId}/unlock | như lock | AdminUser mới |
+| GET admin/audit | subjectId/actorId ULID, operation lock/unlock, pagination | Page event actor/subject IDs+names, reason, before/after status+version, createdAt |
+
+PageSize1..100, pageNumber1..1000000. AdminUser chỉ id/displayName/email/role/accountStatus/emailVerified/version/createdAt/isSelf. Không password/auth_version/remember_token/phone. Từ khóa escape wildcard SQL, sort whitelist. Mutation chặn fields role/password/accountStatus/email. Version cũ409 VERSION_CONFLICT; tự khóa409 CANNOT_LOCK_SELF; bảo vệ last active admin; lặp trạng thái hiện tại là no-op sau kiểm version, không audit hay revoke lần nữa. Lock/unlock thực đổi trạng thái đều revoke session và tăng version/auth_version, ghi audit cùng transaction. Audit giữ trạng thái lúc thao tác; tên actor/subject đọc từ tài khoản hiện tại. OpenAPI runtime85operations tại evidence/openapi-admin.json.

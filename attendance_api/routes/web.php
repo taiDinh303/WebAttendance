@@ -14,7 +14,7 @@ Route::get('/health/live', fn () => ApiResponse::success(['status' => 'alive']))
 Route::get('/health/ready', function () {
     try {
         DB::select('SELECT 1');
-        if (! Schema::hasTable('users')) {
+        if (! Schema::hasTable('users') || ! Schema::hasTable('admin_account_events')) {
             throw new RuntimeException('Schema not initialized');
         }
     } catch (Throwable) {

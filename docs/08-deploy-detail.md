@@ -31,3 +31,11 @@ Rollback frontend/API về image/release trước khi schema backward-compatible
 HTTP error rate/p95, DB connections/slow queries, queue pending age/failed count, scheduler last success, WebSocket reconnect/auth errors, storage capacity/scan failures, outbox lag, attendance/quiz finalizer delay. Log cấu trúc traceId/actor pseudonymous/action/status/duration; giảm PII theo16.
 
 Backup DB và object manifest/file versions; mã hóa, quyền tối thiểu, test restore định kỳ. RPO/RTO/schedule/retention chưa chốt Q-018/020; chưa có cam kết khôi phục hoặc backup đã chạy. Restore rehearsal phải so số dòng, file hashes, FK và luồng đăng nhập/đọc bài trên môi trường riêng.
+
+## TASK-024 — Công cụ và rehearsal local đã chạy
+
+Launcher scripts/demo.ps1 phục vụ API8000 + Vite5173 foreground, có kiểm env/config cache/diagnostics; không là production process manager. mysql.ps1 start nay chờ TCP tối đa30s thay vì báo sẵn sàng ngay sau Start-Process; không tự initialize data directory đã có. app:diagnose --env=demo --json và health/ready kiểm schema admin cùng users; không dùng health để công khai cấu hình bí mật.
+
+Đã thực thi scripts/verify-demo-restore.php: mysqldump single-transaction vào work ignored; CREATE schema attendance_restore_<timestamp>_<random> không IF NOT EXISTS để từ chối trùng, không DROP/overwrite; restore SQL vào schema mới, so counts35bảng và52FK,0orphan. Sao chép45private files và so SHA256 với metadata restore; kiểm94hash mật khẩu synthetic. Kết quả evidence/demo-restore-result.json. Mỗi lần chạy để lại schema/dump/copy local phục vụ kiểm tra; không tự dọn/xóa hoặc restore lên nguồn. Raw backup chứa hash/session và phải được bảo vệ, không commit. Đây là rehearsal SQL/file local, chưa HTTP smoke trên schema restore, backup mã hóa/retention/RPO-RTO hoặc phục hồi production.
+
+Release gate tiếp tục: chọn hosting/budget/domain, TLS/proxy/cookies browser staging, ClamAV daemon, mail được phép, storage private/quota, worker/scheduler/outbox/monitor/restart; backup mã hóa + retention + restore HTTP smoke; production workload benchmark. Workflow API/React hiện có chạy từ lock/tests/audit; đợt thay đổi này chưa được push hoặc kiểm CI remote. Không deploy hoặc phát mail thật từ nhiệm vụ này. Production build local không tương đương deployed.

@@ -87,3 +87,7 @@ Các kết quả trung gian phía trên đã được thay thế: full suite cu�
 Thêm GET /api/v1/dashboard, query tổng hợp theo owner/active membership; counts độc lập preview limit, phân biệt teacher/student, điểm nháp không xuất hiện ở student. Contract API-010 tại [15-api-contract](15-api-contract.md). Class detail student có membershipVersion để leave an toàn; attendance list trả tên học sinh/tiêu đề/giờ buổi thay mã opaque ở UI. Không có migration schema hoặc thay auth/QR30/60.
 
 Target workload đã CONFIRMED3teacher/90student/30check-in đồng thời. Script scripts/verify-attendance-concurrency.php chỉ cho HTTP test DB+array mail, tạo fixture và dùng30PHPprocess có barrier để gọi action thật, kiểm record/replay với MySQL. Chưa kiểm production HTTP capacity hoặc đặt SLA; không dùng dev server PHP1worker để cam kết concurrency HTTP30. Kết quả tại [kiểm thử](06-testing.md).
+
+## Admin/demo — TASK-024 (2026-10-28)
+
+Runtime thêm5operation admin/summary, admin/users, users/{id}/lock, users/{id}/unlock, admin/audit; tổng85operation theo OpenAPI export không warning. Contract API-011 ở15, Policy admin không có quyền nội dung lớp/file/điểm. Hai migration bổ sung admin audit và demo manifest, seed riêng opt-in. PHP101tests/838assertionsPASS, HTTP30+30replayPASS và browser adminPASS; các snapshot NOT RUN trước đây chỉ đúng tại ngày ghi, xem06-testing cho evidence hiện hành. Chưa production/SMTP/ClamAV/realtime dispatcher.
