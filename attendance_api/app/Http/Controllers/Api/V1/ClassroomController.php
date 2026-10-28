@@ -54,6 +54,10 @@ final class ClassroomController extends Controller
     {
         Gate::authorize('view', $classroom);
 
+        if ($request->user()->role === 'student') {
+            $classroom->load(['memberships' => fn ($query) => $query->where('student_id', $request->user()->id)->where('status', 'active')]);
+        }
+
         return ApiResponse::success(new ClassroomResource($classroom));
     }
 

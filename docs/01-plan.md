@@ -58,3 +58,7 @@ REQ và RULE đã chốt phần áp dụng; migration/index/policy có test; API
 - Reverb/worker cần process sống; hosting PHP chỉ phục vụ HTTP chưa đủ.
 - Scope đầy đủ có nhiều phase; mỗi release cần vertical slice dùng được, không tuyên bố hoàn thiện từ scaffold.
 - Bước tiếp theo: Q-028/029/030 cho quiz, Q-015/016 cho chat/notification, Q-025/026 cho retention/cloud. Q-023/011/024 đã chốt ngày2026-10-27 và triển khai phase2, không hỏi lại. API hiện có xem API-CURRENT, không dùng bảng TARGET làm inventory runtime.
+
+## Phiên bản 2.0 — TASK-023 (2026-10-28)
+
+Owner Codex; VERIFIED LOCAL theo DEC-025/026, evidence tại06-testing: PHP79/690, Vitest23, browser4scenario, concurrency30Action/MySQL PASS. Phạm vi: shell/giao diện mới; dashboard dữ liệu thật theo role; chỉnh buổi riêng; catalog sửa/xóa; chọn môn/học kỳ cho lớp; self-leave; lịch sử audit điểm danh. Nghiệm thu qua backend isolation tests, frontend checks và browser teacher/student/mobile; fixture mục tiêu3teacher/90student, concurrency30 tại boundary được ghi rõ. Workload không phải giới hạn tài khoản. Quiz/feed/chat/report export theo các đợt2.1/2.2, giữ Q chặn. Không deploy/import/mail thật.

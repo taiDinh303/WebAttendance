@@ -176,6 +176,6 @@ final class AttendanceController extends Controller
             $query->whereHas('session', fn ($q) => $q->where('starts_at', '>=', $from)->where('starts_at', '<', $to));
         }
 
-        return ApiResponse::page($query->with('session')->orderByDesc('created_at')->orderBy('id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($record) => new AttendanceRecordResource($record));
+        return ApiResponse::page($query->with(['session', 'student'])->orderByDesc('created_at')->orderBy('id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($record) => new AttendanceRecordResource($record));
     }
 }

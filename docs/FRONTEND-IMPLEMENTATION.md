@@ -78,3 +78,11 @@ npm run build
 ```
 
 Đọc [evidence/react-validation](evidence/react-validation.md). Test browser cần HTTP fixture riêng: Laravel8001 --env=http-smoke, frontend5173 với API_PROXY_TARGET=http://127.0.0.1:8001; credentials synthetic nằm work/http-credentials.json ignored, không đưa vào bundle/evidence/ZIP. Không chạy các luồng ghi E2E vào dev/production hoặc source cũ. Sau test dừng fixture và chạy lại frontend với proxy mặc định8000.
+
+## AttendanceWeb2.0 — TASK-023 (2026-10-28)
+
+IMPLEMENTED: package private2.0.0, shell/sidebar xanh navy trên nền sáng, dashboard tập trung công việc theo vai trò và dùng GET /dashboard thay fetch dữ liệu rời. Teacher có queue duyệt/chấm/công bố; student có bài chưa nộp và điểm đã công bố; lịch7ngày, lớp active, counts không phụ thuộc preview. Menu mobile có nút đóng riêng/Escape, giữ focus trong menu và inert background khi mở.
+
+Đã bổ sung UI sửa buổi riêng với expectedVersion và giữ đúng timezone/giây; sửa/xóa môn và học kỳ; chọn môn/học kỳ phân trang khi tạo/sửa lớp; student leave bằng membershipVersion; audit timeline phân trang/lazy-load chỉ teacher và attendance dùng tên/giờ buổi. Đổi classId remount workspace để không mang mã mời/draft của lớp trước sang lớp khác. Các thao tác này thay phần “chưa UI” tương ứng trong snapshot phía trên.
+
+Quiz/chat/feed/comment/admin/export, báo cáo ma trận đầy đủ, offline sync/draft persistence, avatar và kênh notification ngoài in-app vẫn chưa triển khai trong2.0; theo đợt2.1/2.2 và Q chặn. Màu/ngôn ngữ theo DEC-025; tên thương hiệu/dark mode chưa được quyết định riêng. Không dùng version package để tuyên bố toàn sản phẩm hoàn tất.

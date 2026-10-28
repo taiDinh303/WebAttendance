@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Search, ArrowRight } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useRefresh, useResource } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
 import { ClassCard } from "../components/ClassCard";
+import { CatalogFields } from "../components/CatalogFields";
 import {
   AsyncForm,
   Field,
@@ -16,8 +17,9 @@ import {
 import { text } from "../../../domain/format";
 export default function ClassesPage() {
   const { user } = useSession();
+  const [params] = useSearchParams();
   const { page, search, setSearch, setPage } = usePage();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => params.get("create") === "1");
   const navigate = useNavigate();
   const refresh = useRefresh();
   const q = search.get("q") ?? "",
@@ -52,6 +54,8 @@ export default function ClassesPage() {
                   name: text(f, "name"),
                   description: text(f, "description") || null,
                   timezone: "Asia/Ho_Chi_Minh",
+                  courseId: text(f, "courseId") || null,
+                  semesterId: text(f, "semesterId") || null,
                 });
                 await refresh();
                 navigate("/app/classes/" + result.class.id, {
@@ -82,6 +86,7 @@ export default function ClassesPage() {
                     placeholder="Giới thiệu ngắn về lớp học…"
                   />
                 </Field>
+                <CatalogFields />
               </>
             ) : (
               <Field

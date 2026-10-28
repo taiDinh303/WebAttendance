@@ -15,6 +15,8 @@ import {
   ActionButton,
 } from "../../../shared/ui";
 import { dateTime, text, iso } from "../../../domain/format";
+import { SessionEditor } from "../components/SessionEditor";
+import type { Session } from "../../../domain/models";
 export default function CalendarPage() {
   return (
     <>
@@ -34,6 +36,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
     new Date().toISOString().slice(0, 7),
   );
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Session | null>(null);
   const [weekly, setWeekly] = useState(false);
   const [preview, setPreview] = useState<number | null>(null);
   const refresh = useRefresh();
@@ -200,6 +203,13 @@ export function CalendarContent({ classId }: { classId?: string }) {
         retry={query.refetch}
       />
       <div className="panel">
+        {editing ? (
+          <SessionEditor
+            key={editing.id + ":" + editing.version}
+            session={editing}
+            onClose={() => setEditing(null)}
+          />
+        ) : null}
         {query.data?.items.map((s) => (
           <article className="list-row calendar-row" key={s.id}>
             <div className="date-tile">
@@ -221,6 +231,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
             <Badge value={s.status} />
             {user?.role === "teacher" && s.status === "scheduled" ? (
               <div className="inline-actions">
+                <button
+                  className="button secondary small"
+                  onClick={() => setEditing(s)}
+                >
+                  Sửa buổi
+                </button>
                 <Link
                   className="button secondary small"
                   to={"/app/classes/" + s.classId + "/sessions/" + s.id + "/qr"}

@@ -45,6 +45,7 @@ test("teacher and student complete membership, submission retry, grading and QR 
   await expect(
     teacher.getByRole("heading", { name: className, exact: true }),
   ).toBeVisible();
+  await expect(teacher).toHaveURL(/\/app\/classes\/[^/?]+$/);
   const classUrl = teacher.url();
   const code = await teacher.locator(".invite-code code").innerText();
   await student.getByRole("link", { name: "Lớp học", exact: true }).click();
@@ -244,7 +245,9 @@ test("teacher and student complete membership, submission retry, grading and QR 
     .click();
   await expect(teacher.getByText("Đi muộn", { exact: true })).toBeVisible();
   await teacher.goto("/app");
-  await expect(teacher.getByText(className, { exact: true })).toBeVisible();
+  await expect(
+    teacher.getByRole("heading", { name: className, exact: true }),
+  ).toBeVisible();
   await expect(
     teacher.getByText("Đang tải dữ liệu…", { exact: true }),
   ).toHaveCount(0);
@@ -309,9 +312,13 @@ test("dashboard counters and notification read acknowledgments use the real cont
 }) => {
   await login(page, credentials.teacherA);
   const counters = page.locator(".stat-card strong");
-  for (let index = 0; index < 3; index++)
+  for (let index = 0; index < 4; index++)
     await expect(counters.nth(index)).not.toHaveText("—");
-  const before = Number(await counters.nth(2).innerText());
+  const unreadResponse = await page.request.get(
+    "/api/v1/notifications/unread-count",
+  );
+  expect(unreadResponse.ok()).toBe(true);
+  const before = (await unreadResponse.json()).data.unreadCount as number;
   await page
     .getByRole("link", { name: /^Thông báo/ })
     .first()
@@ -330,14 +337,17 @@ test("dashboard counters and notification read acknowledgments use the real cont
     expect((await acknowledged).status()).toBe(204);
   }
   await page.goto("/app");
-  for (let index = 0; index < 3; index++)
+  for (let index = 0; index < 4; index++)
     await expect(page.locator(".stat-card strong").nth(index)).not.toHaveText(
       "—",
     );
-  if (before > 0)
-    await expect(page.locator(".stat-card strong").nth(2)).toHaveText(
-      String(before - 1),
-    );
+  const afterResponse = await page.request.get(
+    "/api/v1/notifications/unread-count",
+  );
+  expect(afterResponse.ok()).toBe(true);
+  expect((await afterResponse.json()).data.unreadCount).toBe(
+    before > 0 ? before - 1 : 0,
+  );
   await expect(
     page.getByText("Đang tải dữ liệu…", { exact: true }),
   ).toHaveCount(0);

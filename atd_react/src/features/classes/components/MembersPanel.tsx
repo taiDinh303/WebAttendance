@@ -10,8 +10,10 @@ import {
 } from "../../../shared/ui";
 import { initials } from "../../../domain/format";
 export function MembersPanel({ classId }: { classId: string }) {
-  const [kind, setKind] = useState<"members" | "join-requests">("members");
-  const { page, setPage } = usePage();
+  const { page, setPage, search } = usePage();
+  const [kind, setKind] = useState<"members" | "join-requests">(() =>
+    search.get("queue") === "pending" ? "join-requests" : "members",
+  );
   const refresh = useRefresh();
   const query = useResource(["members", classId, kind, page], (s) =>
     classApi.members(classId, kind, page, s),

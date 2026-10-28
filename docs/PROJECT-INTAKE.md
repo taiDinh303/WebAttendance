@@ -68,3 +68,7 @@ Ngày 2026-10-26 chủ dự án giao code API và folder `atd_react` rỗng (DEC
 ## Cách ghi câu trả lời mới
 
 Ghi nguyên ý, ngày và nguồn; chuyển Q sang ANSWERED, thêm DEC mới nếu đổi hành vi; cập nhật RULE/API/TC/TASK liên quan. Không biến đề xuất kỹ thuật thành câu trả lời giả. Chưa có deadline/budget thì không cam kết ngày bàn giao hoặc plan hosting.
+
+## Phỏng vấn phiên bản 2.0 — 2026-10-28
+
+Chủ dự án giao làm theo đề xuất và xác nhận khoảng3giáo viên,90học sinh,30người điểm danh đồng thời (DEC-025/026). Đợt2.0 ưu tiên dashboard theo vai trò, giao diện mới Việt/sáng/xanh và hoàn thiện workspace/thao tác đang có API. Q-019 đã chốt phần ngôn ngữ/phong cách; brand/dark mode chưa chốt. Q-026 đã chốt workload, hosting/domain/ngân sách/thời hạn còn OPEN. Các Q-028/029/030 và Q-015/016 không có đáp án mới; hỏi trước module2.1/2.2 tương ứng.

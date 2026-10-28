@@ -11,8 +11,9 @@ import {
   Menu,
   Library,
   Clock3,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "../application/sessionContext";
 import { useResource } from "../application/queries";
 import { classApi } from "../infrastructure/classApi";
@@ -21,6 +22,50 @@ import { ActionButton } from "../shared/ui";
 export default function Shell() {
   const { user, logout } = useSession();
   const [menu, setMenu] = useState(false);
+  const [compact, setCompact] = useState(
+    () => window.matchMedia("(max-width: 760px)").matches,
+  );
+  const sidebar = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const update = (event: MediaQueryListEvent) => {
+      setCompact(event.matches);
+      if (!event.matches) setMenu(false);
+    };
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  useEffect(() => {
+    if (!menu || !compact) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const controls = () =>
+      Array.from(
+        sidebar.current?.querySelectorAll<HTMLElement>(
+          "a[href], button:not(:disabled)",
+        ) ?? [],
+      );
+    controls()[0]?.focus();
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenu(false);
+      if (event.key === "Tab") {
+        const items = controls();
+        const first = items[0],
+          last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
+        }
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => {
+      window.removeEventListener("keydown", close);
+      previous?.focus();
+    };
+  }, [menu, compact]);
   const unread = useResource(["unread"], (signal) => classApi.unread(signal), {
     refetchInterval: 60000,
   });
@@ -34,18 +79,41 @@ export default function Shell() {
     { to: "/app/settings", icon: Settings, label: "Cài đặt" },
   ];
   return (
-    <div className="workspace">
+    <div className="workspace workspace-v2">
       <a className="skip-link" href="#main">
         Bỏ qua đến nội dung
       </a>
-      <aside className={"sidebar " + (menu ? "is-open" : "")}>
+      {menu ? (
+        <button
+          className="menu-backdrop"
+          aria-label="Đóng menu từ nền"
+          onClick={() => setMenu(false)}
+        />
+      ) : null}
+      <aside
+        ref={sidebar}
+        id="workspace-navigation"
+        inert={compact && !menu}
+        role={compact && menu ? "dialog" : undefined}
+        aria-modal={compact && menu ? true : undefined}
+        aria-label="Menu chính"
+        className={"sidebar " + (menu ? "is-open" : "")}
+      >
+        <button
+          type="button"
+          className="sidebar-close"
+          aria-label="Đóng menu"
+          onClick={() => setMenu(false)}
+        >
+          <X size={20} />
+        </button>
         <Link to="/app" className="brand">
           <span className="brand-mark">
             <GraduationCap size={24} />
           </span>
           <span>
             attendance<span className="brand-dot">.</span>
-            <small>KHÔNG GIAN LỚP HỌC</small>
+            <small>CLASSROOM WORKSPACE · 2.0</small>
           </span>
         </Link>
         <div className="workspace-label">KHÔNG GIAN CỦA BẠN</div>
@@ -67,12 +135,12 @@ export default function Shell() {
               </NavLink>
             ))}
           {user.role === "teacher" ? (
-            <NavLink to="/app/catalog">
+            <NavLink to="/app/catalog" onClick={() => setMenu(false)}>
               <Library size={19} />
               Môn học & học kỳ
             </NavLink>
           ) : (
-            <NavLink to="/app/join-requests">
+            <NavLink to="/app/join-requests" onClick={() => setMenu(false)}>
               <Clock3 size={19} />
               Yêu cầu vào lớp
             </NavLink>
@@ -80,7 +148,10 @@ export default function Shell() {
         </nav>
         <div className="sidebar-note">
           <span className="mini-dot" />
-          Học tập, cùng kết nối.<p>Một nơi cho những giờ học tốt hơn.</p>
+          {user.role === "teacher"
+            ? "Dạy học, có tổ chức."
+            : "Học tập, có định hướng."}
+          <p>Lịch học, bài tập và kết quả trong một không gian.</p>
         </div>
         <div className="sidebar-account">
           <span className="avatar">{initials(user.displayName)}</span>
@@ -98,11 +169,13 @@ export default function Shell() {
           </ActionButton>
         </div>
       </aside>
-      <div className="workspace-body">
+      <div className="workspace-body" inert={compact && menu}>
         <header className="topbar">
           <button
             className="icon-button mobile-menu"
             aria-label="Mở menu"
+            aria-expanded={menu}
+            aria-controls="workspace-navigation"
             onClick={() => setMenu(!menu)}
           >
             <Menu />
@@ -114,6 +187,7 @@ export default function Shell() {
             </strong>
           </span>
           <div className="topbar-actions">
+            <span className="version-pill">Workspace 2.0</span>
             <span className="today">
               {new Intl.DateTimeFormat("vi-VN", {
                 weekday: "short",

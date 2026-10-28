@@ -63,3 +63,7 @@ Không tạo file 13/Figma hoặc các chương thanh toán/AI chỉ để đủ
 - Mỗi task ghi: ID, owner, trạng thái, evidence, ngày, việc còn lại. Chỉ đánh VERIFIED sau test phù hợp; build không chứng minh isolation hoặc realtime.
 - Quyết định mới cập nhật intake + DEC + file chủ quản + task/TC liên quan + worklog trong cùng thay đổi.
 - Không kế thừa quyết định sản phẩm, secrets, hosting, quyền push hoặc quy tắc docs đóng băng từ hai repo tham khảo. Chỉ học cách tổ chức, phân tầng và ghi evidence.
+
+## Cập nhật2.0 — 2026-10-28
+
+TASK-023 theo DEC-025/026: dashboard theo role, shell mới, UI catalog/class/schedule/self-leave/attendance audit đã triển khai và kiểm chứng local. Full backend79tests/690assertions, frontend23unit,4browser scenario;30process check-in cùng window PASS tại tầng Laravel/MySQL. Chi tiết và giới hạn tại [06-testing](06-testing.md); source phiên bản frontend2.0.0 không đồng nghĩa quiz/chat/feed/export/production đã hoàn tất.

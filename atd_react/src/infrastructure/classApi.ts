@@ -6,8 +6,11 @@ import type {
   Session,
   Notice,
   CatalogItem,
+  Dashboard,
 } from "../domain/models";
 export const classApi = {
+  dashboard: (signal?: AbortSignal) =>
+    request<Dashboard>("/dashboard", { signal }),
   list: (filter: Record<string, string | number> = {}, signal?: AbortSignal) =>
     request<Page<Classroom>>("/classes" + params(filter), { signal }),
   get: (id: string, signal?: AbortSignal) =>
@@ -89,6 +92,16 @@ export const classApi = {
     request("/notifications/" + id + "/read", { method: "PUT" }),
   catalog: (kind: string, pageNumber: number, signal?: AbortSignal) =>
     request<Page<CatalogItem>>("/" + kind + params({ pageNumber }), { signal }),
-  saveCatalog: (kind: string, body: unknown) =>
-    request("/" + kind, { method: "POST", body }),
+  catalogItem: (kind: string, id: string, signal?: AbortSignal) =>
+    request<CatalogItem>("/" + kind + "/" + id, { signal }),
+  saveCatalog: (kind: string, body: unknown, id?: string) =>
+    request("/" + kind + (id ? "/" + id : ""), {
+      method: id ? "PUT" : "POST",
+      body,
+    }),
+  deleteCatalog: (kind: string, item: CatalogItem) =>
+    request("/" + kind + "/" + item.id, {
+      method: "DELETE",
+      body: { expectedVersion: item.version },
+    }),
 };

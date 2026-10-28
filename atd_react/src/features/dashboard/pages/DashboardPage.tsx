@@ -3,190 +3,354 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
+  ClipboardCheck,
+  Clock3,
   Plus,
   ScanLine,
+  Users,
+  CheckCircle2,
 } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { useResource } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
-import { PageHeader, QueryState, Empty, Badge } from "../../../shared/ui";
+import { PageHeader, QueryState, Empty } from "../../../shared/ui";
 import { ClassCard } from "../../classes/components/ClassCard";
 import { dateTime } from "../../../domain/format";
+
 export default function DashboardPage() {
   const { user } = useSession();
-  const classes = useResource(["classes", "dashboard"], (s) =>
-    classApi.list({ pageSize: 6, status: "active" }, s),
+  const query = useResource(
+    ["dashboard"],
+    (signal) => classApi.dashboard(signal),
+    { refetchInterval: 60000 },
   );
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const from = start.toISOString(),
-    to = new Date(start.getTime() + 7 * 86400000).toISOString();
-  const schedule = useResource(["calendar", from, to], (s) =>
-    classApi.sessions({ from, to, pageSize: 5, status: "scheduled" }, s),
-  );
-  const unread = useResource(["unread"], (s) => classApi.unread(s));
+  const teacher = user?.role === "teacher";
+  const data = query.data;
+  const summary = data?.summary;
+  const metrics = [
+    {
+      label: "Lớp đang hoạt động",
+      value: summary?.activeClasses,
+      icon: BookOpen,
+      color: "blue",
+      to: "/app/classes",
+    },
+    {
+      label: "Buổi học hôm nay",
+      value: summary?.todaySessions,
+      icon: CalendarDays,
+      color: "teal",
+      to: "/app/calendar",
+    },
+    {
+      label: teacher ? "Yêu cầu chờ duyệt" : "Bài tập chưa nộp",
+      value: teacher ? summary?.pendingRequests : summary?.pendingAssignments,
+      icon: teacher ? Users : Clock3,
+      color: "amber",
+      to: "#priority",
+    },
+    {
+      label: teacher ? "Bài chờ chấm / công bố" : "Bài đã có điểm",
+      value: teacher ? summary?.pendingReviews : summary?.publishedGrades,
+      icon: ClipboardCheck,
+      color: "blue",
+      to: "#priority",
+    },
+  ];
   return (
     <>
       <PageHeader
-        eyebrow="HÔM NAY, CÙNG TIẾN BỘ"
+        eyebrow={teacher ? "KHÔNG GIAN GIẢNG DẠY" : "HÀNH TRÌNH HỌC TẬP"}
         title={
-          "Xin chào, " + (user?.displayName.split(" ").at(-1) ?? "bạn") + "!"
+          "Chào " +
+          (user?.displayName.split(" ").at(-1) ?? "bạn") +
+          ", hôm nay thế nào?"
         }
-        description="Mọi thứ cho lớp học, trong một không gian."
+        description={
+          teacher
+            ? "Nắm bắt lớp học. Tập trung vào những việc cần bạn."
+            : "Biết việc cần làm. Chủ động cho từng buổi học."
+        }
         action={
-          <Link className="button" to="/app/classes">
-            <Plus size={18} />
-            {user?.role === "teacher" ? "Quản lý lớp học" : "Tham gia lớp học"}
+          <Link
+            className="button"
+            to={teacher ? "/app/classes?create=1" : "/app/check-in"}
+          >
+            {teacher ? <Plus size={18} /> : <ScanLine size={18} />}
+            {teacher ? "Tạo lớp học" : "Điểm danh QR"}
           </Link>
         }
       />
-      <section className="welcome-banner">
-        <div>
-          <span className="label-chip">SẴN SÀNG CHO BUỔI HỌC MỚI</span>
-          <h2>
-            Mỗi buổi học.
-            <br />
-            Một bước tiến mới.
-          </h2>
-          <p>Lịch học, bài tập và điểm số — luôn ở trong tầm tay.</p>
-          <Link to="/app/calendar" className="button white">
-            Xem lịch học <ArrowRight size={17} />
+      <QueryState
+        pending={query.isPending}
+        error={query.error}
+        retry={query.refetch}
+      />
+      <div className="stats-grid v2-metrics">
+        {metrics.map((metric) => (
+          <Link to={metric.to} className="stat-card" key={metric.label}>
+            <span className={"stat-icon " + metric.color}>
+              <metric.icon size={21} />
+            </span>
+            <div>
+              <p>{metric.label}</p>
+              <strong>{metric.value ?? "—"}</strong>
+            </div>
+            <ArrowRight size={16} />
           </Link>
-        </div>
-        <div className="banner-art" aria-hidden="true">
-          <span className="art-ring" />
-          <span className="art-book">
-            <BookOpen size={66} />
-          </span>
-          <span className="art-calendar">
-            <CalendarDays size={32} />
-          </span>
-          <span className="art-spark">✦</span>
-          <span className="art-line" />
-        </div>
-      </section>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <span className="stat-icon blue">
-            <BookOpen />
-          </span>
-          <div>
-            <p>Lớp đang hoạt động</p>
-            <strong>{classes.data?.totalItems ?? "—"}</strong>
-          </div>
-          <Link to="/app/classes" aria-label="Xem lớp học">
-            <ArrowRight size={18} />
-          </Link>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon teal">
-            <CalendarDays />
-          </span>
-          <div>
-            <p>Buổi học trong 7 ngày</p>
-            <strong>{schedule.data?.totalItems ?? "—"}</strong>
-          </div>
-          <Link to="/app/calendar" aria-label="Xem lịch học">
-            <ArrowRight size={18} />
-          </Link>
-        </div>
-        <div className="stat-card">
-          <span className="stat-icon amber">
-            <ScanLine />
-          </span>
-          <div>
-            <p>Thông báo chưa đọc</p>
-            <strong>{unread.data?.unreadCount ?? "—"}</strong>
-          </div>
-          <Link to="/app/notifications" aria-label="Xem thông báo">
-            <ArrowRight size={18} />
-          </Link>
-        </div>
+        ))}
       </div>
-      <div className="dashboard-grid">
-        <section>
-          <div className="section-heading">
-            <h2>
-              Lớp học của bạn{" "}
-              <span className="count-pill">
-                {classes.data?.totalItems ?? 0}
-              </span>
-            </h2>
-            <Link to="/app/classes">
-              Tất cả lớp học <ArrowRight size={15} />
-            </Link>
-          </div>
-          <QueryState
-            pending={classes.isPending}
-            error={classes.error}
-            retry={classes.refetch}
-          />
-          {classes.data?.items.length ? (
-            <div className="class-grid compact">
-              {classes.data.items.map((c, i) => (
-                <ClassCard key={c.id} classroom={c} index={i} />
-              ))}
-            </div>
-          ) : classes.isSuccess ? (
-            <div className="panel">
-              <Empty
-                title="Bắt đầu từ một lớp học"
-                description={
-                  user?.role === "teacher"
-                    ? "Tạo lớp đầu tiên và mời học sinh bằng mã lớp."
-                    : "Nhập mã lớp từ giáo viên để gửi yêu cầu tham gia."
-                }
-              >
-                <Link className="button secondary" to="/app/classes">
-                  Đến lớp học <ArrowRight size={15} />
-                </Link>
-              </Empty>
-            </div>
-          ) : null}
-        </section>
-        <aside>
-          <div className="section-heading">
-            <h2>Lịch trong 7 ngày</h2>
-            <CalendarDays size={18} />
-          </div>
-          <div className="panel upcoming">
-            <QueryState
-              pending={schedule.isPending}
-              error={schedule.error}
-              retry={schedule.refetch}
-            />
-            {schedule.data?.items.length ? (
-              schedule.data.items.map((s) => (
+      {data ? (
+        <>
+          <div className="v2-work-grid">
+            <section id="priority" className="panel priority-panel">
+              <div className="section-heading">
+                <div>
+                  <span className="eyebrow">ƯU TIÊN CỦA BẠN</span>
+                  <h2>
+                    {teacher
+                      ? "Bàn làm việc hôm nay"
+                      : "Việc học cần hoàn thành"}
+                  </h2>
+                </div>
+                <span className="live-label">
+                  <span /> Dữ liệu lớp học
+                </span>
+              </div>
+              {teacher ? (
+                <>
+                  <h3 className="queue-title">
+                    Yêu cầu vào lớp{" "}
+                    <span className="count-pill">
+                      {summary?.pendingRequests}
+                    </span>
+                  </h3>
+                  {data.requests?.map((item) => (
+                    <Link
+                      className="work-item"
+                      key={item.classId}
+                      to={
+                        "/app/classes/" +
+                        item.classId +
+                        "/members?queue=pending"
+                      }
+                    >
+                      <span className="work-icon amber">
+                        <Users size={19} />
+                      </span>
+                      <div>
+                        <strong>{item.className}</strong>
+                        <p>{item.pendingCount} học sinh đang chờ bạn duyệt</p>
+                      </div>
+                      <ArrowRight size={17} />
+                    </Link>
+                  ))}
+                  {!data.requests?.length ? (
+                    <p className="queue-clear">
+                      <CheckCircle2 size={17} /> Không có yêu cầu chờ duyệt.
+                    </p>
+                  ) : null}
+                  <h3 className="queue-title">
+                    Chấm bài & công bố điểm{" "}
+                    <span className="count-pill">
+                      {summary?.pendingReviews}
+                    </span>
+                  </h3>
+                  {data.reviews?.map((item) => (
+                    <Link
+                      className="work-item"
+                      key={item.submissionId}
+                      to={"/app/submissions/" + item.submissionId}
+                    >
+                      <span className="work-icon blue">
+                        <ClipboardCheck size={19} />
+                      </span>
+                      <div>
+                        <strong>{item.title}</strong>
+                        <p>Bài nộp mới hoặc điểm đang ở bản nháp</p>
+                      </div>
+                      <ArrowRight size={17} />
+                    </Link>
+                  ))}
+                  {!data.reviews?.length ? (
+                    <p className="queue-clear">
+                      <CheckCircle2 size={17} /> Các bài nộp hiện tại đã được xử
+                      lý.
+                    </p>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  {data.assignments?.map((item) => {
+                    const overdue =
+                      item.dueAt !== null &&
+                      new Date(item.dueAt) < new Date(data.serverTime);
+                    return (
+                      <Link
+                        className="work-item"
+                        key={item.id}
+                        to={
+                          "/app/classes/" +
+                          item.classId +
+                          "/assignments/" +
+                          item.id
+                        }
+                      >
+                        <span
+                          className={
+                            "work-icon " + (overdue ? "amber" : "blue")
+                          }
+                        >
+                          <BookOpen size={19} />
+                        </span>
+                        <div>
+                          <strong>{item.title}</strong>
+                          <p>{item.className}</p>
+                          <small
+                            className={overdue ? "deadline-overdue" : "muted"}
+                          >
+                            {item.dueAt
+                              ? (overdue ? "Đã quá hạn · " : "Hạn nộp · ") +
+                                dateTime(item.dueAt)
+                              : "Chưa đặt hạn nộp"}
+                            {overdue && !item.allowLate
+                              ? " · Không nhận nộp muộn"
+                              : ""}
+                          </small>
+                        </div>
+                        <ArrowRight size={17} />
+                      </Link>
+                    );
+                  })}
+                  {!data.assignments?.length ? (
+                    <Empty
+                      title="Bạn đã theo kịp bài tập"
+                      description="Bài tập chưa nộp trong các lớp đang học sẽ xuất hiện ở đây."
+                    />
+                  ) : null}
+                  <h3 className="queue-title">Kết quả mới công bố</h3>
+                  {data.grades?.map((item) => (
+                    <Link
+                      className="work-item"
+                      key={item.submissionId}
+                      to={"/app/submissions/" + item.submissionId}
+                    >
+                      <span className="score-token">
+                        {item.score}
+                        <small>/10</small>
+                      </span>
+                      <div>
+                        <strong>{item.title}</strong>
+                        <p>{dateTime(item.publishedAt)}</p>
+                      </div>
+                      <ArrowRight size={17} />
+                    </Link>
+                  ))}
+                  {!data.grades?.length ? (
+                    <p className="muted">
+                      Điểm sẽ hiển thị khi giáo viên công bố.
+                    </p>
+                  ) : null}
+                </>
+              )}
+              <p className="muted queue-caption">
+                Hiển thị tối đa 5 mục mỗi nhóm. Mở lớp học để xem toàn bộ.
+              </p>
+            </section>
+            <aside className="panel agenda-panel">
+              <div className="section-heading">
+                <div>
+                  <span className="eyebrow">7 NGÀY TỚI</span>
+                  <h2>Lịch trình của bạn</h2>
+                </div>
+                <CalendarDays size={21} />
+              </div>
+              {data.sessions.map((session) => (
                 <Link
-                  key={s.id}
-                  className="upcoming-row"
-                  to={"/app/classes/" + s.classId + "/schedule"}
+                  className="agenda-item"
+                  key={session.id}
+                  to={
+                    teacher
+                      ? "/app/classes/" +
+                        session.classId +
+                        "/sessions/" +
+                        session.id +
+                        "/qr"
+                      : "/app/classes/" + session.classId + "/schedule"
+                  }
                 >
-                  <span className="schedule-dot" />
+                  <span className="agenda-date">
+                    <strong>{new Date(session.startsAt).getDate()}</strong>
+                    <small>TH{new Date(session.startsAt).getMonth() + 1}</small>
+                  </span>
                   <div>
-                    <strong>{s.title || "Buổi học"}</strong>
-                    <p>{dateTime(s.startsAt)}</p>
-                    <Badge value={s.status} />
+                    <strong>{session.title || "Buổi học"}</strong>
+                    <p>{session.className}</p>
+                    <small>
+                      {dateTime(session.startsAt)}
+                      {session.room ? " · " + session.room : ""}
+                    </small>
                   </div>
                 </Link>
-              ))
-            ) : schedule.isSuccess ? (
-              <Empty
-                title="Lịch đang trống"
-                description="Các buổi học trong 7 ngày tới sẽ xuất hiện ở đây."
-              />
-            ) : null}
-            <Link to="/app/calendar" className="text-link">
-              Mở lịch học <ArrowRight size={15} />
-            </Link>
+              ))}
+              {!data.sessions.length ? (
+                <Empty
+                  title="Chưa có lịch sắp tới"
+                  description="Các buổi đã lên lịch sẽ xuất hiện tại đây."
+                />
+              ) : null}
+              <Link className="button secondary agenda-link" to="/app/calendar">
+                Mở lịch học <ArrowRight size={16} />
+              </Link>
+              <p className="muted queue-caption">
+                Giờ hiển thị theo thiết bị của bạn.
+              </p>
+            </aside>
           </div>
-          <div className="tip-card">
-            <span className="eyebrow">MỘT CHÚT NHẮC NHỞ</span>
-            <h3>Đều đặn tạo nên khác biệt.</h3>
-            <p>Ghé thăm lớp học mỗi ngày để theo dõi lịch và bài tập mới.</p>
-          </div>
-        </aside>
-      </div>
+          <section className="v2-classes">
+            <div className="section-heading">
+              <div>
+                <span className="eyebrow">TIẾP TỤC TỪ ĐÂY</span>
+                <h2>
+                  Lớp học của bạn{" "}
+                  <span className="count-pill">{summary?.activeClasses}</span>
+                </h2>
+              </div>
+              <Link className="text-link" to="/app/classes">
+                Xem tất cả <ArrowRight size={16} />
+              </Link>
+            </div>
+            {data.classes.length ? (
+              <div className="class-grid">
+                {data.classes.map((classroom, index) => (
+                  <ClassCard
+                    key={classroom.id}
+                    classroom={classroom}
+                    index={index}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="panel">
+                <Empty
+                  title={
+                    teacher ? "Tạo lớp học đầu tiên" : "Bắt đầu với một lớp học"
+                  }
+                  description={
+                    teacher
+                      ? "Tạo lớp và gửi mã mời cho học sinh."
+                      : "Nhập mã từ giáo viên, sau đó chờ duyệt tham gia."
+                  }
+                >
+                  <Link className="button secondary" to="/app/classes">
+                    {teacher ? "Quản lý lớp học" : "Tham gia lớp"}
+                  </Link>
+                </Empty>
+              </div>
+            )}
+          </section>
+        </>
+      ) : null}
     </>
   );
 }

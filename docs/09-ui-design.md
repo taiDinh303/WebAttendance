@@ -1,6 +1,6 @@
 # 09 — Đặc tả giao diện và trạng thái
 
-> 2026-10-26 | PROPOSED UI | React TS/Vite CONFIRMED. React baseline đã triển khai theo DEC-022/023; hiện trạng/evidence ở FRONTEND-IMPLEMENTATION. UI tiếng Việt/sáng và thương hiệu Attendance là lựa chọn triển khai tạm thời, Q-019 chưa được chủ dự án chốt riêng. Q-019 chốt brand/ngôn ngữ.
+> 2026-10-28 | CURRENT2.0 + TARGET | DEC-025 chốt tiếng Việt, nền sáng/xanh và ưu tiên dashboard/workspace. Shell2.0 đã triển khai, trạng thái và evidence ở FRONTEND-IMPLEMENTATION/06-testing. Brand chính thức và dark mode còn OPEN. Các màn hình tương lai bên dưới vẫn là TARGET, không phải inventory tính năng đã chạy.
 
 ## Hướng thiết kế
 

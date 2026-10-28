@@ -74,3 +74,23 @@ VERIFIED LOCAL trên checkout `D:\PHP\WebAttendance`: PHP8.4.27, Laravel13.38.0,
 Chạy lại từ root: `./scripts/artisan.ps1 test --compact` (cần `.env.testing` riêng); `./scripts/react.ps1 test`, `./scripts/react.ps1 typecheck`, `./scripts/react.ps1 lint`, `./scripts/react.ps1 build`. Unit độc lập: `./scripts/php.ps1 attendance_api/vendor/bin/phpunit -c attendance_api/phpunit.xml --testsuite Unit`.
 
 Lượt targeted ban đầu38ca có1error vì fixture AttendanceWindow constructor bỏ ID guarded; đã sửa fixture bằng forceFill trong test, QR13/13 rồi full74/74PASS. Đây là lỗi fixture, không thay assertion để che lỗi production. Test mới xác minh hành vi, dùng fake gateway/time có kiểm soát theo testing-best-practices của Laravel Boost. Chưa chạy lại browser E2E, SMTP/ClamAV thật, load/concurrency nhiều process, production; không đo coverage phần trăm. Test PASS là bằng chứng cho ca đã kiểm, không chứng minh mọi đầu vào có thể đều đúng.
+
+## TASK-023 — AttendanceWeb2.0, VERIFIED LOCAL 2026-10-28
+
+| Kiểm tra | Kết quả và evidence |
+| --- | --- |
+| TC-024 — Dashboard theo role, REQ-016/DEC-025 | 5Feature tests/62assertions: auth/verified, owner isolation, pending membership/draft redaction, own publication pointer, leave revocation, count không bị preview limit, timezone và cancelled/finished sessions |
+| Full PHPUnit | 79tests/690assertions,0fail/0error; [JUnit](evidence/phpunit-v2-full.xml). Bao gồm74test baseline và5Dashboard, không cộng các lượt chạy lặp |
+| Full Vitest | 23testsPASS; [JSON](evidence/vitest-v2-full.json). Thêm3unit cho local datetime khi sửa buổi: timezone/qua năm, roundtrip và giữ phần giây |
+| Browser Edge + real API/MySQL | 4scenarioPASS,0unexpected/0skipped: [report](evidence/react-v2-e2e.json). Luồng cũ join/approve/private submission/lostACK retry/grade publish/QR/manual; auth mobile; counter+notification204; thao tác2.0 catalogcreate/update/delete, course/semester association, session edit, audit reason, mobile menu và self-leave/404 |
+| Regression UI phân trang | 1scenario mớiPASS sau lượt full4: [report](evidence/react-v2-pagination-e2e.json). Tạo21môn qua API, đi trang2trong form tạo lớp đã nhập tên; xác nhận0POSTcreate và giữ URL/nội dung form. Pagination dùng type=button, tránh implicit submit |
+| TC-025 — Workload DEC-026 | [Kết quả](evidence/attendance-concurrency-v2.json): fixture3teacher/90student/3class,30PHPprocess có barrier check-in cùng window. PASS30record/30student,0duplicate; mỗi worker replay cùng token trả cùng record/created=false. Start spread225.84ms; p95check-in+replay2012.07ms, max2013.85ms trên máy local của lượt này |
+| Build/lint/typecheck/format/contract | React build/typecheck/lintPASS; Pint dirtyPASS và format script riêng; Composer validate strictPASS; OpenAPI default export80operations và route discoveryPASS |
+
+Cách chạy: root `./scripts/artisan.ps1 test --compact`; `./scripts/react.ps1 test`; `./scripts/verify-react.ps1`. E2E cần API8001 với `--env=http-smoke`, Vite5173 dùng API_PROXY_TARGET=http://127.0.0.1:8001, và fixture từ scripts/create-e2e-fixture.php. Concurrency: `./scripts/php.ps1 scripts/verify-attendance-concurrency.php`; script từ chối ngoài attendance_http_test/http-smoke/array mail, tạo dữ liệu synthetic mới mỗi lần, không dùng production hoặc dump. Runtime/PHP/MySQL credentials và tokens/barrier files chỉ trong .tools/work/.env* ignored.
+
+Phạm vi TC-025 là Laravel Action + transaction/lock MySQL thực với30process, chưa qua cookie/CSRF/rate middleware của30HTTPclient đồng thời. p95 gồm cả lần check-in và replay, loại thời gian bootstrap trước barrier. Không dùng kết quả này làm production HTTP capacity/SLA hoặc coi3/90là giới hạn tài khoản. Mail thật/ClamAV daemon/hosting/backup restore/camera vật lý vẫn chưa kiểm.
+
+Các lượt phát hiện và sửa: fixture dashboard thiếu/nhầm author_id, allow_late/allow_resubmit/is_late đã sửa theo schema; browser phát hiện test lấy classUrl từ trang list trước khi navigation xong và mobile overlay không có điểm bấm đóng ổn định, đã chờ URL đúng và bổ sung nút đóng trong sidebar. Không thay assertion quyền pending/leave hoặc nới timeout để che lỗi. Menu mobile giữ focus/Escape, inert sidebar đóng/background mở. Ảnh sau khi đóng menu cần chờ transition rời viewport trước chụp.
+
+Ảnh UI dùng tài khoản/dữ liệu synthetic: [teacher desktop](evidence/react-v2-dashboard-teacher.png), [student mobile](evidence/react-v2-dashboard-student-mobile.png), [class mobile](evidence/react-v2-class-mobile.png). Không dùng ảnh màn hình để thay bằng chứng API isolation hoặc concurrency.

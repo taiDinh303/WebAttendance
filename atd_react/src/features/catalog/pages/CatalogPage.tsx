@@ -9,11 +9,15 @@ import {
   QueryState,
   Empty,
   Pagination,
+  ActionButton,
 } from "../../../shared/ui";
 import { text } from "../../../domain/format";
+import type { CatalogItem } from "../../../domain/models";
 export default function CatalogPage() {
   const { user } = useSession();
   const [kind, setKind] = useState("courses");
+  const [editing, setEditing] = useState<CatalogItem | null>(null);
+  const [formVersion, setFormVersion] = useState(0);
   const { page, setPage } = usePage();
   const refresh = useRefresh();
   const query = useResource(
@@ -34,6 +38,7 @@ export default function CatalogPage() {
           className={kind === "courses" ? "active" : ""}
           onClick={() => {
             setKind("courses");
+            setEditing(null);
             setPage(1);
           }}
         >
@@ -43,6 +48,7 @@ export default function CatalogPage() {
           className={kind === "semesters" ? "active" : ""}
           onClick={() => {
             setKind("semesters");
+            setEditing(null);
             setPage(1);
           }}
         >
@@ -59,11 +65,40 @@ export default function CatalogPage() {
           <div className="panel">
             {query.data?.items.map((item) => (
               <div className="list-row" key={item.id}>
-                <div>
+                <div className="grow">
                   <h3>{item.name}</h3>
                   <small>
-                    {item.code ?? item.startDate + " → " + item.endDate}
+                    {kind === "courses"
+                      ? item.code || "Chưa đặt mã môn"
+                      : item.startDate + " → " + item.endDate}
                   </small>
+                </div>
+                <div className="inline-actions">
+                  <button
+                    type="button"
+                    className="button secondary small"
+                    onClick={() => setEditing(item)}
+                  >
+                    Sửa {item.name}
+                  </button>
+                  <ActionButton
+                    className="button ghost small"
+                    action={async () => {
+                      if (
+                        !window.confirm(
+                          "Xóa " +
+                            item.name +
+                            "? Danh mục đang được lớp sử dụng sẽ không thể xóa.",
+                        )
+                      )
+                        return;
+                      await classApi.deleteCatalog(kind, item);
+                      if (editing?.id === item.id) setEditing(null);
+                      await refresh();
+                    }}
+                  >
+                    Xóa {item.name}
+                  </ActionButton>
                 </div>
               </div>
             ))}
@@ -74,43 +109,91 @@ export default function CatalogPage() {
           <Pagination data={query.data} onPage={setPage} />
         </section>
         <section className="panel editor-panel">
-          <h2>Thêm {kind === "courses" ? "môn học" : "học kỳ"}</h2>
+          <h2>
+            {editing ? "Sửa " : "Thêm "}
+            {kind === "courses" ? "môn học" : "học kỳ"}
+          </h2>
           <AsyncForm
-            key={kind}
-            success="Đã tạo danh mục."
+            key={kind + (editing?.id ?? "new") + formVersion}
             onSubmit={async (f) => {
               await classApi.saveCatalog(
                 kind,
-                kind === "courses"
-                  ? { name: text(f, "name"), code: text(f, "code") || null }
-                  : {
-                      name: text(f, "name"),
-                      startDate: text(f, "startDate"),
-                      endDate: text(f, "endDate"),
-                      isActive: true,
-                    },
+                {
+                  ...(kind === "courses"
+                    ? { name: text(f, "name"), code: text(f, "code") || null }
+                    : {
+                        name: text(f, "name"),
+                        startDate: text(f, "startDate"),
+                        endDate: text(f, "endDate"),
+                        isActive: f.has("isActive"),
+                      }),
+                  ...(editing ? { expectedVersion: editing.version } : {}),
+                },
+                editing?.id,
               );
               await refresh();
+              setEditing(null);
+              setFormVersion((version) => version + 1);
             }}
           >
             <Field label="Tên">
-              <input name="name" required maxLength={160} />
+              <input
+                name="name"
+                required
+                maxLength={120}
+                defaultValue={editing?.name}
+              />
             </Field>
             {kind === "courses" ? (
               <Field label="Mã môn (không bắt buộc)">
-                <input name="code" maxLength={30} />
+                <input
+                  name="code"
+                  maxLength={50}
+                  defaultValue={editing?.code ?? ""}
+                />
               </Field>
             ) : (
               <>
                 <Field label="Ngày bắt đầu">
-                  <input name="startDate" type="date" required />
+                  <input
+                    name="startDate"
+                    type="date"
+                    required
+                    defaultValue={editing?.startDate}
+                  />
                 </Field>
                 <Field label="Ngày kết thúc">
-                  <input name="endDate" type="date" required />
+                  <input
+                    name="endDate"
+                    type="date"
+                    required
+                    defaultValue={editing?.endDate}
+                  />
                 </Field>
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    name="isActive"
+                    defaultChecked={editing?.isActive ?? true}
+                  />
+                  Học kỳ đang hoạt động
+                </label>
               </>
             )}
-            <button className="button">Thêm mới</button>
+            <div className="inline-actions">
+              <button className="button">
+                {editing ? "Lưu danh mục" : "Thêm mới"}
+              </button>
+              {editing ? (
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => setEditing(null)}
+                >
+                  Hủy sửa
+                </button>
+              ) : null}
+            </div>
           </AsyncForm>
         </section>
       </div>

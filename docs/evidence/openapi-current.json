@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8000/api"
+            "url": "http://127.0.0.1:8001/api"
         }
     ],
     "security": [
@@ -5161,7 +5161,17 @@
                                             "const": "OK"
                                         },
                                         "data": {
-                                            "$ref": "#/components/schemas/ClassroomResource"
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/ClassroomResource"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "required": [
+                                                        "membershipVersion"
+                                                    ]
+                                                }
+                                            ]
                                         },
                                         "traceId": {
                                             "type": "string"
@@ -7251,6 +7261,391 @@
                 ]
             }
         },
+        "/v1/dashboard": {
+            "get": {
+                "operationId": "dashboard.show",
+                "tags": [
+                    "Dashboard"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string",
+                                            "const": "SUCCESS"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "OK"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "serverTime": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "timezone": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                },
+                                                "classes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "timezone": {
+                                                                "type": "string"
+                                                            },
+                                                            "status": {
+                                                                "type": "string"
+                                                            },
+                                                            "version": {
+                                                                "type": "integer"
+                                                            },
+                                                            "courseId": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "semesterId": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "description",
+                                                            "timezone",
+                                                            "status",
+                                                            "version",
+                                                            "courseId",
+                                                            "semesterId"
+                                                        ]
+                                                    }
+                                                },
+                                                "sessions": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "classId": {
+                                                                "type": "string"
+                                                            },
+                                                            "className": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "startsAt": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "endsAt": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "room": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "status": {
+                                                                "type": "string"
+                                                            },
+                                                            "version": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "classId",
+                                                            "className",
+                                                            "title",
+                                                            "startsAt",
+                                                            "endsAt",
+                                                            "room",
+                                                            "status",
+                                                            "version"
+                                                        ]
+                                                    }
+                                                },
+                                                "requests": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "reviews": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "assignments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "classId": {
+                                                                "type": "string"
+                                                            },
+                                                            "className": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "dueAt": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "allowLate": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "classId",
+                                                            "className",
+                                                            "title",
+                                                            "dueAt",
+                                                            "allowLate"
+                                                        ]
+                                                    }
+                                                },
+                                                "grades": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "submissionId": {
+                                                                "type": "string"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "score": {
+                                                                "type": "number"
+                                                            },
+                                                            "publishedAt": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "submissionId",
+                                                            "title",
+                                                            "score",
+                                                            "publishedAt"
+                                                        ]
+                                                    }
+                                                },
+                                                "summary": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "activeClasses": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "todaySessions": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "upcomingSessions": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "unreadCount": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "pendingRequests": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "pendingReviews": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "pendingAssignments": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        },
+                                                        "publishedGrades": {
+                                                            "type": "integer",
+                                                            "minimum": 0
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "activeClasses",
+                                                        "todaySessions",
+                                                        "upcomingSessions",
+                                                        "unreadCount",
+                                                        "pendingRequests",
+                                                        "pendingReviews",
+                                                        "pendingAssignments",
+                                                        "publishedGrades"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "serverTime",
+                                                "timezone",
+                                                "role",
+                                                "classes",
+                                                "sessions",
+                                                "requests",
+                                                "reviews",
+                                                "assignments",
+                                                "grades",
+                                                "summary"
+                                            ]
+                                        },
+                                        "traceId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "data",
+                                        "traceId"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "API error envelope; see docs/15-api-contract.md for codes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "traceId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "traceId"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "API error envelope; see docs/15-api-contract.md for codes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "traceId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "traceId"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "API error envelope; see docs/15-api-contract.md for codes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "traceId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "code",
+                                        "message",
+                                        "traceId"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sessionCookie": []
+                    }
+                ]
+            }
+        },
         "/v1/join-requests": {
             "post": {
                 "operationId": "enrollment.join",
@@ -8547,7 +8942,7 @@
         },
         "/v1/classes/{classroom}/join-requests/{membershipId}/approve": {
             "post": {
-                "operationId": "v1.enrollment.ownerChange_71",
+                "operationId": "v1.enrollment.ownerChange_72",
                 "tags": [
                     "Enrollment"
                 ],
@@ -8793,7 +9188,7 @@
         },
         "/v1/classes/{classroom}/join-requests/{membershipId}/reject": {
             "post": {
-                "operationId": "v1.enrollment.ownerChange_72",
+                "operationId": "v1.enrollment.ownerChange_73",
                 "tags": [
                     "Enrollment"
                 ],
@@ -9039,7 +9434,7 @@
         },
         "/v1/classes/{classroom}/join-requests/{membershipId}/allow-rejoin": {
             "post": {
-                "operationId": "v1.enrollment.ownerChange_73",
+                "operationId": "v1.enrollment.ownerChange_74",
                 "tags": [
                     "Enrollment"
                 ],
@@ -17992,6 +18387,21 @@
                     "version": {
                         "type": "integer"
                     },
+                    "studentName": {
+                        "type": "string"
+                    },
+                    "sessionTitle": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "sessionStartsAt": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
                     "sessionStatus": {
                         "type": "string"
                     }
@@ -18218,6 +18628,12 @@
                     },
                     "version": {
                         "type": "integer"
+                    },
+                    "membershipVersion": {
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     },
                     "createdAt": {
                         "type": [
