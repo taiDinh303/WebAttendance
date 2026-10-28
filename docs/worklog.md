@@ -143,3 +143,23 @@ Bằng chứng lưu ở docs/evidence/phpunit-quality-full.xml, vitest-quality-f
 ### 2026-10-28 — TASK-022: publish lên nhánh được chỉ định
 
 Chủ dự án giao push các thay đổi chất lượng code/test lên feat/attendanceweb-laravel-react tại taiDinh303/WebAttendance. Đã fetch và kiểm nhánh remote là tổ tiên của main local58e8ca1; tạo nhánh local cùng tên từ main hiện hành để giữ lịch sử. Stage16file code/test/docs/evidence của TASK-022, kiểm không có runtime/env hoặc secret local. Commit và push thường lên đúng nhánh; không có quyền merge main hoặc deploy trong yêu cầu này. Kết quả remote được xác minh sau push; số test local vẫn PHP74/628 và React20PASS, không coi đó là CI remotePASS.
+
+### 2026-10-28 — TASK-023: bắt đầu AttendanceWeb2.0
+
+Chủ dự án giao theo đề xuất và workload3giáo viên/90học sinh/30check-in đồng thời. Ghi DEC-025/026 và phần trả lời Q-019/Q-026; chưa tự trả lời quiz/chat/hosting. Đang thực hiện dashboard aggregate scoped trên server, shell/UI mới, các thao tác lớp/catalog/lịch/audit còn thiếu. Kết quả test/capacity còn chờ thực thi; không dùng số người mục tiêu làm bằng chứng hệ thống chịu tải.
+
+### 2026-10-28 — TASK-023: AttendanceWeb2.0 VERIFIED LOCAL
+
+Hoàn thiện shell/dashboard mới theo role; server GET/dashboard80thoperation tổng hợp từ scope lớp active của actor, counts độc lập preview6class/5item, teacher queue duyệt/chấm/công bố, student bài chưa nộp và own published grades. Thêm UI sửa buổi riêng (giữ timezone/giây/version), sửa/xóa catalog, gắn catalog khi tạo/sửa lớp, leave bằng own membershipVersion, audit timeline lazy/paginated và tên/giờ buổi ở attendance. Workspace remount theo classId để không giữ invite/draft lớp trước. Private frontend package2.0.0; không đổi dependency versions, schema hoặc các quyết định auth/QR/grading.
+
+Kết quả cuối: PHP79tests/690assertionsPASS, Vitest23testsPASS,4PlaywrightscenarioPASS với real Laravel/MySQL/Edge và teacher/student contexts desktop1440/mobile390; không pageerror trong luồng nghiệp vụ. Build/typecheck/lint/Pint/Composer validatePASS; OpenAPI80operations và routeJSON xuất lại. Bằng chứng JUnit/JSON/ảnh ở docs/evidence/*v2* và06-testing. Unit mới kiểm datetime roundtrip/cross-year/seconds, Feature mới kiểm dashboard scope/publication/count/timezone. Không coi số lượt rerun là số test mới.
+
+Fixture workload riêng3teacher/90student/3class;30PHPprocess chờ barrier rồi check-in cùng window và replay. PASS30record,0duplicate, replay trả cùng record; start spread225.84ms, p95check-in+replay2012.07ms. Đây là kiểm Action/MySQL, chưa30HTTPsession qua middleware/hosting; chưa có SLA/capacity production. Script verify-attendance-concurrency.php chỉ cho isolated attendance_http_test/http-smoke/array mail, giữ fixture/token/credentials trong work/.env* ignored. Không dùng dữ liệu thật hoặc connection cũ.
+
+Đã ghi nhận và sửa các lỗi fixture schema trước fullPASS; lỗi browser URL race khi lấy classUrl quá sớm và nút đóng menu bị sidebar che. Giữ các assertions quyền, không tăng timeout che lỗi. Bật OPcache trong PHP portable local để giảm cold-start dev server; không đổi PATH toàn máy. OpenAPI export đầu không chỉ định env dùng config Laravel mặc định không có DB đã thất bại; export lại rõ --env=http-smoke đã PASS. Các file cấu hình/runtime đều ignored.
+
+Phạm vi2.0 hoàn tất local; quiz/chat/feed/export và vận hành production theo2.1/2.2 vẫn có Q chặn như intake. Chưa commit/push/deploy/gửi mail thật/import dữ liệu cũ. Dừng fixture runtime sau khi thu evidence; source/test và ảnh lưu để review.
+
+Sau lượt full4scenarioPASS, chạy lại riêng workspace1scenarioPASS để xác nhận menu đã rời viewport trước khi chụp ảnh (report react-v2-workspace-e2e.json). Không có thay đổi code nghiệp vụ sau full suite; ảnh cuối đã được xem trực tiếp trên desktop/mobile.
+
+Rà soát cuối phát hiện Pagination dùng trong form chọn catalog có thể implicit submit. Đã thêm type=button cho cả2nút, thêm browser regression với21môn/trang2 và xác nhận0POSTcreate. Targeted scenario mớiPASS, report react-v2-pagination-e2e.json; tổng5scenario khác nhau đã kiểm (full4 +1regression mới), không tính lượt chụp lại workspace thành scenario thứ6. Typecheck/lint/build được chạy lại sau thay đổi UI primitive.

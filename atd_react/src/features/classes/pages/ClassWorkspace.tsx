@@ -1,4 +1,10 @@
-import { useLocation, useParams, NavLink } from "react-router-dom";
+import {
+  useLocation,
+  useParams,
+  NavLink,
+  useNavigate,
+  Link,
+} from "react-router-dom";
 import { useState } from "react";
 import { BookOpen, Copy } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
@@ -18,10 +24,16 @@ import { AssignmentsPanel } from "../../assignments/components/AssignmentsPanel"
 import { GradesPanel } from "../../grades/components/GradesPanel";
 import { CalendarContent } from "../../calendar/pages/CalendarPage";
 import { AttendanceHistory } from "../../attendance/components/AttendanceHistory";
+import { CatalogFields } from "../components/CatalogFields";
 export default function ClassWorkspace() {
+  const { classId } = useParams();
+  return <ClassWorkspaceContent key={classId} />;
+}
+function ClassWorkspaceContent() {
   const { classId = "", tab = "overview" } = useParams();
   const { user } = useSession();
   const location = useLocation();
+  const navigate = useNavigate();
   const [invite, setInvite] = useState<string>(
     (location.state as { inviteCode?: string } | null)?.inviteCode ?? "",
   );
@@ -55,6 +67,21 @@ export default function ClassWorkspace() {
         description={c.description || "Cùng học tập, cùng tiến bộ."}
         action={<Badge value={c.status} />}
       />
+      <div className="class-shortcuts inline-actions">
+        <Link
+          className="button secondary small"
+          to={"/app/classes/" + classId + "/assignments"}
+        >
+          Bài tập của lớp
+        </Link>
+        <Link
+          className="button secondary small"
+          to={"/app/classes/" + classId + "/schedule"}
+        >
+          Lịch & buổi học
+        </Link>
+        <span className="muted">Múi giờ · {c.timezone}</span>
+      </div>
       <nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
@@ -96,6 +123,8 @@ export default function ClassWorkspace() {
                     name: text(f, "name"),
                     description: text(f, "description"),
                     expectedVersion: c.version,
+                    courseId: text(f, "courseId") || null,
+                    semesterId: text(f, "semesterId") || null,
                   });
                   await refresh();
                 }}
@@ -115,6 +144,11 @@ export default function ClassWorkspace() {
                     rows={4}
                   />
                 </Field>
+                <CatalogFields
+                  key={c.id + ":" + c.courseId + ":" + c.semesterId}
+                  courseId={c.courseId}
+                  semesterId={c.semesterId}
+                />
                 <button className="button secondary">Lưu thay đổi</button>
               </AsyncForm>
             ) : (
@@ -203,6 +237,24 @@ export default function ClassWorkspace() {
                 Mở tab Bài tập để xem và nộp bài. Theo dõi lịch học, điểm danh
                 và điểm số trong các tab tương ứng.
               </p>
+              {c.membershipVersion !== undefined ? (
+                <ActionButton
+                  className="button danger"
+                  action={async () => {
+                    if (
+                      !window.confirm(
+                        "Rời lớp sẽ ngừng quyền truy cập ngay. Bạn vẫn có thể gửi yêu cầu tham gia lại. Tiếp tục?",
+                      )
+                    )
+                      return;
+                    await classApi.leave(classId, c.membershipVersion!);
+                    await refresh();
+                    navigate("/app/classes", { replace: true });
+                  }}
+                >
+                  Rời lớp học
+                </ActionButton>
+              ) : null}
             </aside>
           )}
         </div>

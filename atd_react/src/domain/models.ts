@@ -29,6 +29,7 @@ export interface Classroom {
   version: number;
   courseId: string | null;
   semesterId: string | null;
+  membershipVersion?: number;
 }
 export interface Membership {
   id: string;
@@ -147,6 +148,55 @@ export interface Attendance {
   checkedInAt: string | null;
   version: number;
   sessionStartsAt?: string;
+  sessionTitle?: string | null;
+  studentName?: string;
+}
+export interface AttendanceAudit {
+  id: string;
+  action: string;
+  actorId: string | null;
+  reason: string | null;
+  before: { status: string; recordedSource: string; version: number } | null;
+  after: { status: string; recordedSource: string; version: number };
+  createdAt: string;
+}
+export interface Dashboard {
+  role: Role;
+  serverTime: string;
+  timezone: string;
+  summary: {
+    activeClasses: number;
+    todaySessions: number;
+    upcomingSessions: number;
+    unreadCount: number;
+    pendingRequests?: number;
+    pendingReviews?: number;
+    pendingAssignments?: number;
+    publishedGrades?: number;
+  };
+  classes: Classroom[];
+  sessions: (Session & { className: string })[];
+  requests?: { classId: string; className: string; pendingCount: number }[];
+  reviews?: {
+    submissionId: string;
+    assignmentId: string;
+    classId: string;
+    title: string;
+  }[];
+  assignments?: {
+    id: string;
+    classId: string;
+    className: string;
+    title: string;
+    dueAt: string | null;
+    allowLate: boolean;
+  }[];
+  grades?: {
+    submissionId: string;
+    title: string;
+    score: number;
+    publishedAt: string;
+  }[];
 }
 export interface CatalogItem {
   id: string;
@@ -155,5 +205,6 @@ export interface CatalogItem {
   version: number;
   startDate?: string;
   endDate?: string;
+  isActive?: boolean;
 }
 export type Fields = Record<string, string[]>;

@@ -185,3 +185,11 @@ Khi code: sinh OpenAPI phản ánh path/schema/status thật, test unknown field
 ## React contract extensions — 2026-10-27
 
 GET /api/v1/me/submissions?assignmentId={ULID} lọc đúng assignment, vẫn bắt buộc actor hiện tại và membership active; invalid ULID422, assignment không thuộc quyền trả collection rỗng. List submissions thêm studentName khi eager-load, không trả email/password. Các route hiện có không đổi. Các API collections vẫn phân trang server; UI không fetch toàn bộ để lọc bài.
+
+## API-010 — Dashboard2.0 (IMPLEMENTED 2026-10-28)
+
+`GET /api/v1/dashboard`: authenticated + active account + verified email. Không nhận userId/classId để đổi chủ thể; server scope lớp active do teacher sở hữu hoặc student có membership active. Envelope `data` gồm `role`, `serverTime` UTC, `timezone` tài khoản, `summary`, `classes` tối đa6 và `sessions` tối đa5 trong7ngày tới còn chưa kết thúc, loại buổi cancelled.
+
+Summary chung: activeClasses/todaySessions/upcomingSessions/unreadCount. Teacher thêm pendingRequests/pendingReviews, preview requests (nhóm theo lớp, tối đa5lớp) và reviews (latest revision chưa chấm hoặc grade draft, tối đa5bài nộp). Student thêm pendingAssignments/publishedGrades, assignments published chưa có bài nộp (tối đa5; dueAt sớm trước, không hạn cuối), grades từ publication pointer của riêng actor (tối đa5). Không trả draft score/feedback hoặc teacher queues cho student. Counts tính toàn bộ scope, không lấy count từ preview. Hôm nay dựa timezone tài khoản; timestamp response UTC. Đây là bản tổng hợp đọc, có thể thay đổi giữa các lần query khi dữ liệu đang được cập nhật, không phải snapshot transaction toàn dashboard.
+
+`GET /classes/{id}` thêm membershipVersion khi student được phép xem lớp, chỉ version của membership active hiện tại; dùng expectedVersion cho POST leave, không dùng version của class. Attendance list thêm studentName/sessionTitle/sessionStartsAt theo eager-loaded relations, không trả email hoặc dữ liệu hồ sơ khác; quyền owner/self giữ nguyên.

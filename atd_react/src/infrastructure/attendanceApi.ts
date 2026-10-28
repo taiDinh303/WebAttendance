@@ -1,6 +1,28 @@
 import { request, params } from "./http";
-import type { Window, Qr, Page, RosterRow, Attendance } from "../domain/models";
+import type {
+  Window,
+  Qr,
+  Page,
+  RosterRow,
+  Attendance,
+  AttendanceAudit,
+} from "../domain/models";
 export const attendanceApi = {
+  audit: (
+    classId: string,
+    recordId: string,
+    pageNumber: number,
+    signal?: AbortSignal,
+  ) =>
+    request<Page<AttendanceAudit>>(
+      "/classes/" +
+        classId +
+        "/attendance/" +
+        recordId +
+        "/audit" +
+        params({ pageNumber }),
+      { signal },
+    ),
   window: (c: string, s: string, signal?: AbortSignal) =>
     request<Window>("/classes/" + c + "/sessions/" + s + "/attendance-window", {
       signal,

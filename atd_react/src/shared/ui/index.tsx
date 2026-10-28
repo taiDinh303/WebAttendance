@@ -225,6 +225,7 @@ export function Pagination({
         <button
           className="button secondary small"
           disabled={!data.hasPreviousPage}
+          type="button"
           onClick={() => onPage(data.pageNumber - 1)}
         >
           Trước
@@ -232,6 +233,7 @@ export function Pagination({
         <button
           className="button secondary small"
           disabled={!data.hasNextPage}
+          type="button"
           onClick={() => onPage(data.pageNumber + 1)}
         >
           Sau <ArrowRight size={14} />

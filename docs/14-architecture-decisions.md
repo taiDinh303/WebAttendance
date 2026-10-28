@@ -84,3 +84,11 @@ Nguồn: “làm và phân tầng như các dự NTC, marixa, badminton ... D:\M
 ### DEC-024 — Publish bản nâng cấp, giữ lịch sử Git (CONFIRMED 2026-10-27)
 
 Chủ dự án giao push lên taiDinh303/WebAttendance và giữ commit cũ; chấp nhận nhánh nâng cấp rồi merge main. Nhánh feat/attendanceweb-laravel-react có baseline02917e3 (181commit gốc), không force-push/rewrite history. Publish nhánh và PR để review trước khi merge main. Credentials/runtime/DB thật không đưa vào Git; không suy quyền deploy từ quyền push.
+
+### DEC-025 — AttendanceWeb 2.0 (CONFIRMED 2026-10-28)
+
+Nguồn: sau đề xuất phỏng vấn4câu, chủ dự án giao “Làm cái phần bạn đề xuất đi” và nêu quy mô. Chấp nhận hướng dùng thử thực tế, ưu tiên2.0: trải nghiệm lớp học mới, dashboard riêng từng vai trò, giao diện tiếng Việt/nền sáng/xanh chủ đạo và hoàn thiện thao tác UI hiện có. Giữ Laravel/React/MySQL, teacher ownership và các quy tắc đã chốt. Tên thương hiệu chính thức/dark mode chưa được chốt riêng; không suy thêm quyền deploy/gửi mail/import dữ liệu cũ. Lộ trình2.1/2.2 giữ các Q chặn quiz/chat/notification trước khi thực hiện module.
+
+### DEC-026 — Quy mô mục tiêu sử dụng thử (CONFIRMED 2026-10-28)
+
+Nguồn trực tiếp: khoảng3giáo viên,90học sinh,30người điểm danh đồng thời. Đây là workload mục tiêu để tạo fixture và kiểm thử, không phải kết quả capacity đã VERIFIED hoặc trần giới hạn tài khoản. Hosting/domain/ngân sách/thời hạn trong Q-026 vẫn OPEN; không tự chọn SLA hoặc phát hành production.

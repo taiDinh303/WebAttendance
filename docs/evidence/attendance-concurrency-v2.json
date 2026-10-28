@@ -1,0 +1,14 @@
+{
+    "scenario": "3 teachers \/ 90 students; 30 students check in to one window with a process start barrier",
+    "boundary": "Laravel action + real MySQL transactions, 30 PHP processes; excludes HTTP\/session middleware and production hosting",
+    "passed": true,
+    "teachers": 3,
+    "students": 90,
+    "workers": 30,
+    "records": 30,
+    "duplicateRecords": 0,
+    "startSpreadMs": 225.84,
+    "p50CheckInAndReplayMs": 1981.98,
+    "p95CheckInAndReplayMs": 2012.07,
+    "maxCheckInAndReplayMs": 2013.85
+}

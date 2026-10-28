@@ -3,6 +3,7 @@ import { usePage, useResource } from "../../../application/queries";
 import { attendanceApi } from "../../../infrastructure/attendanceApi";
 import { QueryState, Badge, Empty, Pagination } from "../../../shared/ui";
 import { dateTime } from "../../../domain/format";
+import { AttendanceAuditTimeline } from "./AttendanceAuditTimeline";
 export function AttendanceHistory({ classId }: { classId: string }) {
   const { user } = useSession();
   const { page, setPage } = usePage();
@@ -30,15 +31,21 @@ export function AttendanceHistory({ classId }: { classId: string }) {
             <div>
               <h3>
                 {user?.role === "teacher"
-                  ? "Học sinh · " + r.studentId.slice(-8)
+                  ? (r.studentName ?? "Học sinh · " + r.studentId.slice(-8))
                   : "Kết quả buổi học"}
               </h3>
-              <small>Buổi · {r.sessionId.slice(-8)}</small>
+              <small>
+                {r.sessionTitle || "Buổi học"}
+                {r.sessionStartsAt ? " · " + dateTime(r.sessionStartsAt) : ""}
+              </small>
               <p>
                 {r.checkedInAt
                   ? "Quét lúc " + dateTime(r.checkedInAt)
                   : "Ghi nhận bởi giáo viên / hệ thống"}
               </p>
+              {user?.role === "teacher" ? (
+                <AttendanceAuditTimeline classId={classId} recordId={r.id} />
+              ) : null}
             </div>
             <Badge value={r.status} />
           </article>

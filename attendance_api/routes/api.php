@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Http\Controllers\Api\V1\CourseController;
+use App\Http\Controllers\Api\V1\DashboardController;
 use App\Http\Controllers\Api\V1\EnrollmentController;
 use App\Http\Controllers\Api\V1\FileController;
 use App\Http\Controllers\Api\V1\GradeController;
@@ -32,6 +33,7 @@ Route::prefix('v1')->middleware('web')->group(function () {
         Route::post('auth/verification/resend', [VerificationController::class, 'resend'])->middleware('throttle:verification');
         Route::get('auth/verify-email/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed', 'throttle:verification'])->name('verification.verify');
         Route::middleware('email.verified')->group(function () {
+            Route::get('dashboard', [DashboardController::class, 'show']);
             Route::get('classes/{classroom}/assignments', [AssignmentController::class, 'index']);
             Route::post('classes/{classroom}/assignments', [AssignmentController::class, 'store']);
             Route::get('classes/{classroom}/assignments/{assignmentId}', [AssignmentController::class, 'show']);

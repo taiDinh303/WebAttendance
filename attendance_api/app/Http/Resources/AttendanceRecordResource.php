@@ -13,6 +13,9 @@ final class AttendanceRecordResource extends JsonResource
     {
         return ['id' => $this->id, 'sessionId' => $this->session_id, 'studentId' => $this->student_id, 'windowId' => $this->window_id,
             'status' => $this->status, 'checkedInAt' => $this->checked_in_at?->toISOString(), 'recordedSource' => $this->recorded_source, 'version' => $this->version,
+            'studentName' => $this->whenLoaded('student', fn () => $this->student->display_name),
+            'sessionTitle' => $this->whenLoaded('session', fn () => $this->session->title),
+            'sessionStartsAt' => $this->whenLoaded('session', fn () => $this->session->starts_at->toISOString()),
             'sessionStatus' => $this->whenLoaded('session', fn () => $this->session->status)];
     }
 }

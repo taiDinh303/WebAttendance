@@ -81,3 +81,9 @@ TASK-010/011 có20operation mới về assignment/file/submission/grade, VERIFIE
 ### Nghiệm thu learning local cuối — 2026-10-27
 
 Các kết quả trung gian phía trên đã được thay thế: full suite cuối51tests/574assertionsPASS, HTTP36checksPASS. Xem [learning-validation](evidence/learning-validation.md); runtime79operations. Chưa quiz/chat/production; React core đã triển khai theo evidence/react-validation.md.
+
+## AttendanceWeb2.0 — 2026-10-28
+
+Thêm GET /api/v1/dashboard, query tổng hợp theo owner/active membership; counts độc lập preview limit, phân biệt teacher/student, điểm nháp không xuất hiện ở student. Contract API-010 tại [15-api-contract](15-api-contract.md). Class detail student có membershipVersion để leave an toàn; attendance list trả tên học sinh/tiêu đề/giờ buổi thay mã opaque ở UI. Không có migration schema hoặc thay auth/QR30/60.
+
+Target workload đã CONFIRMED3teacher/90student/30check-in đồng thời. Script scripts/verify-attendance-concurrency.php chỉ cho HTTP test DB+array mail, tạo fixture và dùng30PHPprocess có barrier để gọi action thật, kiểm record/replay với MySQL. Chưa kiểm production HTTP capacity hoặc đặt SLA; không dùng dev server PHP1worker để cam kết concurrency HTTP30. Kết quả tại [kiểm thử](06-testing.md).
