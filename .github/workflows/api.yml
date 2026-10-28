@@ -1,9 +1,9 @@
 name: AttendanceWeb API
 on:
   push:
-    paths: ['attendance_api/**', '.github/workflows/api.yml']
+    paths: ['attendance_api/**', '.github/workflows/api.yml', 'scripts/composer-audit.sh', 'scripts/test-composer-audit.sh']
   pull_request:
-    paths: ['attendance_api/**', '.github/workflows/api.yml']
+    paths: ['attendance_api/**', '.github/workflows/api.yml', 'scripts/composer-audit.sh', 'scripts/test-composer-audit.sh']
 jobs:
   api:
     runs-on: ubuntu-latest
@@ -40,4 +40,10 @@ jobs:
       - run: composer validate --strict
       - run: vendor/bin/pint --test
       - run: vendor/bin/phpunit --log-junit test-results.xml
-      - run: composer audit --locked
+      - name: Test audit retry and failure handling
+        run: bash ../scripts/test-composer-audit.sh
+      - name: Audit locked dependencies with bounded network retries
+        timeout-minutes: 5
+        env:
+          COMPOSER_IPRESOLVE: '4'
+        run: bash ../scripts/composer-audit.sh
