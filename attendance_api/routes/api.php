@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Controllers\Api\V1\SemesterController;
 use App\Http\Controllers\Api\V1\SubmissionController;
 use App\Http\Controllers\Api\V1\VerificationController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 // All first-party JSON endpoints use cookie sessions and CSRF, including login.
@@ -33,6 +35,13 @@ Route::prefix('v1')->middleware('web')->group(function () {
         Route::post('auth/verification/resend', [VerificationController::class, 'resend'])->middleware('throttle:verification');
         Route::get('auth/verify-email/{id}/{hash}', [VerificationController::class, 'verify'])->middleware(['signed', 'throttle:verification'])->name('verification.verify');
         Route::middleware('email.verified')->group(function () {
+            Route::prefix('admin')->middleware('can:viewAny,'.User::class)->group(function () {
+                Route::get('summary', [AdminController::class, 'summary']);
+                Route::get('users', [AdminController::class, 'users']);
+                Route::post('users/{userId}/lock', [AdminController::class, 'lock']);
+                Route::post('users/{userId}/unlock', [AdminController::class, 'unlock']);
+                Route::get('audit', [AdminController::class, 'events']);
+            });
             Route::get('dashboard', [DashboardController::class, 'show']);
             Route::get('classes/{classroom}/assignments', [AssignmentController::class, 'index']);
             Route::post('classes/{classroom}/assignments', [AssignmentController::class, 'store']);

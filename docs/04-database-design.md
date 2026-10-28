@@ -84,3 +84,9 @@ Role teacher/student/admin qua seed idempotent; admin chỉ qua quy trình provi
 ## Learning schema hiện có trong source — 2026-10-27
 
 Migration 2026_10_26_175034 thêm9bảng: assignments (lớp/author/title/instructions/due/policies/state/version), stored_files (owner/class/assignment/purpose/private key/MIME/size/hash/scan state), assignment_files (liên kết tài liệu), submissions (unique assignment/student, latest revision và current publication), submission_revisions (revisionNo/key/hash/note/submittedAt/late), submission_files, grades (nháp theo revision, score decimal4,2/version), grade_publications (snapshot bất biến, unique grade/version), grade_events (actor, before/after publication, reason). MaxScore10 là invariant API, không nhận từ client. Chi tiết [ASSIGNMENTS-GRADES](ASSIGNMENTS-GRADES.md). Chưa có bảng quiz/attempt.
+
+## TASK-024 — Schema admin và demo đã triển khai
+
+Hai migration 2026_10_28_153359 và 153827 thêm admin_account_events và demo_datasets. Audit gồm actor_id/subject_id FK users restrict-delete, operation, reason tối đa500, JSON before_state/after_state, timestamps; index theo thời gian/actor/subject và id cho phân trang ổn định. Chỉ có API đọc audit; không có route sửa/xóa. Đây là bất biến ở application, chưa phải kho lưu trữ chống sửa bởi DBA.
+
+demo_datasets dùng name primary key + manifest JSON, giữ lock khi seed để không tạo lặp; manifest chỉ chứa ID/email synthetic/role và class/session/window IDs, không mật khẩu. Runtime passwords chỉ ở env/ignored credential file. Seed từ chối namespace tồn tại mà không có manifest, từ chối manifest thiếu tài khoản thay vì tự khôi phục làm mất thay đổi. Dữ liệu ban đầu:94users,90membership,3classes,12sessions,180manual-history records,6assignments,45submissions/files,39grades (30published/9draft). HTTP load bổ sung1session/window và30QRrecords; không giả lập QR cho lịch sử seed.

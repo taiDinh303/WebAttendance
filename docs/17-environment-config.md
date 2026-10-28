@@ -23,3 +23,11 @@ Config dev/staging/prod/test tách DB, disk/bucket, queue namespace, session coo
 ## File scanner CURRENT — phase3
 
 FILE_SCANNER=local_validation (mặc định config/filesafety.php) chỉ cho local/testing/http-smoke; production trả503. FILE_SCANNER=clamav dùng CLAMAV_HOST (mặc định127.0.0.1), CLAMAV_PORT (mặc định3310), INSTREAM fail closed khi không có xác nhận. Đây là config adapter đã có; ClamAV daemon chưa cài/test. Giới hạn upload thực hiện cố định20MiB/file và5file/revision, không phải các biến FILE_MAX_* đề xuất phía trên. PHP local ini20M/24M; reverse proxy/production chưa cấu hình.
+
+## Cấu hình hiện hành TASK-024
+
+.env.example đã có DEMO_SEED_ENABLED=false và DEMO_PASSWORD rỗng. Demo opt-in riêng attendance_api/.env.demo (ignored), APP_ENV=demo, APP_DEBUG=false, DB_CONNECTION=mysql, DB_HOST loopback, DB_DATABASE=attendance_demo, DB user chỉ quyền schema demo, MAIL_MAILER=array, FILE_SCANNER=local_validation, key/password mới. Không dùng credential/dump/SMTP cũ; không ghi đè .env hoặc env test. DEMO_PASSWORD tối thiểu12 ký tự gồm chữ thường/hoa/số, bắt buộc trước seed; thay env không reset password tài khoản đã seed.
+
+Seed allowlist: demo/local→attendance_demo; testing→attendance_test/attendance_ci_test; http-smoke→attendance_http_test. Những DB khác/production/mail thật/không opt-in đều từ chối trước khi ghi. DatabaseSeeder mặc định vẫn trống.
+
+app:diagnose --json kiểm PHP/extensions/key/debug/MySQL/schema và đường dẫn writable; production kiểm thêm demo-disabled/HTTPS/secure encrypted cookie/scanner/mail config. Exit1 nếu có checkfalse, không in secret. Checktrue của production-only trong local nghĩa điều kiện không áp dụng, không chứng minh TLS/SMTP/ClamAV đang chạy. Không sửa config cache đang tồn tại để chạy demo: launcher từ chối và yêu cầu xử lý cache đúng môi trường.

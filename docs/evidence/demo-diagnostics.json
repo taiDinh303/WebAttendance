@@ -1,0 +1,21 @@
+{
+ "environment": "demo",
+ "ready": true,
+ "checks": {
+ "php_supported": true,
+ "extensions_ready": true,
+ "app_key_valid": true,
+ "debug_disabled": true,
+ "mysql_selected": true,
+ "private_storage_writable": true,
+ "runtime_storage_writable": true,
+ "database_schema_ready": true,
+ "demo_seed_disabled_in_production": true,
+ "https_in_production": true,
+ "secure_cookies_in_production": true,
+ "encrypted_sessions_in_production": true,
+ "file_scanner_configured_in_production": true,
+ "mail_configured_in_production": true
+ },
+ "scope": "Configuration, schema and local writable paths only. Does not verify delivery, antivirus daemon, TLS termination or production capacity."
+}

@@ -13,6 +13,7 @@ import { SessionProvider } from "../application/session";
 import { useSession } from "../application/sessionContext";
 import { Loading, ErrorNotice, ActionButton } from "../shared/ui";
 import { authApi } from "../infrastructure/authApi";
+import { canAdminister } from "../domain/access";
 const Shell = lazy(() => import("./Shell"));
 const Auth = lazy(() => import("../features/auth/pages/AuthPage"));
 const Dashboard = lazy(
@@ -39,6 +40,11 @@ const JoinRequests = lazy(
 const CheckIn = lazy(() => import("../features/attendance/pages/CheckInPage"));
 const QrPage = lazy(() => import("../features/attendance/pages/QrPage"));
 const Catalog = lazy(() => import("../features/catalog/pages/CatalogPage"));
+const AdminDashboard = lazy(
+  () => import("../features/admin/pages/AdminDashboardPage"),
+);
+const AdminUsers = lazy(() => import("../features/admin/pages/AdminUsersPage"));
+const AdminAudit = lazy(() => import("../features/admin/pages/AdminAuditPage"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: 20000, refetchOnWindowFocus: true },
@@ -113,6 +119,23 @@ function Guard() {
     );
   return <Outlet />;
 }
+function AdminGuard() {
+  const { user } = useSession();
+  return canAdminister(user) ? (
+    <Outlet />
+  ) : (
+    <div className="fatal">
+      <h1>Không có quyền quản trị</h1>
+      <Link className="button" to="/app">
+        Về không gian lớp học
+      </Link>
+    </div>
+  );
+}
+function WorkspaceHome() {
+  const { user } = useSession();
+  return canAdminister(user) ? <Navigate to="/admin" replace /> : <Dashboard />;
+}
 export function App() {
   return (
     <Boundary>
@@ -127,8 +150,15 @@ export function App() {
                 <Route path="/forgot-password" element={<Auth />} />
                 <Route path="/reset-password" element={<Auth />} />
                 <Route element={<Guard />}>
+                  <Route element={<AdminGuard />}>
+                    <Route path="/admin" element={<Shell />}>
+                      <Route index element={<AdminDashboard />} />
+                      <Route path="users" element={<AdminUsers />} />
+                      <Route path="audit" element={<AdminAudit />} />
+                    </Route>
+                  </Route>
                   <Route path="/app" element={<Shell />}>
-                    <Route index element={<Dashboard />} />
+                    <Route index element={<WorkspaceHome />} />
                     <Route path="classes" element={<Classes />} />
                     <Route
                       path="classes/:classId"

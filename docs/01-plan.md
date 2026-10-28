@@ -62,3 +62,7 @@ REQ và RULE đã chốt phần áp dụng; migration/index/policy có test; API
 ## Phiên bản 2.0 — TASK-023 (2026-10-28)
 
 Owner Codex; VERIFIED LOCAL theo DEC-025/026, evidence tại06-testing: PHP79/690, Vitest23, browser4scenario, concurrency30Action/MySQL PASS. Phạm vi: shell/giao diện mới; dashboard dữ liệu thật theo role; chỉnh buổi riêng; catalog sửa/xóa; chọn môn/học kỳ cho lớp; self-leave; lịch sử audit điểm danh. Nghiệm thu qua backend isolation tests, frontend checks và browser teacher/student/mobile; fixture mục tiêu3teacher/90student, concurrency30 tại boundary được ghi rõ. Workload không phải giới hạn tài khoản. Quiz/feed/chat/report export theo các đợt2.1/2.2, giữ Q chặn. Không deploy/import/mail thật.
+
+TASK-024 — Admin, persistent demo và rubric8nhóm (2026-10-28), ownerCodex, VERIFIED LOCAL. DEC-027/028: admin account moderation/summary/audit, privacy isolation; seed1admin+3teacher+90student+3class×30, lịch/attendance/learning samples; kiểm bảo vệ seed/rerun, revoke/version/audit, browseradmin và workload30. Rubric phải có code+evidence cho kiến trúc/trách nhiệm/dependency/changeability/dataAPI/config/security/vận hành, không đồng nhất điểm đánh giá local với production đã deploy.
+
+TASK-024 nghiệm thu local: PHP101/838, Vitest29, browseradmin1scenario, HTTP30check-in+30replay, restore35bảng/52FK/45file PASS. Source/seed/admin/diagnostics/runbook và rubric8nhóm ở03 đã thực hiện; chưa commit/push/deploy đợt này.

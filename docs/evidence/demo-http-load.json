@@ -1,0 +1,22 @@
+{
+    "verifiedAt": "2026-10-28T16:06:34+00:00",
+    "passed": true,
+    "transport": "HTTP\/cURL multi",
+    "target": "http:\/\/127.0.0.1:8000",
+    "environment": "demo",
+    "database": "attendance_demo",
+    "clients": 30,
+    "firstStatuses": {
+        "201": 30
+    },
+    "replayStatuses": {
+        "200": 30
+    },
+    "uniqueRecords": 30,
+    "persistedRecords": 30,
+    "sameRecordOnEveryReplay": true,
+    "batchDurationMs": 5592.52,
+    "p50Ms": 2890.87,
+    "p95Ms": 5428.17,
+    "scope": "30 dispatched HTTP requests with real auth\/CSRF\/permissions\/throttles and MySQL. Local PHP development server queues requests; this is not a production throughput\/SLA benchmark."
+}

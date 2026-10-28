@@ -19,3 +19,11 @@ $arguments = @('--no-defaults', ('--basedir="' + $mysqlRoot + '"'), ('--datadir=
 $process = Start-Process -FilePath (Join-Path $mysqlRoot 'bin\mysqld.exe') -ArgumentList $arguments -WindowStyle Hidden -RedirectStandardOutput (Join-Path $projectRoot 'work\mysql.stdout.log') -RedirectStandardError (Join-Path $projectRoot 'work\mysql.stderr.log') -PassThru
 $process.Id | Set-Content (Join-Path $projectRoot '.tools\mysql.pid')
 Write-Output "Started local MySQL launcher PID $($process.Id); bound to loopback port 33306."
+$readyDeadline = (Get-Date).AddSeconds(30)
+do {
+    $probe = [Net.Sockets.TcpClient]::new()
+    try { $probe.Connect('127.0.0.1', 33306); $ready = $true } catch { $ready = $false } finally { $probe.Dispose() }
+    if ($ready) { Write-Output 'Local MySQL is accepting connections.'; exit }
+    Start-Sleep -Milliseconds 200
+} while ((Get-Date) -lt $readyDeadline)
+throw 'Local MySQL did not become ready within 30 seconds. Inspect work/mysql.stderr.log.'

@@ -42,7 +42,7 @@ final class PrivateFileValidation
         if ($mode === 'clamav') {
             $this->antivirus($path);
             $scan = 'clean';
-        } elseif ($mode === 'local_validation' && app()->environment(['local', 'testing', 'http-smoke'])) {
+        } elseif ($mode === 'local_validation' && app()->environment(['local', 'demo', 'testing', 'http-smoke'])) {
             $scan = 'validated_local';
         } else {
             throw new ApiException('FILE_SCANNER_UNAVAILABLE', 'A configured antivirus scanner is required in this environment.', 503);
@@ -53,7 +53,7 @@ final class PrivateFileValidation
 
     public function requireApproved(string $scanState): void
     {
-        if ($scanState !== 'clean' && ! ($scanState === 'validated_local' && app()->environment(['local', 'testing', 'http-smoke']))) {
+        if ($scanState !== 'clean' && ! ($scanState === 'validated_local' && app()->environment(['local', 'demo', 'testing', 'http-smoke']))) {
             throw new ApiException('FILE_SCANNER_UNAVAILABLE', 'This file has not passed the required scanner.', 503);
         }
     }

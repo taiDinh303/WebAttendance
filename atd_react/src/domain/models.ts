@@ -1,4 +1,4 @@
-export type Role = "teacher" | "student";
+export type Role = "admin" | "teacher" | "student";
 export interface User {
   id: string;
   displayName: string;
@@ -208,3 +208,42 @@ export interface CatalogItem {
   isActive?: boolean;
 }
 export type Fields = Record<string, string[]>;
+
+export interface AdminUser {
+  id: string;
+  displayName: string;
+  email: string;
+  role: Role;
+  accountStatus: "active" | "locked";
+  emailVerified: boolean;
+  version: number;
+  createdAt: string;
+  isSelf: boolean;
+}
+export interface AdminSummary {
+  users: number;
+  admins: number;
+  teachers: number;
+  students: number;
+  lockedAccounts: number;
+  classes: number;
+  activeClasses: number;
+  assignments: number;
+  submissions: number;
+  attendanceRecords: number;
+  openAttendanceWindows: number;
+  adminEvents: number;
+  serverTime: string;
+}
+export interface AdminAccountEvent {
+  id: string;
+  actorId: string;
+  actorName: string;
+  subjectId: string;
+  subjectName: string;
+  operation: "lock" | "unlock";
+  reason: string;
+  before: { accountStatus: "active" | "locked"; version: number };
+  after: { accountStatus: "active" | "locked"; version: number };
+  createdAt: string;
+}

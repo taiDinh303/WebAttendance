@@ -94,3 +94,23 @@ Phạm vi TC-025 là Laravel Action + transaction/lock MySQL thực với30proce
 Các lượt phát hiện và sửa: fixture dashboard thiếu/nhầm author_id, allow_late/allow_resubmit/is_late đã sửa theo schema; browser phát hiện test lấy classUrl từ trang list trước khi navigation xong và mobile overlay không có điểm bấm đóng ổn định, đã chờ URL đúng và bổ sung nút đóng trong sidebar. Không thay assertion quyền pending/leave hoặc nới timeout để che lỗi. Menu mobile giữ focus/Escape, inert sidebar đóng/background mở. Ảnh sau khi đóng menu cần chờ transition rời viewport trước chụp.
 
 Ảnh UI dùng tài khoản/dữ liệu synthetic: [teacher desktop](evidence/react-v2-dashboard-teacher.png), [student mobile](evidence/react-v2-dashboard-student-mobile.png), [class mobile](evidence/react-v2-class-mobile.png). Không dùng ảnh màn hình để thay bằng chứng API isolation hoặc concurrency.
+
+## TASK-024 — Admin/demo/chất lượng 8 nhóm, VERIFIED LOCAL 2026-10-28
+
+| Test case | Bằng chứng thực thi |
+| --- | --- |
+| TC-026 — Admin auth/privacy/moderation, DEC-027 | AdminTest14cases: guest401 (kể cả Accept không JSON), teacher/student403, active/verified, filter/pagination/escaping/Resource redaction, real session delete/auth_version, stale version/actor, reason validation/no-op/mass privilege rejection, self-lock, nội dung lớp/grade/file không có admin bypass |
+| TC-027 — Persistent demo, DEC-028 | DemoWorkspaceTest5cases:94users/3classes×30/180history/45files/30published grades, idempotence giữ password/status/class edit, opt-in/production/database/collision guards, fake private disk |
+| TC-028 — Config diagnostics | EnvironmentDiagnosticsTest3cases: ready schema, thiếu key, production insecure config và exit codes; không lộ secret |
+| TC-029 — Admin browser | Edge1440×1000 và390×844, API demo8000/MySQL thật; counts94/1/3/90, filter/lock/revoke/unlock/relogin/audit/privacy/zero pageerror, mobile không tràn. Một scenario, không cộng lượt rerun |
+| TC-030 — HTTP30 và restore local | cURLmulti dispatch30POST với cookie/CSRF/Policy/throttle thật, replay30; backup/restore schema mới + private files, không ghi đè nguồn |
+
+Full PHP **101tests/838assertions PASS**:10Unit +91Feature cases, không gọi toàn bộ là unit. [JUnit](evidence/phpunit-admin-full.xml). Frontend **29tests PASS** (thêm6 access cases) [Vitest](evidence/vitest-admin-full.json). Pint dirty+2scripts, Composer validate, ESLint, typecheck và production build PASS. Composer locked audit0advisory/abandoned, npm audit0vulnerability tại thời điểm chạy: [Composer](evidence/composer-audit-admin.json), [npm](evidence/npm-audit-admin.json). Không là bảo đảm không có lỗ hổng. OpenAPI **85operations**, export không warning: [contract](evidence/openapi-admin.json).
+
+Browser admin1scenario PASS [JSON](evidence/react-admin-e2e.json), [desktop](evidence/admin-desktop.png), [mobile](evidence/admin-mobile.png). Dùng dataset demo chứ không dev/prod, khóa/mở lại student090 và giữ audit synthetic. Các scenario learning/workspace2.0 được nghiệm thu ở đợt trước, không chạy lại toàn bộ đợtadmin và không tính thành regression mới.
+
+HTTP [report](evidence/demo-http-load.json):30/30first201,30/30replay200,30unique persistedrecords,0duplicates và mọi replay cùngrecord. Batch5592.52ms, p50response2890.87ms, p95response5428.17ms. Tất cả handle đã được thêm vào curlmulti trước dispatch; PHPdevelopmentserver có thể xếp hàng, không chứng minh30serverworkers hoặc productionSLA. Login chuẩn bị tôn trọng IP/account throttle, không tắt CSRF/rate limiter; teacher dùng loopbacksource127.0.0.2,30student dùng127.0.0.1. Script chỉ cho opt-in demo/attendance_demo/arraymail và URLloopback8000, tạo buổi/window mới.
+
+Restore [report](evidence/demo-restore-result.json): SQLsingletransaction, schema mới,35tablecounts bằng nguồn,52FK0orphan,45fileSHA256khớp,94syntheticpasswordhashkhớp. Không HTTPsmoke trên schema restore hoặc backup production/RPO-RTO. [Diagnostics](evidence/demo-diagnostics.json) readytrue chỉ config/schema/local writable paths; không xác minh daemon/maildelivery/TLS/capacity.
+
+Các lỗi trong quá trình xác minh: MySQLJSON đổi thứ tự objectkeys làm strictassert fail — đổi kiểm giá trị theo field; browser phát hiện unauthenticated API không có AcceptJSON dẫn Route[login]500 — sửa redirectGuestsTo(null), thêm regression trả401; locator reason phải bao gồm label, mobile screenshot chờ sidebar rời viewport. Login429 khi chạy load và browser cùngIP được giữ nguyên bảo vệ, tách lần chạy và tôn trọng Retry-After. Không nới Policy/throttle/timeout để cho test pass. Không đưa rawtrace/cookies/password/SQLbackup vào evidence.

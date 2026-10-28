@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // This API has no server-rendered login route, including requests with Accept: */*.
+        $middleware->redirectGuestsTo(null);
         $middleware->prepend(RequestContext::class);
         $middleware->alias([
             'account.active' => EnsureAccountActive::class,

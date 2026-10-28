@@ -92,3 +92,13 @@ Nguồn: sau đề xuất phỏng vấn4câu, chủ dự án giao “Làm cái p
 ### DEC-026 — Quy mô mục tiêu sử dụng thử (CONFIRMED 2026-10-28)
 
 Nguồn trực tiếp: khoảng3giáo viên,90học sinh,30người điểm danh đồng thời. Đây là workload mục tiêu để tạo fixture và kiểm thử, không phải kết quả capacity đã VERIFIED hoặc trần giới hạn tài khoản. Hosting/domain/ngân sách/thời hạn trong Q-026 vẫn OPEN; không tự chọn SLA hoặc phát hành production.
+
+### DEC-027 — Admin quản trị tài khoản và thống kê (CONFIRMED 2026-10-28)
+
+Chủ dự án giao làm admin/trang admin và trả lời Q-021: “Theo đề xuất: quản trị tài khoản và thống kê, giữ riêng nội dung lớp”. Admin có thống kê tổng hợp, tìm/lọc tài khoản, khóa/mở khóa có lý do/version/audit và xem audit quản trị. Không có Gate::before bypass hoặc quyền mặc định đọc lớp/điểm/file/chat; không tự đăng ký admin, không role editor/xóa tài khoản/impersonation. Không khóa chính mình hoặc làm mất admin active cuối; khóa/mở thu hồi session. Q-021 đã chốt scope hiện tại.
+
+### DEC-028 — Bộ dữ liệu demo bền vững (CONFIRMED 2026-10-28)
+
+Chủ dự án giao dữ liệu giả1admin/3teacher/90student và30check-in đồng thời. Dùng schema localdemo riêng, namespace email .test,3lớp×30student, dữ liệu minh họa lịch/điểm danh/bài tập/điểm. Seed có guard environment/database/mail/opt-in, idempotent và giữ thay đổi tài khoản; không xóa dữ liệu cũ hoặc đổi mật khẩu khi seed lại. Secret chỉ từ env/ignoredwork, không literalpassword trong docs/seed/log. Workload30đồng thời kiểm bằng fixture riêng; quy mô không phải trần user hệ thống.
+
+DEC-027/028 IMPLEMENTED và VERIFIED LOCAL tại TASK-024 (2026-10-28): admin5API/3trang, seedattendance_demo1/3/90,101PHP/29frontendtests, browseradmin và HTTP30/replay/restore; chi tiết06-testing. Scope CONFIRMED không thay đổi, production chưa VERIFIED.

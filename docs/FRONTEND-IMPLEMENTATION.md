@@ -86,3 +86,9 @@ IMPLEMENTED: package private2.0.0, shell/sidebar xanh navy trên nền sáng, da
 Đã bổ sung UI sửa buổi riêng với expectedVersion và giữ đúng timezone/giây; sửa/xóa môn và học kỳ; chọn môn/học kỳ phân trang khi tạo/sửa lớp; student leave bằng membershipVersion; audit timeline phân trang/lazy-load chỉ teacher và attendance dùng tên/giờ buổi. Đổi classId remount workspace để không mang mã mời/draft của lớp trước sang lớp khác. Các thao tác này thay phần “chưa UI” tương ứng trong snapshot phía trên.
 
 Quiz/chat/feed/comment/admin/export, báo cáo ma trận đầy đủ, offline sync/draft persistence, avatar và kênh notification ngoài in-app vẫn chưa triển khai trong2.0; theo đợt2.1/2.2 và Q chặn. Màu/ngôn ngữ theo DEC-025; tên thương hiệu/dark mode chưa được quyết định riêng. Không dùng version package để tuyên bố toàn sản phẩm hoàn tất.
+
+## Admin — TASK-024 (2026-10-28)
+
+Thay trạng thái admin chưatriểnkhai trong snapshot2.0 phía trên: admin dashboard /admin, quản lý/lọc tài khoản /admin/users, nhật ký /admin/audit đã IMPLEMENTED/VERIFIED LOCAL. Login admin tự chuyển từ /app về /admin; menu riêng, role label chính xác. API adapter adminApi tái dùng HTTP CSRF/envelope; typed AdminUser/Summary/Event; cache keys có actor; AdminGuard là UX còn API Policy là quyền thực.
+
+Khóa/mở có reason3..500, expectedVersion, error giữ nội dung nhập; tự khóa không có nút và server vẫn chặn. Audit hiển thị actor/subject/reason/before-after/version, lọc/phân trang. Layout tài khoản chuyển card trên mobile390px. Browser real API đã kiểm counts94/1/3/90, lọc, lock/revoke/unlock/relogin/audit, student bị chặn admin, admin bị chặn lớp; không pageerror. Ảnh evidence/admin-desktop.png và admin-mobile.png. Các module quiz/chat/feed/export vẫn giữ trạng thái trước.

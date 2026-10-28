@@ -12,12 +12,16 @@ import {
   Library,
   Clock3,
   X,
+  ShieldCheck,
+  Users,
+  ScrollText,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useSession } from "../application/sessionContext";
 import { useResource } from "../application/queries";
 import { classApi } from "../infrastructure/classApi";
 import { initials } from "../domain/format";
+import { roleLabel } from "../domain/access";
 import { ActionButton } from "../shared/ui";
 export default function Shell() {
   const { user, logout } = useSession();
@@ -70,14 +74,27 @@ export default function Shell() {
     refetchInterval: 60000,
   });
   if (!user) return null;
-  const navigation = [
-    { to: "/app", icon: LayoutDashboard, label: "Tổng quan", end: true },
-    { to: "/app/classes", icon: BookOpen, label: "Lớp học" },
-    { to: "/app/calendar", icon: CalendarDays, label: "Lịch học" },
-    { to: "/app/check-in", icon: ScanLine, label: "Quét điểm danh" },
-    { to: "/app/notifications", icon: Bell, label: "Thông báo" },
-    { to: "/app/settings", icon: Settings, label: "Cài đặt" },
-  ];
+  const admin = user.role === "admin";
+  const navigation = admin
+    ? [
+        {
+          to: "/admin",
+          icon: ShieldCheck,
+          label: "Tổng quan quản trị",
+          end: true,
+        },
+        { to: "/admin/users", icon: Users, label: "Quản lý tài khoản" },
+        { to: "/admin/audit", icon: ScrollText, label: "Nhật ký quản trị" },
+        { to: "/app/settings", icon: Settings, label: "Tài khoản của tôi" },
+      ]
+    : [
+        { to: "/app", icon: LayoutDashboard, label: "Tổng quan", end: true },
+        { to: "/app/classes", icon: BookOpen, label: "Lớp học" },
+        { to: "/app/calendar", icon: CalendarDays, label: "Lịch học" },
+        { to: "/app/check-in", icon: ScanLine, label: "Quét điểm danh" },
+        { to: "/app/notifications", icon: Bell, label: "Thông báo" },
+        { to: "/app/settings", icon: Settings, label: "Cài đặt" },
+      ];
   return (
     <div className="workspace workspace-v2">
       <a className="skip-link" href="#main">
@@ -107,7 +124,7 @@ export default function Shell() {
         >
           <X size={20} />
         </button>
-        <Link to="/app" className="brand">
+        <Link to={admin ? "/admin" : "/app"} className="brand">
           <span className="brand-mark">
             <GraduationCap size={24} />
           </span>
@@ -134,30 +151,32 @@ export default function Shell() {
                 ) : null}
               </NavLink>
             ))}
-          {user.role === "teacher" ? (
+          {!admin && user.role === "teacher" ? (
             <NavLink to="/app/catalog" onClick={() => setMenu(false)}>
               <Library size={19} />
               Môn học & học kỳ
             </NavLink>
-          ) : (
+          ) : !admin ? (
             <NavLink to="/app/join-requests" onClick={() => setMenu(false)}>
               <Clock3 size={19} />
               Yêu cầu vào lớp
             </NavLink>
-          )}
+          ) : null}
         </nav>
         <div className="sidebar-note">
           <span className="mini-dot" />
-          {user.role === "teacher"
-            ? "Dạy học, có tổ chức."
-            : "Học tập, có định hướng."}
+          {admin
+            ? "Quản trị, có trách nhiệm."
+            : user.role === "teacher"
+              ? "Dạy học, có tổ chức."
+              : "Học tập, có định hướng."}
           <p>Lịch học, bài tập và kết quả trong một không gian.</p>
         </div>
         <div className="sidebar-account">
           <span className="avatar">{initials(user.displayName)}</span>
           <div>
             <strong>{user.displayName}</strong>
-            <small>{user.role === "teacher" ? "Giáo viên" : "Học sinh"}</small>
+            <small>{roleLabel(user.role)}</small>
           </div>
           <ActionButton
             className="icon-button"
@@ -182,9 +201,7 @@ export default function Shell() {
           </button>
           <span className="breadcrumb">
             Không gian học tập <span>/</span>{" "}
-            <strong>
-              {user.role === "teacher" ? "Giáo viên" : "Học sinh"}
-            </strong>
+            <strong>{roleLabel(user.role)}</strong>
           </span>
           <div className="topbar-actions">
             <span className="version-pill">Workspace 2.0</span>

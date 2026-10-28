@@ -168,3 +168,27 @@ Rà soát cuối phát hiện Pagination dùng trong form chọn catalog có th�
 ### 2026-10-28 — Push AttendanceWeb 2.0 lên nhánh nâng cấp
 
 Chủ dự án giao push toàn bộ thay đổi TASK-023 (dashboard/shell/workspace/evidence) lên feat/attendanceweb-laravel-react tại taiDinh303/WebAttendance. Đã fetch và xác nhận remote là tổ tiên của HEAD local trước khi tạo commit; staging gồm code, docs, evidence và script concurrency, không có file runtime/secret/local env. Commit thông thường không force; chưa merge main, chưa deploy, không dùng dữ liệu thật.
+### 2026-10-28 — TASK-024: admin và dữ liệu demo
+
+Chủ dự án giao admin/trangadmin, bộ dữ liệu1/3/90 và30đồng thời, tiêu chí8nhóm khoảng8/10. Đã hỏi Q-021 và được chốt quản trị tài khoản/thống kê/audit, không nội dung lớp (DEC-027); seedlocaldemo theoDEC-028. Giữ bản2.0 đã push ở lượt trước; không ghi đè .env/dev/test hoặc xóa fixture cũ. Đang triển khai seedguard/idempotence, policy/status action/sessionrevocation/audit, trangadmin và diagnostics/kiểm chứng.
+
+### 2026-10-28 — TASK-024 VERIFIED LOCAL: admin và persistent demo
+
+Đã triển khai DEC-027: Policy admin riêng,5API summary/users/lock/unlock/audit, request/resource allowlist, action transaction lockactor+admin theo thứ tự ổn định, expectedVersion/reason/sessionrevocation/auditbeforeafter; không Gate bypass quyền lớp/file/điểm. Frontend typedadminApi/AdminGuard và3trang quản trị desktop/mobile; admin redirect /admin, giữ chức năng tự quản lý tài khoản. Không thêm dependency.
+
+DEC-028: tạo schema attendance_demo và user scoped mới với env/key/password local riêng, không thay attendance_dev/test/httpfixture hoặc dùng credential cũ. demo:seed opt-in/allowlist/mail guard tạo1admin+3teacher+90student+3class×30, lịch và180manualhistory,6assignments/45submissions/privateTXT/30publishedgrades. Manifest lock/idempotence giữ thay đổi password/status/lớp, không tạo lại windows khi reseed. Credentials chỉ work/demo-accounts-demo.json ignored; env/scripts không in password. Default DatabaseSeeder trống. Launcher demo.ps1 foreground, app:diagnose secret-free, readyhealth checkadminschema và MySQLstart chờTCP.
+
+Kết quả cuối PHP101tests/838assertions, Vitest29tests, adminbrowser1scenario PASS; Pint/Composer validate/typecheck/lint/build PASS; Composer/npm audit0; OpenAPI85operations khôngwarning. HTTP30first201 +30replay200,30records0duplicates, batch5592.52ms,p95response5428.17ms trên localPHPdevserver (có queue, khôngproductioncapacity). Restore schemasmới35tablecounts/52FK0orphan/45privatefilehash/94passwordhash PASS. Reports/ảnh tại06-testing và docs/evidence. TestcaseTC-026..030 và rubric8nhóm khoảng8/10 ở03, ghi rõ phạm vi và khoảng trống production.
+
+Browser phát hiện Route[login]notdefined khi unauthenticatedAPI thiếu AcceptJSON; sửa middleware redirectGuestsTo(null) và test401. JSONobjectorder/locatorlabel/screenshottransition chỉ sửa test theo contract thực. Đã giữ throttle429 khi load/browser cùngIP, chạy tuần tự để nghiệm thu. Seed/mutation browser có audit thật trên dữ liệu giả; student090 đã mở lại. SQLdump/cookie/rawtrace chỉ ignored, không trong evidence. Không commit/push/deploy đợtTASK-024, không mailthật/importlegacy. DemoAPI8000/Vite5173 để chủ dự án xem; MySQLloopback33306.
+
+Rà soát cuối: git diff --check không lỗi whitespace; quét72file thay đổi không thấy secret của envdemo hoặc UTF-8 lỗi, links docs hợp lệ. OpenAPI export sau bổ sung Resource mixin không warning. Ảnh admin desktop/mobile đã xem trực tiếp, mobile chờ sidebar rời viewport. Các kiểm tra này không thay audit bảo mật độc lập.
+
+### 2026-10-28 — Sửa xung đột cổng Vite5173
+Chủ dự án chạy npm run dev bị port in use do demo.ps1 web do Codex để lại (node1128, parent command xác nhận launcher demo của repo). Đã dừng đúng Vite này; chạy npm run dev thực tế PASS, Vite ready762ms tại127.0.0.1:5173. Dừng phiên kiểm tra sau đó để trả cổng cho terminal của chủ dự án; giữ API/MySQL. Không sửa app/dependencies/port hoặc chạy test logic không liên quan. Cập nhật hướng dẫn10-setup-local.
+
+### 2026-10-28 — Kiểm tra lỗi đăng nhập tài khoản minh họa
+Chủ dự án báo console401/422 và xác nhận dùng teacher@example.test. Kiểm bằng Edge headless mới qua UI/Vite5173→Laraveldemo8000: teacher@example.test trả422 INVALID_CREDENTIALS; teacher01@demo.attendance.test với initial password ở file ignored trả200, roleteacher, vào/app,0pageerror. Không đổi mật khẩu/tạo thêm tài khoản/bỏ auth/CSRF. Source app không có contentscript.js/ObjectMultiplex/app-init-liveness; các cảnh báo này nhiều khả năng từ tiện ích trình duyệt, chưa xác định extension cụ thể. GET/me401 trước đăng nhập là hành vi dự kiến. Không cần sửa logic auth cho lần báo lỗi này.
+
+### 2026-10-28 — Đóng gói và push TASK-024 theo yêu cầu chủ dự án
+Đích origin taiDinh303/WebAttendance, nhánh feat/attendanceweb-laravel-react. Fetch xác nhận HEAD khớp remote trước commit. Phạm vi gồm admin API/UI, seed opt-in1/3/90, diagnostics/launcher, kiểm chứng HTTP30/restore và tài liệu/evidence đã nghiệm thu (PHP101/838, Vitest29, adminbrowser1). Quét credential local và whitespace trước stage; không đưa env/runtime/password/database/cookie/rawtrace vào Git. Không gộp thay đổi xóa PHPDoc tại WeeklyOccurrences.php ngoài phạm viTASK-024, giữ file local nguyên trạng. Commit thường, không force-push/merge main/deploy/mail thật; kiểm HEAD remote sau push.

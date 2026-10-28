@@ -33,3 +33,7 @@ User guide có ảnh thao tác chỉ soạn sau UI thực; hiện05/09 là đặ
 ## File và điểm giai đoạn3
 
 Trước release cần kiểm ClamAV daemon thật, storage cleanup retry/quota/retention, proxy upload limits và capacity; các phần này chưa VERIFIED. Không dùng kết quả local_validation để đánh dấu malware scan PASS. Learning Feature/HTTP evidence riêng với phase1/phase2; quiz/chat/frontend chưa được triển khai, không đánh hoàn tất sản phẩm.
+
+## TASK-024 — Kết quả local, chưa đánh dấu production release
+
+Đã kiểm: admin API/privacy/sessionrevocation/version/audit; seed1/3/90 idempotent; PHP101/838; Vitest29; admin browser desktop/mobile; realHTTP30check-in+30replay; config diagnostics; SQL/privatefile restore rehearsal. Bằng chứng tại06-testing. Điều kiện TLS/mail/scanner/hosting/worker/realtime/monitor/RPO-RTO của release vẫn chưa VERIFIED; không tích toàn bộ checklist chỉ vì demo chạy.
