@@ -196,11 +196,12 @@ export default function Shell() {
           >
             <Menu />
           </button>
+          <button className="icon-button sidebar-toggle" aria-label={collapsed?"Mở rộng sidebar":"Thu gọn sidebar"} aria-expanded={!collapsed} onClick={()=>setCollapsed(v=>{localStorage.setItem("attendance.sidebar.collapsed",String(!v));return !v})}>{collapsed?<PanelLeftOpen/>:<PanelLeftClose/>}</button>
           <span className="breadcrumb">
             Không gian học tập <span>/</span>{" "}
             <strong>{roleLabel(user.role)}</strong>
           </span>
-          <button className="icon-button sidebar-toggle" aria-label={collapsed?"Mở rộng sidebar":"Thu gọn sidebar"} aria-expanded={!collapsed} onClick={()=>setCollapsed(v=>{localStorage.setItem("attendance.sidebar.collapsed",String(!v));return !v})}>{collapsed?<PanelLeftOpen/>:<PanelLeftClose/>}</button>
+
         </header>
         <main id="main" className="main-content">
           <Outlet />

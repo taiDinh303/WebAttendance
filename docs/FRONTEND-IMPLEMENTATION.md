@@ -116,3 +116,5 @@ IMPLEMENTED: bỏ avatar topbar/sidebar note/footer lặp; tạo lớp ở Class
 ## 2026-10-30 — Hồ sơ/sidebar
 
 IMPLEMENTED: Settings cuối sidebar; desktop collapse lưu preference local; mobile drawer giữ focus trap. Bỏ bell/date topbar. Hồ sơ xem trước, sửa/hủy; gender/birthday optional và avatar preset5màu qua PATCH/me/profile (version/self-only); timezone thiết bị gửi khi save. Migration2026_10_30_160000 cần chạy ở backend trước sử dụng các field mới. Google login/register và upload avatar hiện disabled, chỉ UI chuẩn bị: CHƯA có OAuth engine/callback/token validation hay storage upload; cần cấu hình và triển khai tiếp, không gọi đã tích hợp Google. Không lưu ảnh/private profile vào localStorage.
+
+2026-10-30: nút thu/mở sidebar desktop chuyển sang trái header, trước breadcrumb.
