@@ -14,7 +14,7 @@ import { useSession } from "../../../application/sessionContext";
 import { useResource } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
 import { PageHeader, QueryState, Empty } from "../../../shared/ui";
-import { ClassCard } from "../../classes/components/ClassCard";
+
 import { dateTime } from "../../../domain/format";
 
 export default function DashboardPage() {
@@ -66,12 +66,7 @@ export default function DashboardPage() {
           (user?.displayName.split(" ").at(-1) ?? "bạn") +
           ", hôm nay thế nào?"
         }
-        description={
-          teacher
-            ? "Nắm bắt lớp học. Tập trung vào những việc cần bạn."
-            : "Biết việc cần làm. Chủ động cho từng buổi học."
-        }
-        action={
+        action={teacher ? undefined :
           <Link
             className="button"
             to={teacher ? "/app/classes?create=1" : "/app/check-in"}
@@ -87,7 +82,7 @@ export default function DashboardPage() {
         retry={query.refetch}
       />
       <div className="stats-grid v2-metrics">
-        {metrics.map((metric) => (
+        {metrics.filter((_,i)=>!teacher||i<2).map((metric) => (
           <Link to={metric.to} className="stat-card" key={metric.label}>
             <span className={"stat-icon " + metric.color}>
               <metric.icon size={21} />
@@ -113,9 +108,7 @@ export default function DashboardPage() {
                       : "Việc học cần hoàn thành"}
                   </h2>
                 </div>
-                <span className="live-label">
-                  <span /> Dữ liệu lớp học
-                </span>
+
               </div>
               {teacher ? (
                 <>
@@ -253,9 +246,7 @@ export default function DashboardPage() {
                   ) : null}
                 </>
               )}
-              <p className="muted queue-caption">
-                Hiển thị tối đa 5 mục mỗi nhóm. Mở lớp học để xem toàn bộ.
-              </p>
+
             </section>
             <aside className="panel agenda-panel">
               <div className="section-heading">
@@ -302,53 +293,10 @@ export default function DashboardPage() {
               <Link className="button secondary agenda-link" to="/app/calendar">
                 Mở lịch học <ArrowRight size={16} />
               </Link>
-              <p className="muted queue-caption">
-                Giờ hiển thị theo thiết bị của bạn.
-              </p>
+
             </aside>
           </div>
-          <section className="v2-classes">
-            <div className="section-heading">
-              <div>
-                <span className="eyebrow">TIẾP TỤC TỪ ĐÂY</span>
-                <h2>
-                  Lớp học của bạn{" "}
-                  <span className="count-pill">{summary?.activeClasses}</span>
-                </h2>
-              </div>
-              <Link className="text-link" to="/app/classes">
-                Xem tất cả <ArrowRight size={16} />
-              </Link>
-            </div>
-            {data.classes.length ? (
-              <div className="class-grid">
-                {data.classes.map((classroom, index) => (
-                  <ClassCard
-                    key={classroom.id}
-                    classroom={classroom}
-                    index={index}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="panel">
-                <Empty
-                  title={
-                    teacher ? "Tạo lớp học đầu tiên" : "Bắt đầu với một lớp học"
-                  }
-                  description={
-                    teacher
-                      ? "Tạo lớp và gửi mã mời cho học sinh."
-                      : "Nhập mã từ giáo viên, sau đó chờ duyệt tham gia."
-                  }
-                >
-                  <Link className="button secondary" to="/app/classes">
-                    {teacher ? "Quản lý lớp học" : "Tham gia lớp"}
-                  </Link>
-                </Empty>
-              </div>
-            )}
-          </section>
+
         </>
       ) : null}
     </>

@@ -109,3 +109,6 @@ HTTP timeout60s cho API và CSRF theo hướng bounded request tham khảo NoteT
 2026-10-30: AsyncForm bỏ dòng chữ Đang xử lý theo yêu cầu; giữ disabled và aria-busy trong lúc gửi.
 
 2026-10-30: Home dùng session context để đổi login thành Vào lớp học và ẩn đăng ký khi authenticated. Login/register redirect /app (hoặc next hợp lệ) nếu có session; đợi session trước khi hiện form. Forgot/reset giữ luồng riêng.
+
+## 2026-10-30 — Workspace gọn và preparation
+IMPLEMENTED: bỏ avatar topbar/sidebar note/footer lặp; tạo lớp ở Classes, bỏ preview classes trên Dashboard; teacher metrics giữ lớp/buổi, counts duyệt/chấm nằm ở queue. Grid auto-fit phủ chiều ngang, panel nhỏ ghép cùng hàng, responsive1cột; pagination chỉ hiện khi nhiều trang. WorkspacePreparation tải dashboard/classes trang1/code ưu tiên theo private actor keys, progress theo task thật, retry lỗi; màn settings/calendar/notices/catalog tải code nền sau ready, unread/notifications trang1 prefetch. Không tải toàn bộ dữ liệu lớp, không lưu dữ liệu private vào localStorage, giữ invalidation/authorization. Admin bỏ qua preparation học tập.

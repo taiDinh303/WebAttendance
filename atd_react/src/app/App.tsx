@@ -1,3 +1,4 @@
+import WorkspacePreparation from "./WorkspacePreparation";
 import { Component, Suspense, lazy, type ReactNode } from "react";
 import {
   BrowserRouter,
@@ -119,7 +120,7 @@ function Guard() {
         <Link to="/login">Đổi tài khoản</Link>
       </div>
     );
-  return <Outlet />;
+  return <WorkspacePreparation><Outlet /></WorkspacePreparation>;
 }
 function AdminGuard() {
   const { user } = useSession();

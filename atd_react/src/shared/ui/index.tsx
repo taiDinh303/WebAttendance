@@ -238,7 +238,7 @@ export function Pagination({
   >;
   onPage: (page: number) => void;
 }) {
-  if (!data) return null;
+  if (!data || data.totalPages <= 1) return null;
   return (
     <nav className="pagination" aria-label="Phân trang">
       <span>

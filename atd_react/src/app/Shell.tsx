@@ -163,15 +163,6 @@ export default function Shell() {
             </NavLink>
           ) : null}
         </nav>
-        <div className="sidebar-note">
-          <span className="mini-dot" />
-          {admin
-            ? "Quản trị, có trách nhiệm."
-            : user.role === "teacher"
-              ? "Dạy học, có tổ chức."
-              : "Học tập, có định hướng."}
-          <p>Lịch học, bài tập và kết quả trong một không gian.</p>
-        </div>
         <div className="sidebar-account">
           <span className="avatar">{initials(user.displayName)}</span>
           <div>
@@ -204,7 +195,7 @@ export default function Shell() {
             <strong>{roleLabel(user.role)}</strong>
           </span>
           <div className="topbar-actions">
-            <span className="version-pill">Workspace 2.0</span>
+
             <span className="today">
               {new Intl.DateTimeFormat("vi-VN", {
                 weekday: "short",
@@ -222,16 +213,13 @@ export default function Shell() {
                 <i className="notification-dot" />
               ) : null}
             </Link>
-            <span className="avatar small">{initials(user.displayName)}</span>
+
           </div>
         </header>
         <main id="main" className="main-content">
           <Outlet />
         </main>
-        <footer className="app-footer">
-          Attendance · Mỗi buổi học đều có ý nghĩa.
-          <span>Không gian của {user.displayName}</span>
-        </footer>
+
       </div>
     </div>
   );

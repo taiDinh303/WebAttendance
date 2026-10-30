@@ -242,3 +242,6 @@ Bỏ dòng trạng thái Đang xử lý dưới nút AsyncForm theo ảnh chủ 
 
 ### 2026-10-30 — Public pages nhận biết session
 Theo yêu cầu chủ dự án, Home và Auth dùng session hiện hành; không ép đăng nhập lại khi mở login/register. Typecheck/lint/29tests/build PASS sau sửa. Edge local với me fixture PASS: Home không có link login, /login redirect /app. Đây là kiểm UI mock, chưa chứng minh cookie cloud persistence. Push main theo quyền phiên.
+
+### 2026-10-30 — Workspace giáo viên / tải ưu tiên
+Yêu cầu trực tiếp tái bố trí workspace: shell/dash/shared grid và pagination; thêm WorkspacePreparation trước Outlet sau Guard, cache actor-scoped và tải code nền. VERIFIED LOCAL: TypeScript/lint29unit/build PASS; Edge6route×desktop1440/mobile390 với teacher API fixtures không tràn ngang, ảnh work/teacher-* ignored. Đã xem ảnh dashboard desktop và chỉnh metrics auto-fit sau kiểm; fixture không chứng minh hiệu năng cloud hoặc mutation nghiệp vụ. Lint có lỗi script QA tạm đã xóa script và chạy lại PASS. Những màn chi tiết lớp dùng grid chung, chưa kiểm lại mọi modal/tab hoặc admin/student full flow. Không tuyên bố hết loading: màn/collection ngoài dữ liệu ưu tiên vẫn fetch khi cần. Push main theo quyền phiên.
