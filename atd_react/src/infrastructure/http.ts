@@ -10,6 +10,7 @@ let csrfPending: Promise<void> | undefined;
 async function csrf() {
   if (cookie("XSRF-TOKEN")) return;
   csrfPending ??= fetch(origin + "/sanctum/csrf-cookie", {
+    signal: AbortSignal.timeout(60000),
     credentials: "include",
     headers: { Accept: "application/json" },
   })
