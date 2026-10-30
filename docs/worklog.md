@@ -195,3 +195,30 @@ Chủ dự án báo console401/422 và xác nhận dùng teacher@example.test. K
 
 ### 2026-10-29 — TASK-025: sửa và push Composer audit CI timeout
 Chủ dự án cung cấp curl28/connecttimeout10005ms từ Packagist security-advisories, exit100, giao sửa và push lại nhánh feat/attendanceweb-laravel-react. Nguyên nhân quan sát được là không lấy được phản hồi mạng, chưa đủ chứng cứ kết luận IPv6/server nào gây lỗi. Workflow dùng IPv4 cho ext-curl và wrapper retry riêng transport100 tối đa3lần, nghỉ5/10s, stepdeadline5phút; security exitcode và lỗi sau khi hết lượt vẫn làm CI fail. Không offline/ignore-unreachable/continue-on-error, không sửa dependencies/lockfile. Thêm regression9case + pathtriggers của2script. Bashsyntax/9cases/YAMLwiring PASS; online audit thật local exit0 không có vulnerability advisory. Không chạy lại applicationtests cho thay đổi CI-only. Giữ thay đổi PHPDoc WeeklyOccurrences.php ngoài phạm vi nguyên trạng, không stage. Đóng gói commit thường và push theo yêu cầu, kiểm remote HEAD sau push.
+Render deployment9bca167 đã live, /health/ready HTTPS trả200, migrations và session DB trên Aiven Free hoạt động. Browser qua Vercel preview đăng ký synthetic student thành công; login tới /app và giữ cổng email verification. Smoke phát hiện AuthPage giữ done state khi đổi /register→/login; sửa key theo route để reset component. Đổi tài khoản tại verification screen được nối logout thật thay vì chỉ link login, để kết thúc session đúng. React23testsPASS; typecheck/lint/build chạy lại sau thay đổi. Cần redeploy frontend và kiểm lại return-to-login/logout trước kết luận hoàn tất.
+`nAPI guest navigation không Accept header được tái hiện500/Route login not defined bằng test hồi quy trước fix. Đã đặt redirectGuestsTo null cho API-only; HealthTest4tests/15assertionsPASS sau fix, PintPASS. Render đã live và browser register/login/logout thành công; tiếp tục deploy fix401 cuối.
+`nCommit4e6885f đã deploy Live; kiểm HTTPS health200 và guest API401 JSON trên Render. Browser cloud register/login/logout đã PASS ở frontend bd42197. Kết nối preview hoàn tất; mail thật/upload/scanner và release production vẫn chưa trong phạm vi.
+
+2026-10-29 — DEC-029/TASK-025: chủ dự án giao tạo dữ liệu thử 3 giáo viên,30học sinh,3lớp×10, tài khoản gv001–003/hs001–030 với mật khẩu chung do chủ dự án cung cấp qua server secret; không ghi mật khẩu vào source/docs. Dùng @attendance.test, verified synthetic accounts để test không gửi mail; không thay quy tắc verify của tài khoản bình thường. Đồng thời giao sửa domain attendanceweb-psi.vercel.app; production BACKEND_URL đã đặt, đang triển khai và kiểm.
+
+### 2026-10-29 — TASK-025 VERIFIED CLOUD DEMO
+
+Tạo qua transaction trên service Free mới: gv001–gv003@attendance.test, hs001–hs030@attendance.test; 3 lớp mỗi lớp10membership active, owner tương ứng; synthetic accounts email_verified_at được đặt theo yêu cầu test, không đổi verification của tài khoản tự đăng ký. Password nhận qua DEMO_SETUP_PASSWORD server secret, không lưu literal vào seed/source/docs. PREPARE_DEMO đã đặt false sau khởi tạo; command có guard Render service/database host, marker ngăn reset dữ liệu và từ chối overwrite email có sẵn. Không gửi mail/import dữ liệu cũ.
+
+Vercel production BACKEND_URL được cấu hình và deployment dpl_6UP3uPjfnGTHDaokfN8mQi8BkPjZ READY, alias chính https://attendanceweb-psi.vercel.app . Render frontend origins/domain được cập nhật cụ thể. HTTP trên domain chính: guest /api/v1/me401; csrf/login cả3teacherPASS, verified=true, mỗi người đúng1class và10student. Student001/011/021 loginPASS, mỗi người chỉ1class đúng nhóm. 30students được đối soát qua3roster10item; không coi là đã chạy30HTTPlogin/concurrency. PHP lint/Pint/shell syntaxPASS; nguồn commit107fee1 đã push codex/cloud-hosting, không merge main. Mail thật/private upload/scanner vẫn chưa bật. Domain là alias ổn định, deployment là bản build riêng; lỗi404 trước đó do production chưa nối BACKEND_URL.
+
+### 2026-10-29 — TASK-026 PASSWORD VISIBILITY
+
+Chủ dự án yêu cầu thêm con mắt ở login và mọi input mật khẩu. Đã thay toàn bộ 5 vị trí source bằng PasswordInput dùng chung; mỗi ô hiện/ẩn độc lập, mặc định password, button không submit, có accessible label và trạng thái. Chờ kết quả typecheck/lint/unit/build trước cập nhật cloud.
+
+VERIFIED TASK-026: typecheck/lint/23unit/build PASS. Edge headless trên local /login, /register, /reset-password: hiện/ẩn PASS, giữ nguyên giá trị và độc lập giữa các ô; không gửi form/API ghi. Settings dùng cùng component, chưa chạy luồng đổi mật khẩu cloud. Chủ dự án giao push bản sửa.
+
+### 2026-10-30 — Home và startup
+
+Theo yêu cầu chủ dự án: thêm Home công khai tại / và /home, link login/register/workspace; bỏ redirect / sang /app. Startup hiển thị trạng thái giao diện và xác thực, progress indeterminate theo phong cách NoteTatCa, không tạo phần trăm giả. Session request có timeout60s và dùng isLoading để không quay vô hạn khi query bị pause offline. IMPLEMENTED LOCAL; chưa deploy hoặc kiểm browser cloud. Kết quả checks được ghi sau khi chạy.
+
+Kiểm tra local: TypeScript, ESLint, Vitest23/23 và production build PASS. Chưa kiểm browser hoặc tái hiện lỗi cloud, chưa commit/push/deploy.
+
+Chủ dự án cho phép tự commit/push thay đổi giao diện React trong phiên chat này. Đóng gói Home/startup và session timeout lên nhánh codex/cloud-hosting; không merge main hoặc chạy deploy thủ công.
+
+Chủ dự án đổi quyền publish trong phiên: tự push giao diện React lên main và xóa nhánh codex/cloud-hosting sau khi đưa bản Home/startup sang main. Giữ phần admin hiện có trên main.

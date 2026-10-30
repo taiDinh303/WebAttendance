@@ -92,3 +92,8 @@ Quiz/chat/feed/comment/admin/export, báo cáo ma trận đầy đủ, offline s
 Thay trạng thái admin chưatriểnkhai trong snapshot2.0 phía trên: admin dashboard /admin, quản lý/lọc tài khoản /admin/users, nhật ký /admin/audit đã IMPLEMENTED/VERIFIED LOCAL. Login admin tự chuyển từ /app về /admin; menu riêng, role label chính xác. API adapter adminApi tái dùng HTTP CSRF/envelope; typed AdminUser/Summary/Event; cache keys có actor; AdminGuard là UX còn API Policy là quyền thực.
 
 Khóa/mở có reason3..500, expectedVersion, error giữ nội dung nhập; tự khóa không có nút và server vẫn chặn. Audit hiển thị actor/subject/reason/before-after/version, lọc/phân trang. Layout tài khoản chuyển card trên mobile390px. Browser real API đã kiểm counts94/1/3/90, lọc, lock/revoke/unlock/relogin/audit, student bị chặn admin, admin bị chặn lớp; không pageerror. Ảnh evidence/admin-desktop.png và admin-mobile.png. Các module quiz/chat/feed/export vẫn giữ trạng thái trước.
+VERIFIED TASK-026: typecheck, lint,23unit tests và build PASS; Edge local kiểm login/register/reset toggle, giữ giá trị và độc lập giữa các ô PASS. Settings dùng chung component; không đổi mật khẩu tài khoản để test.
+
+## 2026-10-30 — Public Home / startup
+
+IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/app bằng link. /app giữ Guard và kiểm quyền hiện hành. Startup xác thực có trạng thái/progress indeterminate, không giả lập tiến độ collection; timeout60s cho request me, offline pending không giữ spinner. Chưa VERIFIED browser/cloud.

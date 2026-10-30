@@ -14,6 +14,8 @@ import { useSession } from "../application/sessionContext";
 import { Loading, ErrorNotice, ActionButton } from "../shared/ui";
 import { authApi } from "../infrastructure/authApi";
 import { canAdminister } from "../domain/access";
+import Home from './Home';
+import Startup from './Startup';
 const Shell = lazy(() => import("./Shell"));
 const Auth = lazy(() => import("../features/auth/pages/AuthPage"));
 const Dashboard = lazy(
@@ -76,7 +78,7 @@ class Boundary extends Component<
 function Guard() {
   const { user, loading, error, reload } = useSession();
   const location = useLocation();
-  if (loading) return <Loading />;
+  if (loading) return <Startup />;
   if (error)
     return (
       <div className="fatal">
@@ -144,11 +146,11 @@ export function App() {
           <BrowserRouter>
             <Suspense fallback={<Loading />}>
               <Routes>
-                <Route path="/" element={<Navigate to="/app" replace />} />
-                <Route path="/login" element={<Auth />} />
-                <Route path="/register" element={<Auth />} />
-                <Route path="/forgot-password" element={<Auth />} />
-                <Route path="/reset-password" element={<Auth />} />
+                <Route path="/" element={<Home />} /><Route path="/home" element={<Home />} />
+                <Route path="/login" element={<Auth key="login" />} />
+                <Route path="/register" element={<Auth key="register" />} />
+                <Route path="/forgot-password" element={<Auth key="forgot" />} />
+                <Route path="/reset-password" element={<Auth key="reset" />} />
                 <Route element={<Guard />}>
                   <Route element={<AdminGuard />}>
                     <Route path="/admin" element={<Shell />}>

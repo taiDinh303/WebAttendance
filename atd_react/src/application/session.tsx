@@ -9,7 +9,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryKey: ["session"],
     queryFn: async ({ signal }) => {
       try {
-        return await authApi.me(signal);
+        return await authApi.me(AbortSignal.any([signal, AbortSignal.timeout(60000)]));
       } catch (e) {
         if (e instanceof ApiError && e.status === 401) return null;
         throw e;
@@ -47,7 +47,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     <Context.Provider
       value={{
         user: query.data,
-        loading: query.isPending,
+        loading: query.isLoading,
         error: query.error,
         login,
         logout,
