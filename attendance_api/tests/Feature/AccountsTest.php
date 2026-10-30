@@ -79,6 +79,14 @@ final class AccountsTest extends TestCase
         $this->assertFalse($other->fresh()->hasVerifiedEmail());
     }
 
+    public function test_optional_profile_details_are_validated_and_saved(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user)->patchJson('/api/v1/me/profile', ['gender' => 'female', 'birthday' => '2000-01-02', 'avatarKey' => 'green', 'expectedVersion' => 1])->assertOk()->assertJsonPath('data.gender', 'female')->assertJsonPath('data.avatarKey', 'green')->assertJsonPath('data.birthday', '2000-01-02');
+        $this->patchJson('/api/v1/me/profile', ['gender' => 'invalid', 'avatarKey' => '../file', 'birthday' => '2999-01-01', 'expectedVersion' => 2])->assertUnprocessable();
+        $this->assertSame(2, $user->fresh()->version);
+    }
+
     public function test_profile_is_self_only_and_uses_optimistic_version(): void
     {
         $user = User::factory()->create();

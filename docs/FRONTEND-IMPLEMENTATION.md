@@ -112,3 +112,7 @@ HTTP timeout60s cho API và CSRF theo hướng bounded request tham khảo NoteT
 
 ## 2026-10-30 — Workspace gọn và preparation
 IMPLEMENTED: bỏ avatar topbar/sidebar note/footer lặp; tạo lớp ở Classes, bỏ preview classes trên Dashboard; teacher metrics giữ lớp/buổi, counts duyệt/chấm nằm ở queue. Grid auto-fit phủ chiều ngang, panel nhỏ ghép cùng hàng, responsive1cột; pagination chỉ hiện khi nhiều trang. WorkspacePreparation tải dashboard/classes trang1/code ưu tiên theo private actor keys, progress theo task thật, retry lỗi; màn settings/calendar/notices/catalog tải code nền sau ready, unread/notifications trang1 prefetch. Không tải toàn bộ dữ liệu lớp, không lưu dữ liệu private vào localStorage, giữ invalidation/authorization. Admin bỏ qua preparation học tập.
+
+## 2026-10-30 — Hồ sơ/sidebar
+
+IMPLEMENTED: Settings cuối sidebar; desktop collapse lưu preference local; mobile drawer giữ focus trap. Bỏ bell/date topbar. Hồ sơ xem trước, sửa/hủy; gender/birthday optional và avatar preset5màu qua PATCH/me/profile (version/self-only); timezone thiết bị gửi khi save. Migration2026_10_30_160000 cần chạy ở backend trước sử dụng các field mới. Google login/register và upload avatar hiện disabled, chỉ UI chuẩn bị: CHƯA có OAuth engine/callback/token validation hay storage upload; cần cấu hình và triển khai tiếp, không gọi đã tích hợp Google. Không lưu ảnh/private profile vào localStorage.

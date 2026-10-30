@@ -9,6 +9,8 @@ import {
   LogOut,
   ScanLine,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Library,
   Clock3,
   X,
@@ -25,6 +27,7 @@ import { roleLabel } from "../domain/access";
 import { ActionButton } from "../shared/ui";
 export default function Shell() {
   const { user, logout } = useSession();
+  const [collapsed, setCollapsed] = useState(()=>localStorage.getItem("attendance.sidebar.collapsed")==="true");
   const [menu, setMenu] = useState(false);
   const [compact, setCompact] = useState(
     () => window.matchMedia("(max-width: 760px)").matches,
@@ -96,7 +99,7 @@ export default function Shell() {
         { to: "/app/settings", icon: Settings, label: "Cài đặt" },
       ];
   return (
-    <div className="workspace workspace-v2">
+    <div className={"workspace workspace-v2 " + (collapsed && !compact ? "sidebar-collapsed" : "")}>
       <a className="skip-link" href="#main">
         Bỏ qua đến nội dung
       </a>
@@ -136,35 +139,38 @@ export default function Shell() {
         <div className="workspace-label">KHÔNG GIAN CỦA BẠN</div>
         <nav>
           {navigation
-            .filter((n) => user.role === "student" || n.to !== "/app/check-in")
+            .filter((n) => n.to !== "/app/settings" && (user.role === "student" || n.to !== "/app/check-in"))
             .map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
+                title={n.label}
+                aria-label={n.label}
                 end={n.end}
                 onClick={() => setMenu(false)}
               >
                 <n.icon size={19} />
-                {n.label}
+                <span className="nav-label">{n.label}</span>
                 {n.to === "/app/notifications" && unread.data?.unreadCount ? (
                   <span className="nav-count">{unread.data.unreadCount}</span>
                 ) : null}
               </NavLink>
             ))}
           {!admin && user.role === "teacher" ? (
-            <NavLink to="/app/catalog" onClick={() => setMenu(false)}>
+            <NavLink aria-label="Môn học & học kỳ" title="Môn học & học kỳ" to="/app/catalog" onClick={() => setMenu(false)}>
               <Library size={19} />
-              Môn học & học kỳ
+              <span className="nav-label">Môn học & học kỳ</span>
             </NavLink>
           ) : !admin ? (
-            <NavLink to="/app/join-requests" onClick={() => setMenu(false)}>
+            <NavLink aria-label="Yêu cầu vào lớp" title="Yêu cầu vào lớp" to="/app/join-requests" onClick={() => setMenu(false)}>
               <Clock3 size={19} />
-              Yêu cầu vào lớp
+              <span className="nav-label">Yêu cầu vào lớp</span>
             </NavLink>
           ) : null}
         </nav>
+        <nav className="sidebar-bottom"><NavLink to="/app/settings" title="Cài đặt" aria-label="Cài đặt" onClick={()=>setMenu(false)}><Settings size={19}/><span className="nav-label">Cài đặt</span></NavLink></nav>
         <div className="sidebar-account">
-          <span className="avatar">{initials(user.displayName)}</span>
+          <span className={"avatar avatar-"+(user.avatarKey ?? "blue")}>{initials(user.displayName)}</span>
           <div>
             <strong>{user.displayName}</strong>
             <small>{roleLabel(user.role)}</small>
@@ -194,27 +200,7 @@ export default function Shell() {
             Không gian học tập <span>/</span>{" "}
             <strong>{roleLabel(user.role)}</strong>
           </span>
-          <div className="topbar-actions">
-
-            <span className="today">
-              {new Intl.DateTimeFormat("vi-VN", {
-                weekday: "short",
-                day: "numeric",
-                month: "long",
-              }).format(new Date())}
-            </span>
-            <Link
-              to="/app/notifications"
-              className="icon-button"
-              aria-label="Thông báo"
-            >
-              <Bell size={19} />
-              {unread.data?.unreadCount ? (
-                <i className="notification-dot" />
-              ) : null}
-            </Link>
-
-          </div>
+          <button className="icon-button sidebar-toggle" aria-label={collapsed?"Mở rộng sidebar":"Thu gọn sidebar"} aria-expanded={!collapsed} onClick={()=>setCollapsed(v=>{localStorage.setItem("attendance.sidebar.collapsed",String(!v));return !v})}>{collapsed?<PanelLeftOpen/>:<PanelLeftClose/>}</button>
         </header>
         <main id="main" className="main-content">
           <Outlet />

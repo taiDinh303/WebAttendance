@@ -7,6 +7,9 @@ export interface User {
   emailVerified: boolean;
   accountStatus: string;
   phone: string | null;
+  gender?: "male" | "female" | "other" | "undisclosed" | null;
+  birthday?: string | null;
+  avatarKey?: string | null;
   locale: string;
   timezone: string;
   version: number;

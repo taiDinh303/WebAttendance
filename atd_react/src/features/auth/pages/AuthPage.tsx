@@ -99,6 +99,7 @@ export default function AuthPage() {
                   ? "Sử dụng mật khẩu mạnh để bảo vệ tài khoản."
                   : "Đăng nhập để tiếp tục hành trình học tập của bạn."}
           </p>
+          {!forgot && !reset && !done ? <div className="google-signin"><button type="button" className="button secondary wide" disabled title="Chưa cấu hình Google OAuth"><span aria-hidden="true">G</span>Tiếp tục với Google</button><small className="muted">Google sẽ mở sau khi cấu hình kết nối.</small><p className="muted">hoặc tiếp tục bằng email</p></div> : null}
           {done ? (
             <div className="success panel">
               <ShieldCheck />

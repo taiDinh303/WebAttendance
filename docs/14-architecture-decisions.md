@@ -102,3 +102,6 @@ Chủ dự án giao làm admin/trang admin và trả lời Q-021: “Theo đề 
 Chủ dự án giao dữ liệu giả1admin/3teacher/90student và30check-in đồng thời. Dùng schema localdemo riêng, namespace email .test,3lớp×30student, dữ liệu minh họa lịch/điểm danh/bài tập/điểm. Seed có guard environment/database/mail/opt-in, idempotent và giữ thay đổi tài khoản; không xóa dữ liệu cũ hoặc đổi mật khẩu khi seed lại. Secret chỉ từ env/ignoredwork, không literalpassword trong docs/seed/log. Workload30đồng thời kiểm bằng fixture riêng; quy mô không phải trần user hệ thống.
 
 DEC-027/028 IMPLEMENTED và VERIFIED LOCAL tại TASK-024 (2026-10-28): admin5API/3trang, seedattendance_demo1/3/90,101PHP/29frontendtests, browseradmin và HTTP30/replay/restore; chi tiết06-testing. Scope CONFIRMED không thay đổi, production chưa VERIFIED.
+
+### DEC-030 — Hồ sơ, sidebar và chuẩn bị Google/avatar (CONFIRMED 2026-10-30)
+Nguồn chủ dự án: Settings cuối sidebar, thu/mở sidebar như NoteTatCa; hồ sơ xem trước và sửa khi cần; timezone thiết bị thay input chỉnh tay; thêm thông tin cơ bản. Xác nhận Google sign-in bên cạnh email/password và chuẩn bị avatar preset/upload. UI Google/upload hiển thị chưa khả dụng khi chưa cấu hình; không tự tạo secret/storage/mail. Triển khai fields optional, không thay role/email hoặc timezone buổi học của lớp.

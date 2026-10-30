@@ -27,7 +27,7 @@ final class MeController extends Controller
             if ($user->version !== (int) $data['expectedVersion']) {
                 throw new ApiException('VERSION_CONFLICT', 'Profile changed. Reload before saving.');
             }
-            foreach (['displayName' => 'display_name', 'phone' => 'phone', 'locale' => 'locale', 'timezone' => 'timezone'] as $field => $column) {
+            foreach (['displayName' => 'display_name', 'phone' => 'phone', 'avatarKey' => 'avatar_key', 'gender' => 'gender', 'birthday' => 'birthday', 'locale' => 'locale', 'timezone' => 'timezone'] as $field => $column) {
                 if (array_key_exists($field, $data)) {
                     $user->{$column} = $data[$field];
                 }

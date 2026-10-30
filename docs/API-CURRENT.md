@@ -91,3 +91,6 @@ Target workload đã CONFIRMED3teacher/90student/30check-in đồng thời. Scri
 ## Admin/demo — TASK-024 (2026-10-28)
 
 Runtime thêm5operation admin/summary, admin/users, users/{id}/lock, users/{id}/unlock, admin/audit; tổng85operation theo OpenAPI export không warning. Contract API-011 ở15, Policy admin không có quyền nội dung lớp/file/điểm. Hai migration bổ sung admin audit và demo manifest, seed riêng opt-in. PHP101tests/838assertionsPASS, HTTP30+30replayPASS và browser adminPASS; các snapshot NOT RUN trước đây chỉ đúng tại ngày ghi, xem06-testing cho evidence hiện hành. Chưa production/SMTP/ClamAV/realtime dispatcher.
+
+## Profile extensions — 2026-10-30
+PATCH /api/v1/me/profile thêm optional nullable gender (male/female/other/undisclosed), birthday (YYYY-MM-DD, không tương lai), avatarKey (blue/green/amber/rose/violet). UserResource trả3field mới. Self actor + expectedVersion giữ nguyên. Migration2026_10_30_160000_add_profile_details_to_users cần áp dụng; chưa migrate cloud. Không có API upload avatar hoặc Google OAuth trong đợt chuẩn bị UI này.

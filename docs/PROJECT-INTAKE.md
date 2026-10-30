@@ -76,3 +76,7 @@ Chủ dự án giao làm theo đề xuất và xác nhận khoảng3giáo viên,
 ## Admin/demo — 2026-10-28
 
 Yêu cầu1admin/3teacher/90student,30check-in đồng thời và chuẩn chất lượng8nhóm khoảng8/10. Q-021 ANSWERED: admin tài khoản/thống kê/audit, giữ riêng nội dung lớp (DEC-027); không mặc định có quyền đọc điểm/bài/file/chat. DEC-028 cho seed local demo synthetic bền vững. Không cấp quyền deploy/mail thật/import cũ.
+
+### 2026-10-30 — Hồ sơ và sidebar theo NoteTatCa (CONFIRMED)
+
+Chủ dự án yêu cầu Settings cuối sidebar, thu/mở sidebar, hồ sơ read-first/edit-on-demand, bỏ input timezone và dùng timezone thiết bị khi lưu; thêm gender/birthday/avatar. Chốt Google bên cạnh email/password; chọn chuẩn bị cả avatar có sẵn và tải ảnh, Google/upload chưa khả dụng khi chưa có cấu hình. Không tự bật SMTP, kho ảnh hoặc OAuth credentials. IMPLEMENTED/VERIFIED xem worklog.

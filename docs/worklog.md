@@ -245,3 +245,9 @@ Theo yêu cầu chủ dự án, Home và Auth dùng session hiện hành; không
 
 ### 2026-10-30 — Workspace giáo viên / tải ưu tiên
 Yêu cầu trực tiếp tái bố trí workspace: shell/dash/shared grid và pagination; thêm WorkspacePreparation trước Outlet sau Guard, cache actor-scoped và tải code nền. VERIFIED LOCAL: TypeScript/lint29unit/build PASS; Edge6route×desktop1440/mobile390 với teacher API fixtures không tràn ngang, ảnh work/teacher-* ignored. Đã xem ảnh dashboard desktop và chỉnh metrics auto-fit sau kiểm; fixture không chứng minh hiệu năng cloud hoặc mutation nghiệp vụ. Lint có lỗi script QA tạm đã xóa script và chạy lại PASS. Những màn chi tiết lớp dùng grid chung, chưa kiểm lại mọi modal/tab hoặc admin/student full flow. Không tuyên bố hết loading: màn/collection ngoài dữ liệu ưu tiên vẫn fetch khi cần. Push main theo quyền phiên.
+
+### 2026-10-30 — Hồ sơ và sidebar
+
+Tham khảo NoteTatCa theo yêu cầu trực tiếp. Frontend typecheck/lint29unit/build PASS. Edge local me fixture: read/edit/cancel, không input timezone, collapse giữ sau reload PASS; ảnh work/settings-collapsed.png đã xem. PHP Pint dirty PASS. Profile gender/birthday/avatar preset có migration/request/resource/controller update, thêm test validation/persistence. Google/upload chỉ disabled UI theo xác nhận chờ cấu hình, chưa engine OAuth/storage. Không deploy hoặc migrate cloud. Test Accounts đầu sai cwd; lượt sau chờ MySQL và chồng lượt targeted gây migration race; đã dừng đúng process test cũ rồi chạy lại tuần tự, kết quả theo phần tiếp.
+
+Kết quả cuối AccountsTest13tests/82assertions PASS (221202ms), migration và field validation/persistence đã kiểm trên MySQL test local. Mobile390profile/drawer no overflow PASS với me fixture. PHP syntax/Pint và diff check PASS. Không chạy migration cloud hoặc tích hợp OAuth/upload thật. Push main theo quyền phiên.
