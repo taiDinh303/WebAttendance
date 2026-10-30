@@ -230,3 +230,6 @@ Theo ảnh chủ dự án: main thiếu thay đổi22b6402 của nhánh hosting 
 
 ### 2026-10-30 — Public pages responsive
 Trang trí Home/logo và chuyển auth switch xuống dưới CTA theo ảnh chủ dự án. Typecheck/lint/29tests/build PASS. Browser Edge local390x844 kiểm3route với guest API mock: không tràn ngang; login cao844px, register ban đầu973px nên giảm gap/margin sau kiểm. Home có nội dung cuộn1066px. Chưa nghiệm thu cloud; không gửi form thật. Push main theo quyền phiên.
+
+### 2026-10-30 — Chẩn đoán login/cloud
+Aiven connector xác nhận attendanceweb-mysql-free/free-1-1gb/do-sgp đang POWEROFF. Main thiếu atd_react/vercel.json sau chuyển khỏi nhánh hosting: khôi phục proxy api/sanctum dùng BACKEND_URL và fallback index.html từ cấu hình604f212; không đổi secret. Chờ chủ dự án cho bật DB; chưa kết luận login hoặc Render→DB VERIFIED.

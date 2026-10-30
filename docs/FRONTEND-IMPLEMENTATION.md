@@ -101,3 +101,5 @@ IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/a
 2026-10-30: đưa PasswordInput dùng chung vào main cho login/register/reset/settings. Mỗi ô hiện/ẩn độc lập, mặc định che, button type=button và aria-label/aria-pressed; giữ value và constraints.
 
 2026-10-30: Home thêm logo graduation-cap và icon tính năng, nền xanh nhẹ. Auth chuyển switch login/register xuống dưới CTA; logo riêng trên mobile, input16px/touch44px, giảm spacing theo viewport và giữ scroll khi màn hình ngắn.
+
+2026-10-30: khôi phục vercel.json trên main: proxy /api và /sanctum/csrf-cookie trước filesystem/SPA fallback để deep-link reload không404. DB Aiven đang tắt; sửa routing không đủ chứng minh login hoạt động.
