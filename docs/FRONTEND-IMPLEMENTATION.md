@@ -105,3 +105,5 @@ IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/a
 2026-10-30: khôi phục vercel.json trên main: proxy /api và /sanctum/csrf-cookie trước filesystem/SPA fallback để deep-link reload không404. DB Aiven đang tắt; sửa routing không đủ chứng minh login hoạt động.
 
 HTTP timeout60s cho API và CSRF theo hướng bounded request tham khảo NoteTatCa; không tự retry request ghi, giữ cookie/CSRF Laravel.
+
+2026-10-30: AsyncForm bỏ dòng chữ Đang xử lý theo yêu cầu; giữ disabled và aria-busy trong lúc gửi.

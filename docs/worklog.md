@@ -236,3 +236,6 @@ Aiven connector xác nhận attendanceweb-mysql-free/free-1-1gb/do-sgp đang POW
 
 ### 2026-10-30 — Tham khảo NoteTatCa và kiểm lại Aiven
 Chủ dự án yêu cầu tham khảo cấu hình NoteTatCa. Đọc vercel.json và HTTP client: áp dụng bounded requests60s cho API/CSRF, giữ Laravel cookie+CSRF. Aiven sau khi chủ dự án bật đã chuyển REBUILDING→RUNNING qua connector. Vercel /login đã HTTP200; Render ready vẫn timeout từ môi trường kiểm, chưa chứng minh login/DB runtime. Typecheck/lint/29tests PASS.
+
+### 2026-10-30 — Bỏ nhãn xử lý form
+Bỏ dòng trạng thái Đang xử lý dưới nút AsyncForm theo ảnh chủ dự án; giữ khóa fieldset và aria-busy, error/success hiện hành. Thay đổi hiển thị nhỏ; kiểm TypeScript và diff trước push main.

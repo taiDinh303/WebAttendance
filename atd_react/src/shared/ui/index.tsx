@@ -163,11 +163,6 @@ export function AsyncForm({
       <fieldset disabled={busy} aria-busy={busy}>
         {children}
       </fieldset>
-      {busy ? (
-        <p className="muted" role="status">
-          Đang xử lý…
-        </p>
-      ) : null}
       <ErrorNotice error={error} />
       {done && success ? (
         <p className="success" role="status">
