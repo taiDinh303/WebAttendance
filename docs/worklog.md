@@ -239,3 +239,6 @@ Chủ dự án yêu cầu tham khảo cấu hình NoteTatCa. Đọc vercel.json 
 
 ### 2026-10-30 — Bỏ nhãn xử lý form
 Bỏ dòng trạng thái Đang xử lý dưới nút AsyncForm theo ảnh chủ dự án; giữ khóa fieldset và aria-busy, error/success hiện hành. Thay đổi hiển thị nhỏ; kiểm TypeScript và diff trước push main.
+
+### 2026-10-30 — Public pages nhận biết session
+Theo yêu cầu chủ dự án, Home và Auth dùng session hiện hành; không ép đăng nhập lại khi mở login/register. Typecheck/lint/29tests/build PASS sau sửa. Edge local với me fixture PASS: Home không có link login, /login redirect /app. Đây là kiểm UI mock, chưa chứng minh cookie cloud persistence. Push main theo quyền phiên.

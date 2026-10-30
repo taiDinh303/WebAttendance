@@ -1,5 +1,6 @@
 import {
   Link,
+  Navigate,
   useLocation,
   useNavigate,
   useSearchParams,
@@ -21,7 +22,7 @@ export default function AuthPage() {
   const { pathname } = useLocation();
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const { login } = useSession();
+  const { login, user, loading } = useSession();
   const [done, setDone] = useState(false);
   const register = pathname === "/register",
     forgot = pathname === "/forgot-password",
@@ -36,6 +37,8 @@ export default function AuthPage() {
   const next = search.get("next");
   const destination =
     next?.startsWith("/app") && !next.startsWith("//") ? next : "/app";
+  if (!forgot && !reset && user) return <Navigate to={destination} replace />;
+  if (!forgot && !reset && loading) return <div className="startup" role="status">Đang kiểm tra phiên đăng nhập…</div>;
   return (
     <div className="auth-layout">
       <aside className="auth-story">

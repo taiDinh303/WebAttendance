@@ -107,3 +107,5 @@ IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/a
 HTTP timeout60s cho API và CSRF theo hướng bounded request tham khảo NoteTatCa; không tự retry request ghi, giữ cookie/CSRF Laravel.
 
 2026-10-30: AsyncForm bỏ dòng chữ Đang xử lý theo yêu cầu; giữ disabled và aria-busy trong lúc gửi.
+
+2026-10-30: Home dùng session context để đổi login thành Vào lớp học và ẩn đăng ký khi authenticated. Login/register redirect /app (hoặc next hợp lệ) nếu có session; đợi session trước khi hiện form. Forgot/reset giữ luồng riêng.
