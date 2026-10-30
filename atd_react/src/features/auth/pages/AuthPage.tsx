@@ -83,13 +83,7 @@ export default function AuthPage() {
         <small>Attendance · Không gian lớp học của bạn.</small>
       </aside>
       <main className="auth-main">
-        <div className="auth-top">
-          {register ? "Đã có tài khoản?" : "Chưa có tài khoản?"}{" "}
-          <Link to={register ? "/login" : "/register"}>
-            {register ? "Đăng nhập" : "Đăng ký miễn phí"}{" "}
-            <ArrowRight size={14} />
-          </Link>
-        </div>
+        <Link className="brand auth-mobile-brand" to="/"><span className="brand-mark"><GraduationCap /></span><span>attendance.</span></Link>
         <div className="auth-form">
           <span className="label-chip">CÙNG NHAU HỌC TỐT HƠN</span>
           <h1>{title}</h1>
@@ -226,6 +220,13 @@ export default function AuthPage() {
               </button>
             </AsyncForm>
           )}
+        <div className="auth-switch">
+          {register ? "Đã có tài khoản?" : "Chưa có tài khoản?"}{" "}
+          <Link to={register ? "/login" : "/register"}>
+            {register ? "Đăng nhập" : "Đăng ký miễn phí"}{" "}
+            <ArrowRight size={14} />
+          </Link>
+        </div>
           <div className="auth-footnote">
             <ShieldCheck size={16} /> Tài khoản của bạn. Lớp học của bạn.
           </div>
