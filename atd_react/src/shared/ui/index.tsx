@@ -3,9 +3,12 @@ import {
   type ReactNode,
   type FormEvent,
   type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
 } from "react";
 import {
   ArrowRight,
+  Eye,
+  EyeOff,
   BookOpen,
   LoaderCircle,
   RefreshCw,
@@ -14,6 +17,32 @@ import {
 import { ApiError } from "../../domain/errors";
 import { statusLabel } from "../../domain/format";
 import type { Page } from "../../domain/models";
+export function PasswordInput(
+  props: Omit<InputHTMLAttributes<HTMLInputElement>, "type">,
+) {
+  const [visible, setVisible] = useState(false);
+  const label = visible ? "Ẩn mật khẩu" : "Hiện mật khẩu";
+  return (
+    <span className="password-input">
+      <input {...props} type={visible ? "text" : "password"} />
+      <button
+        type="button"
+        className="password-toggle"
+        aria-label={label}
+        title={label}
+        aria-pressed={visible}
+        disabled={props.disabled}
+        onClick={() => setVisible((value) => !value)}
+      >
+        {visible ? (
+          <EyeOff size={18} aria-hidden="true" />
+        ) : (
+          <Eye size={18} aria-hidden="true" />
+        )}
+      </button>
+    </span>
+  );
+}
 export function ErrorNotice({ error }: { error: unknown }) {
   if (!error) return null;
   const e =

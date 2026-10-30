@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { authApi } from "../../../infrastructure/authApi";
-import { AsyncForm, Field } from "../../../shared/ui";
+import { AsyncForm, Field, PasswordInput } from "../../../shared/ui";
 import { text } from "../../../domain/format";
 import { useState } from "react";
 export default function AuthPage() {
@@ -187,9 +187,8 @@ export default function AuthPage() {
                         : undefined
                     }
                   >
-                    <input
+                    <PasswordInput
                       name="password"
-                      type="password"
                       autoComplete={
                         register || reset ? "new-password" : "current-password"
                       }
@@ -201,9 +200,8 @@ export default function AuthPage() {
                   </Field>
                   {register || reset ? (
                     <Field label="Nhập lại mật khẩu">
-                      <input
+                      <PasswordInput
                         name="passwordConfirmation"
-                        type="password"
                         autoComplete="new-password"
                         required
                         minLength={12}

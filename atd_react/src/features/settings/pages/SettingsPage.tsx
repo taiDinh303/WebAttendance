@@ -1,6 +1,11 @@
 import { useSession } from "../../../application/sessionContext";
 import { authApi } from "../../../infrastructure/authApi";
-import { PageHeader, AsyncForm, Field } from "../../../shared/ui";
+import {
+  PageHeader,
+  AsyncForm,
+  Field,
+  PasswordInput,
+} from "../../../shared/ui";
 import { text } from "../../../domain/format";
 export default function SettingsPage() {
   const { user, reload } = useSession();
@@ -65,9 +70,8 @@ export default function SettingsPage() {
             }}
           >
             <Field label="Mật khẩu hiện tại">
-              <input
+              <PasswordInput
                 name="currentPassword"
-                type="password"
                 autoComplete="current-password"
                 required
               />
@@ -76,9 +80,8 @@ export default function SettingsPage() {
               label="Mật khẩu mới"
               hint="Ít nhất 12 ký tự, có chữ hoa, chữ thường và chữ số."
             >
-              <input
+              <PasswordInput
                 name="password"
-                type="password"
                 autoComplete="new-password"
                 minLength={12}
                 maxLength={128}
@@ -86,9 +89,8 @@ export default function SettingsPage() {
               />
             </Field>
             <Field label="Nhập lại mật khẩu mới">
-              <input
+              <PasswordInput
                 name="passwordConfirmation"
-                type="password"
                 autoComplete="new-password"
                 minLength={12}
                 required

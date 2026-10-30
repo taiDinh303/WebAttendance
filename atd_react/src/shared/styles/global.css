@@ -110,6 +110,32 @@ textarea:hover,
 select:hover {
   border-color: #b7c3db;
 }
+.password-input {
+  position: relative;
+  display: block;
+}
+.password-input input {
+  padding-right: 48px;
+}
+.password-toggle {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: #66758d;
+}
+.password-toggle:hover {
+  background: #edf1f7;
+  color: #253248;
+}
 input[type="checkbox"] {
   width: 16px;
   height: 16px;
@@ -1485,6 +1511,9 @@ td {
 .auth-form select {
   font-size: 12px;
   padding: 13px;
+}
+.auth-form .password-input input {
+  padding-right: 48px;
 }
 .auth-form .button {
   padding: 13px;

@@ -224,3 +224,6 @@ Chủ dự án cho phép tự commit/push thay đổi giao diện React trong ph
 Chủ dự án đổi quyền publish trong phiên: tự push giao diện React lên main và xóa nhánh codex/cloud-hosting sau khi đưa bản Home/startup sang main. Giữ phần admin hiện có trên main.
 
 Kiểm tra bản tích hợp main: typecheck/lint,29tests và build PASS; git diff --check PASS. Publish main và xóa nhánh hosting theo yêu cầu trực tiếp.
+
+### 2026-10-30 — Khôi phục password visibility trên main
+Theo ảnh chủ dự án: main thiếu thay đổi22b6402 của nhánh hosting cũ. Áp dụng lại riêng4file React/CSS (không mang cloud config), bổ sung con mắt cho cả đăng nhập/đăng ký/đặt lại/đổi mật khẩu. Typecheck/lint,29tests/build và diff check PASS; chưa kiểm browser/cloud ở lượt này. Tự push main theo quyền đã giao.

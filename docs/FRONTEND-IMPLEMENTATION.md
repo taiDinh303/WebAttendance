@@ -97,3 +97,5 @@ VERIFIED TASK-026: typecheck, lint,23unit tests và build PASS; Edge local kiể
 ## 2026-10-30 — Public Home / startup
 
 IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/app bằng link. /app giữ Guard và kiểm quyền hiện hành. Startup xác thực có trạng thái/progress indeterminate, không giả lập tiến độ collection; timeout60s cho request me, offline pending không giữ spinner. Chưa VERIFIED browser/cloud.
+
+2026-10-30: đưa PasswordInput dùng chung vào main cho login/register/reset/settings. Mỗi ô hiện/ẩn độc lập, mặc định che, button type=button và aria-label/aria-pressed; giữ value và constraints.
