@@ -222,3 +222,5 @@ Kiểm tra local: TypeScript, ESLint, Vitest23/23 và production build PASS. Ch�
 Chủ dự án cho phép tự commit/push thay đổi giao diện React trong phiên chat này. Đóng gói Home/startup và session timeout lên nhánh codex/cloud-hosting; không merge main hoặc chạy deploy thủ công.
 
 Chủ dự án đổi quyền publish trong phiên: tự push giao diện React lên main và xóa nhánh codex/cloud-hosting sau khi đưa bản Home/startup sang main. Giữ phần admin hiện có trên main.
+
+Kiểm tra bản tích hợp main: typecheck/lint,29tests và build PASS; git diff --check PASS. Publish main và xóa nhánh hosting theo yêu cầu trực tiếp.
