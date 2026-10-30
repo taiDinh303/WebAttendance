@@ -52,7 +52,7 @@ export async function request<T>(
       method,
       headers,
       credentials: "include",
-      signal: options.signal,
+      signal: options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000),
       body:
         options.body === undefined
           ? undefined

@@ -103,3 +103,5 @@ IMPLEMENTED: / và /home là trang chủ công khai, truy cập login/register/a
 2026-10-30: Home thêm logo graduation-cap và icon tính năng, nền xanh nhẹ. Auth chuyển switch login/register xuống dưới CTA; logo riêng trên mobile, input16px/touch44px, giảm spacing theo viewport và giữ scroll khi màn hình ngắn.
 
 2026-10-30: khôi phục vercel.json trên main: proxy /api và /sanctum/csrf-cookie trước filesystem/SPA fallback để deep-link reload không404. DB Aiven đang tắt; sửa routing không đủ chứng minh login hoạt động.
+
+HTTP timeout60s cho API và CSRF theo hướng bounded request tham khảo NoteTatCa; không tự retry request ghi, giữ cookie/CSRF Laravel.

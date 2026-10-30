@@ -233,3 +233,6 @@ Trang trí Home/logo và chuyển auth switch xuống dưới CTA theo ảnh ch�
 
 ### 2026-10-30 — Chẩn đoán login/cloud
 Aiven connector xác nhận attendanceweb-mysql-free/free-1-1gb/do-sgp đang POWEROFF. Main thiếu atd_react/vercel.json sau chuyển khỏi nhánh hosting: khôi phục proxy api/sanctum dùng BACKEND_URL và fallback index.html từ cấu hình604f212; không đổi secret. Chờ chủ dự án cho bật DB; chưa kết luận login hoặc Render→DB VERIFIED.
+
+### 2026-10-30 — Tham khảo NoteTatCa và kiểm lại Aiven
+Chủ dự án yêu cầu tham khảo cấu hình NoteTatCa. Đọc vercel.json và HTTP client: áp dụng bounded requests60s cho API/CSRF, giữ Laravel cookie+CSRF. Aiven sau khi chủ dự án bật đã chuyển REBUILDING→RUNNING qua connector. Vercel /login đã HTTP200; Render ready vẫn timeout từ môi trường kiểm, chưa chứng minh login/DB runtime. Typecheck/lint/29tests PASS.
