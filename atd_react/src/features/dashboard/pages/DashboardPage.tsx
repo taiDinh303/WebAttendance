@@ -47,14 +47,14 @@ export default function DashboardPage() {
       value: teacher ? summary?.pendingRequests : summary?.pendingAssignments,
       icon: teacher ? Users : Clock3,
       color: "amber",
-      to: "#priority",
+      to: teacher ? "#queue-requests" : "#priority",
     },
     {
       label: teacher ? "Bài chờ chấm / công bố" : "Bài đã có điểm",
       value: teacher ? summary?.pendingReviews : summary?.publishedGrades,
       icon: ClipboardCheck,
       color: "blue",
-      to: "#priority",
+      to: teacher ? "#queue-reviews" : "#priority",
     },
   ];
   return (
@@ -112,7 +112,7 @@ export default function DashboardPage() {
               </div>
               {teacher ? (
                 <>
-                  <h3 className="queue-title">
+                  <h3 className="queue-title" id="queue-requests">
                     Yêu cầu vào lớp{" "}
                     <span className="count-pill">
                       {summary?.pendingRequests}
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                       <CheckCircle2 size={17} /> Không có yêu cầu chờ duyệt.
                     </p>
                   ) : null}
-                  <h3 className="queue-title">
+                  <h3 className="queue-title" id="queue-reviews">
                     Chấm bài & công bố điểm{" "}
                     <span className="count-pill">
                       {summary?.pendingReviews}

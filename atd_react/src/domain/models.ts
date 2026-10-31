@@ -81,6 +81,30 @@ export interface Publication {
   revisionId: string;
   publishedAt: string;
 }
+export interface Announcement {
+  id: string;
+  classId: string;
+  state: "draft" | "published" | "archived";
+  title: string;
+  body: string | null;
+  pinned: boolean;
+  hidden: boolean;
+  expiresAt: string | null;
+  publishedAt: string | null;
+  authorId: string;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface AnnouncementComment {
+  id: string;
+  announcementId: string;
+  authorId: string;
+  body: string;
+  hidden: boolean;
+  version: number;
+  createdAt: string;
+}
 export interface Submission {
   studentName?: string;
   id: string;

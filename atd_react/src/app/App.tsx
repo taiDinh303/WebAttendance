@@ -115,7 +115,7 @@ function Guard() {
           Gửi lại email
         </ActionButton>
         <ActionButton className="button secondary" action={reload}>
-          Tôi đã xác minh
+          Kiểm tra lại xác minh
         </ActionButton>
         <Link to="/login">Đổi tài khoản</Link>
       </div>

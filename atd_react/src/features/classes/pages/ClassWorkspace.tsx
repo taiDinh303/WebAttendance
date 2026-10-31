@@ -3,7 +3,6 @@ import {
   useParams,
   NavLink,
   useNavigate,
-  Link,
 } from "react-router-dom";
 import { useState } from "react";
 import { BookOpen, Copy } from "lucide-react";
@@ -25,6 +24,7 @@ import { GradesPanel } from "../../grades/components/GradesPanel";
 import { CalendarContent } from "../../calendar/pages/CalendarPage";
 import { AttendanceHistory } from "../../attendance/components/AttendanceHistory";
 import { CatalogFields } from "../components/CatalogFields";
+import { AnnouncementsPanel } from "../../announcements/components/AnnouncementsPanel";
 export default function ClassWorkspace() {
   const { classId } = useParams();
   return <ClassWorkspaceContent key={classId} />;
@@ -45,6 +45,7 @@ function ClassWorkspaceContent() {
   const teacher = user?.role === "teacher";
   const tabs = [
     ["overview", "Tổng quan"],
+    ["announcements", "Bản tin"],
     ["assignments", "Bài tập"],
     ["schedule", "Lịch học"],
     ...(teacher ? [["members", "Thành viên"]] : []),
@@ -67,21 +68,7 @@ function ClassWorkspaceContent() {
         description={c.description || "Cùng học tập, cùng tiến bộ."}
         action={<Badge value={c.status} />}
       />
-      <div className="class-shortcuts inline-actions">
-        <Link
-          className="button secondary small"
-          to={"/app/classes/" + classId + "/assignments"}
-        >
-          Bài tập của lớp
-        </Link>
-        <Link
-          className="button secondary small"
-          to={"/app/classes/" + classId + "/schedule"}
-        >
-          Lịch & buổi học
-        </Link>
-        <span className="muted">Múi giờ · {c.timezone}</span>
-      </div>
+      <p className="muted class-timezone">Múi giờ lớp · {c.timezone}</p>
       <nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
@@ -95,7 +82,9 @@ function ClassWorkspaceContent() {
           </NavLink>
         ))}
       </nav>
-      {tab === "assignments" ? (
+      {tab === "announcements" ? (
+        <AnnouncementsPanel classId={classId} />
+      ) : tab === "assignments" ? (
         <AssignmentsPanel classId={classId} />
       ) : tab === "schedule" ? (
         <CalendarContent classId={classId} />

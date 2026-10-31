@@ -137,8 +137,9 @@ function ActiveWindow({
             <ActionButton
               className="button danger"
               action={async () => {
-                if (!confirm("Đóng điểm danh và chốt các trường hợp vắng?"))
-                  return;
+                const message =
+                  "Đóng điểm danh? Học sinh chưa quét QR sẽ tự động được đánh dấu là vắng (absent). Sau đó bạn vẫn có thể sửa tay từng trường hợp với lý do (DEC-017).";
+                if (!confirm(message)) return;
                 await attendanceApi.close(w);
                 await refresh();
               }}

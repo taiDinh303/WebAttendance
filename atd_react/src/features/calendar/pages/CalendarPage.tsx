@@ -180,19 +180,27 @@ export function CalendarContent({ classId }: { classId?: string }) {
               <input type="checkbox" name="allowConflicts" />
               Tôi chấp nhận nếu lịch bị trùng
             </label>
-            <button className="button">Tạo lịch</button>
-            {weekly ? (
+            {weekly && preview === null ? (
               <button
                 className="button secondary"
                 type="submit"
                 name="intent"
                 value="preview"
               >
-                Xem số buổi trước
+                Xem trước số buổi
               </button>
-            ) : null}
+            ) : (
+              <button className="button" type="submit">
+                {weekly && preview !== null
+                  ? "Tạo lịch (hủy bỏ nếu trùng)"
+                  : "Tạo buổi học"}
+              </button>
+            )}
             {preview !== null ? (
-              <p className="info">Dự kiến {preview} buổi học.</p>
+              <p className="info">
+                Dự kiến {preview} buổi học trong khoảng thời gian trên. Bấm
+                “Tạo lịch” để xác nhận.
+              </p>
             ) : null}
           </AsyncForm>
         </section>

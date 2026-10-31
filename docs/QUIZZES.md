@@ -20,10 +20,14 @@ Ngày cập nhật: 2026-10-27. DEC-021 CONFIRMED; module NOT IMPLEMENTED. Tài 
 
 ## Cần chốt trước engine
 
-- Nhiều lượt: điểm cao nhất, mới nhất hay giáo viên chọn? Chưa được quyết định.
-- Trọng số câu: bằng nhau hay giáo viên tự chọn? Chưa được quyết định.
-- Thời lượng mỗi lượt có riêng với thời gian mở/đóng quiz không? Đề xuất có; deadline thực tế là mốc sớm hơn, chưa chốt.
-- Có cho xem điểm ngay sau nộp trước lúc đóng không? Đáp án chắc chắn phải ẩn; thời điểm công bố điểm chưa chốt.
+Đã chốt theo DEC-031 (2026-10-31), giáo viên owner đặt trong quiz config:
+
+- Nhiều lượt: điểm áp dụng (cao nhất / mới nhất / do giáo viên chọn từng người) do giáo viên chọn, không mặc định.
+- Trọng số câu: giáo viên tự đặt, mặc định bằng nhau.
+- Thời lượng mỗi lượt: giáo viên chọn, không vượt giờ đóng của quiz; deadline thực tế là mốc sớm hơn.
+- Thời điểm hiện điểm: giáo viên chọn "cho riêng" (gán điểm từng attempt khi nhiều lượt) và học sinh chỉ thấy điểm sau khi giáo viên **công bố** (chờ công bố, giống grade publication DEC-019); đáp án chỉ công bố sau khi quiz đóng (giữ DEC-021).
+
+Thiết kế engine phải có trường config quiz: `multiAttemptPolicy` (best/latest/teacher_chosen), `questionWeights`, `attemptDuration`, `scorePublication` (pending_publish / published + publication flag, ẩn điểm với HS đến khi owner công bố). Khi teacher_chosen, cần API riêng để owner gán điểm từng attempt sau đó publish. Chưa có quiz runtime — DEC-031 là nghiệp vụ, không phải IMPLEMENTED.
 
 ## Cổng kiểm thử bắt buộc
 

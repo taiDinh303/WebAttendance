@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -53,6 +54,15 @@ Route::prefix('v1')->middleware('web')->group(function () {
             Route::get('files/{fileId}/download', [FileController::class, 'download']);
             Route::delete('files/{fileId}', [FileController::class, 'destroy']);
             Route::post('classes/{classroom}/assignments/{assignmentId}/submissions', [SubmissionController::class, 'store'])->middleware('throttle:submit');
+            Route::get('classes/{classroom}/announcements', [AnnouncementController::class, 'index']);
+            Route::post('classes/{classroom}/announcements', [AnnouncementController::class, 'store']);
+            Route::get('classes/{classroom}/announcements/{announcementId}', [AnnouncementController::class, 'show']);
+            Route::patch('classes/{classroom}/announcements/{announcementId}', [AnnouncementController::class, 'update']);
+            Route::post('classes/{classroom}/announcements/{announcementId}/publish', [AnnouncementController::class, 'publish']);
+            Route::post('classes/{classroom}/announcements/{announcementId}/archive', [AnnouncementController::class, 'destroy']);
+            Route::post('classes/{classroom}/announcements/{announcementId}/comments', [AnnouncementController::class, 'storeComment'])->middleware('throttle:submit');
+            Route::post('classes/{classroom}/comments/{commentId}/hide', [AnnouncementController::class, 'hideComment']);
+            Route::delete('classes/{classroom}/comments/{commentId}', [AnnouncementController::class, 'deleteComment']);
             Route::get('classes/{classroom}/assignments/{assignmentId}/submissions', [SubmissionController::class, 'index']);
             Route::get('me/submissions', [SubmissionController::class, 'mine']);
             Route::get('submissions/{submissionId}', [SubmissionController::class, 'show']);

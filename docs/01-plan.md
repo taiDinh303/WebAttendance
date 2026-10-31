@@ -57,7 +57,7 @@ REQ và RULE đã chốt phần áp dụng; migration/index/policy có test; API
 - Quiz mất mạng/sát hạn và upload nặng cần test concurrency, deadline theo clock server, server ACK.
 - Reverb/worker cần process sống; hosting PHP chỉ phục vụ HTTP chưa đủ.
 - Scope đầy đủ có nhiều phase; mỗi release cần vertical slice dùng được, không tuyên bố hoàn thiện từ scaffold.
-- Bước tiếp theo: Q-028/029/030 cho quiz, Q-015/016 cho chat/notification, Q-025/026 cho retention/cloud. Q-023/011/024 đã chốt ngày2026-10-27 và triển khai phase2, không hỏi lại. API hiện có xem API-CURRENT, không dùng bảng TARGET làm inventory runtime.
+- Bước tiếp theo (cập nhật2026-10-31): Q-028/029/030 ANSWERED → DEC-031; Q-015 ANSWERED → DEC-032; Q-016 ANSWERED → DEC-033; hosting Q-026 phần DB ANSWERED → DEC-034 (Aiven Singapore free plan, credentials/backup chưa cấu hình). Còn OPEN: Q-025 retention/xóa tài khoản, Q-026 phần domain/ngân sách/thời hạn, mở rộng attendance (xin nghỉ/reopen/co-teacher, hỏi kèm ví dụ). Thứ tự ưu tiên do chủ dự án duyệt: TASK-009 bản tin → TASK-012 quiz (theo DEC-031) → TASK-013 chat group (theo DEC-032) → TASK-015 Excel → Google/avatar → production (theo DEC-033/034 khi có SMTP/credentials). Q-023/011/024/014 đã chốt, không hỏi lại. API hiện có xem API-CURRENT.
 
 ## Phiên bản 2.0 — TASK-023 (2026-10-28)
 

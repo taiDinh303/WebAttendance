@@ -105,3 +105,31 @@ DEC-027/028 IMPLEMENTED và VERIFIED LOCAL tại TASK-024 (2026-10-28): admin5AP
 
 ### DEC-030 — Hồ sơ, sidebar và chuẩn bị Google/avatar (CONFIRMED 2026-10-30)
 Nguồn chủ dự án: Settings cuối sidebar, thu/mở sidebar như NoteTatCa; hồ sơ xem trước và sửa khi cần; timezone thiết bị thay input chỉnh tay; thêm thông tin cơ bản. Xác nhận Google sign-in bên cạnh email/password và chuẩn bị avatar preset/upload. UI Google/upload hiển thị chưa khả dụng khi chưa cấu hình; không tự tạo secret/storage/mail. Triển khai fields optional, không thay role/email hoặc timezone buổi học của lớp.
+
+### DEC-031 — Quiz theo lựa chọn giáo viên (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-028/029 "Do giáo viên chọn" và Q-030 "cho riêng và chờ công bố". Mỗi quiz để owner chọn: (1) điểm áp dụng khi nhiều lượt — cao nhất / mới nhất / do giáo viên chọn từng người; (2) trọng số từng câu, mặc định bằng nhau; (3) thời lượng mỗi lượt (không vượt giờ đóng) do giáo viên đặt, điểm hiển thị theo lựa chọn riêng của giáo viên (cho riêng từng bài) và học sinh chỉ thấy điểm sau khi giáo viên công bố (chờ công bố), đáp án cũng chỉ công bố sau khi quiz đóng. Giữ DEC-021 (đúng đủ mới có điểm, thang10, trung bình theo DEC-018/019). Chưa có quiz engine; schema/API/UI cần thiết kế lại theo 3 quyền chọn này, không mặc định cao nhất/mới nhất, và có flag publication cho điểm từng quiz như article (DEC-019).
+
+### DEC-032 — Group chat cả lớp, chưa chat riêng 1–1 (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-015 "Group chat cả lớp (tạm thời chưa có chat riêng)". Thread chat là 1 kênh chung theo lớp active: owner + members active cùng tham gia; pending/left/removed không gửi mới, đọc lịch cũ giữ theo DEC-013/Q-020. Scope mở rộng so với đề xuất 1–1 cũ: server phải có bảng channel per-class (thay participant pair 1–1), message sequence per channel, unread per user/channel, broadcast private channel chỉ với participants hợp lệ. Chat riêng 1–1 giữ scope sau. Mở rộng thêm theo Q-chat2/3 (2026-10-31): cho gửi file trong chat (private storage, kiểm MIME/size theo quy tắc file hiện có) và cho sửa/xóa tin của chính mình trong thời hạn; audit sửa/xóa, không xóa vật lý nếu teacher muốn giữ. Xem DEC-037.
+
+### DEC-033 — Email thật và nhắc hạn nộp do giáo viên chọn (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-016 "cần email thật và có hạn nộp do giáo viên tự chọn". (1) SMTP thật được cấu hình bởi chủ dự án; trước khi có credentials không bật queue thật, không gửi mail demo. (2) Assignment/quiz có optional reminder: owner chọn bật và thời điểm nhắc (ví dụ 24h trước hạn, nhiều mốc); job so server clock và outbox dedup; HS nhận in-app + email (nếu đã bật email thật). Chưa có push mobile. In-app inbox giữ là kênh chuẩn.
+
+### DEC-034 — MySQL cloud Aiven free plan Singapore (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án "Aiven mở rồi. free plan singapore". Instance MySQL Aiven Singapore (free plan) đã mở như hạ tầng DB mục tiêu. Không thay DEC-011 (MySQL). Giới hạn free plan chưa đo (lưu trữ/connections/IOPS), production capacity vẫn theo Q-026. Kết nối thật, TLS, user/credential và backup policy chưa cấu hình/ghi nhận trong project; không đưa secret vào docs/code. Domain, ngân sách, tải dự kiến, thời hạn và SLA của Q-026 vẫn OPEN; không suy quyền deploy từ việc instance đã mở.
+
+### DEC-035 — Bản tin lớp và bình luận (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-ann1/ann2/ann3: học sinh được bình luận dưới bản tin; giáo viên không cần xóa bình luận mà chỉ có quyền ẩn/masking nội dung nhạy cảm, tự linh hoạt; bản tin cho cả hai lựa chọn (có hạn hiệu lực hoặc không). IMPLEMENTED/VERIFIED LOCAL: bảng announcements (state draft/published/archived, pinned, hidden, expires_at, version), announcement_comments (body sanitize ≤20000, hidden flag, version). Giáo viên tạo/sửa công bố/lưu trữ; công bố tạo inbox+outbox cho member active; học sinh chỉ thấy published + comment không ẩn; giáo viên thấy comment ẩn để moderation; ẩn/xóa comment chỉ owner (xóa vật lý comment do giáo viên, giữ audit qua row delete theo scope owner — không mở audit riêng). Bản tin archived không xóa notification, deep link kiểm quyền. Notification type mới announcement.published.
+
+### DEC-036 — Export Excel attendance + grades có template (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-exp1/exp2: xuất Excel cho cả attendance và grades, cần template mẫu. PROPOSED: endpoint /classes/{id}/attendance/export và /classes/{id}/grades/export sinh file .xlsx qua job, template cột cố định (attendance: HS × buổi P/L/A, grades: HS × bài published, điểm, trung bình), kiểm quyền owner, formula injection escape = + - @, recheck quyền khi download. Chưa IMPLEMENTED.
+
+### DEC-037 — Chat group: gửi file và sửa/xóa tin (CONFIRMED 2026-10-31)
+
+Nguồn: chủ dự án trả lời Q-chat2 "được" (gửi file trong chat) và Q-chat3 "được" (sửa/xóa tin). PROPOSED kế hoạch theo DEC-032: message per class channel, clientMessageId idempotent; file dùng stored_files riêng per-message (private, MIME/size theo DEC-020 limits); sửa tin trong 10 phút do chủ tin (version), xóa mềm (deleted_at) giữ audit, teacher owner có thể ẩn toàn bộ tin; pending/left/removed chặn gửi mới. Chưa IMPLEMENTED.

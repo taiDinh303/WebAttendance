@@ -1122,6 +1122,24 @@ input[type="file"] {
 .list-row h3 {
   font-size: 13px;
 }
+.announcement-row {
+  flex-wrap: wrap;
+}
+.announcement-row .comments-panel {
+  flex-basis: 100%;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #e3e8f0;
+  display: grid;
+  gap: 10px;
+}
+.announcement-row .comments-panel .list-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f4f8;
+}
+.announcement-row .comments-panel .list-row:last-child {
+  border-bottom: 0;
+}
 .person {
   display: flex;
   align-items: center;

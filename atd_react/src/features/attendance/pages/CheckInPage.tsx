@@ -62,7 +62,7 @@ export default function CheckInPage() {
                   className="button secondary"
                   onClick={() => setCamera(false)}
                 >
-                  Đóng camera
+                  Đóng camera (giữ mã vừa quét)
                 </button>
               </>
             ) : (
@@ -71,7 +71,7 @@ export default function CheckInPage() {
                 onClick={() => setCamera(true)}
               >
                 <Camera size={17} />
-                Mở camera
+                {token ? "Quét mã khác" : "Mở camera"}
               </button>
             )}
             <AsyncForm

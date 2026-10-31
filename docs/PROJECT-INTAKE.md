@@ -43,6 +43,18 @@
 
 | 2026-10-27 React | Chủ dự án giao triển khai React tại AttendanceWeb | DEC-022, thay giới hạn folder rỗng |
 | 2026-10-27 Phân tầng | Làm/phân tầng như NTC, Marixa, Badminton trong D:\My Projects | DEC-023 |
+| Q-028/029/030 (2026-10-31) | Quiz: điểm áp dụng khi nhiều lượt do giáo viên chọn; giáo viên tự đặt trọng số câu (mặc định bằng nhau); giáo viên chọn thời lượng mỗi lượt (không vượt giờ đóng) và thời điểm hiện điểm; đáp án vẫn chỉ sau quiz đóng | DEC-031 |
+| Q-015 (2026-10-31) | Group chat cả lớp trong lớp active; tạm thời chưa có chat riêng 1–1; gửi file/sửa-xóa tin chưa chốt | DEC-032 |
+| Q-016 (2026-10-31) | Cần email thật (cấu hình SMTP do chủ dự án); có nhắc hạn nộp bài, thời điểm do giáo viên tự chọn; chưa có push mobile | DEC-033 |
+| Q-026 phần hosting (2026-10-31) | MySQL cloud: Aiven, free plan, khu vực Singapore, instance đã mở; domain/ngân sách/tải dự kiến/thời hạn/SLA vẫn OPEN | DEC-034 |
+| Q-ann1 (2026-10-31) | Học sinh được bình luận dưới bản tin đã công bố; bình luận sanitize | DEC-035 |
+| Q-ann2 (2026-10-31) | Giáo viên không cần xóa bình luận; có quyền ẩn/masking nội dung nhạy cảm, linh hoạt | DEC-035, thay moderation xóa bằng ẩn (không xóa vật lý) |
+| Q-ann3 (2026-10-31) | Bản tin cho cả hai lựa chọn: có hạn hiệu lực hoặc không hết hạn; có gắn đầu | DEC-035 |
+| Q-exp1 (2026-10-31) | Xuất Excel cho cả attendance và grades | DEC-036 |
+| Q-exp2 (2026-10-31) | Cần template mẫu cho export | DEC-036 |
+| Q-chat1 (2026-10-31) | Tạm thời chỉ group chat/bản tin cả lớp, chưa chat riêng 1–1 | DEC-032 |
+| Q-chat2 (2026-10-31) | Được gửi file trong chat | DEC-037 |
+| Q-chat3 (2026-10-31) | Được sửa/xóa tin nhắn | DEC-037 |
 
 ## Câu hỏi tiếp theo theo cổng triển khai
 
@@ -50,11 +62,11 @@
 
 | Q | Cần quyết định | Đề xuất ban đầu | Chặn bước |
 | --- | --- | --- | --- |
-| Q-028 | Quiz nhiều lượt lấy điểm nào? | Điểm cao nhất / mới nhất / giáo viên chọn — đã hỏi, chưa trả lời | Quiz publication |
-| Q-029 | Trọng số câu quiz? | Bằng nhau hoặc tự đặt — đã hỏi, chưa trả lời | Quiz scoring |
-| Q-030 | Thời lượng lượt và thời điểm hiện điểm? | Thời lượng riêng không vượt giờ đóng; điểm/đáp án sau đóng — đã hỏi, chưa trả lời | Quiz timing |
-| Q-015 | Chat riêng 1–1 hay cả nhóm lớp, gửi file, sửa/xóa? | V1 chat riêng GV–HS trong phạm vi lớp active; chỉ text; chưa group/file/edit | Chat schema/UI |
-| Q-016 | Thông báo chỉ trong app hay cả email/push? Nhắc hạn khi nào? | Trong app trước; email tài khoản riêng; nhắc hạn tùy chọn, chưa push | Notifications/jobs |
+| Q-028 | Quiz nhiều lượt lấy điểm nào? | ANSWERED 2026-10-31: giáo viên chọn điểm áp dụng — DEC-031 | Quiz publication (chờ engine, không còn bị Q chặn) |
+| Q-029 | Trọng số câu quiz? | ANSWERED 2026-10-31: giáo viên tự đặt, mặc định bằng nhau — DEC-031 | Quiz scoring (chờ engine) |
+| Q-030 | Thời lượng lượt và thời điểm hiện điểm? | ANSWERED 2026-10-31: giáo viên chọn thời lượng (không vượt giờ đóng) và thời điểm hiện điểm; đáp án vẫn sau quiz đóng — DEC-031 | Quiz timing (chờ engine) |
+| Q-015 | Chat riêng 1–1 hay cả nhóm lớp, gửi file, sửa/xóa? | ANSWERED 2026-10-31: group chat cả lớp, chưa chat riêng 1–1; file/sửa-xóa chưa chốt — DEC-032 | Chat schema/UI (chờ design chi tiết) |
+| Q-016 | Thông báo chỉ trong app hay cả email/push? Nhắc hạn khi nào? | ANSWERED 2026-10-31: in-app + email thật; nhắc hạn nộp, thời điểm do giáo viên tự chọn; chưa push — DEC-033 | Notifications/jobs (chờ SMTP cấu hình) |
 | Q-017 | Có chuyển dữ liệu cũ không, bản dump nào là chuẩn? | Chưa chuyển; chỉ dry run sau khi được giao, đổi mật khẩu nếu hash không phù hợp | Migration |
 | Q-019 | UI tiếng Việt/Anh, thương hiệu, dark mode? | Việt mặc định; i18n-ready; nền sáng, xanh lam/cyan; dark mode sau | UI nghiệm thu |
 | Q-021 | Admin được xem nội dung lớp/chat/bài nộp đến mức nào? | Quản lý tài khoản/abuse; không tự động có quyền đọc nội dung | Admin/privacy |
@@ -80,3 +92,7 @@ Yêu cầu1admin/3teacher/90student,30check-in đồng thời và chuẩn chất
 ### 2026-10-30 — Hồ sơ và sidebar theo NoteTatCa (CONFIRMED)
 
 Chủ dự án yêu cầu Settings cuối sidebar, thu/mở sidebar, hồ sơ read-first/edit-on-demand, bỏ input timezone và dùng timezone thiết bị khi lưu; thêm gender/birthday/avatar. Chốt Google bên cạnh email/password; chọn chuẩn bị cả avatar có sẵn và tải ảnh, Google/upload chưa khả dụng khi chưa có cấu hình. Không tự bật SMTP, kho ảnh hoặc OAuth credentials. IMPLEMENTED/VERIFIED xem worklog.
+
+### 2026-10-31 — Mở cổng quiz, chat, notification, hosting (CONFIRMED)
+
+Chủ dự án trả lời: quiz theo lựa chọn giáo viên (Q-028/029/030 → DEC-031); group chat cả lớp, chưa chat riêng 1–1 (Q-015 → DEC-032); email thật + nhắc hạn nộp do giáo viên chọn, chưa push (Q-016 → DEC-033); MySQL cloud Aiven free plan Singapore đã mở (phần hosting Q-026 → DEC-034). Q-025 retention/xóa tài khoản và phần domain/ngân sách/thời hạn của Q-026 vẫn OPEN. Ưu tiên module đã duyệt: TASK-009 bản tin → TASK-012 quiz → TASK-013 chat → TASK-015 Excel → Google/avatar → production; không deploy, không gửi mail thật, không chuyển dữ liệu cũ.

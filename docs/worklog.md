@@ -1,4 +1,4 @@
-# Worklog — nguồn tiến độ thực tế
+﻿# Worklog — nguồn tiến độ thực tế
 
 > Snapshot 2026-10-27 | API phase2 | Đã có API core, lịch tuần, QR/snapshot/manual audit và MySQL local; frontend atd_react còn rỗng. Source/test evidence là CURRENT, thiết kế toàn sản phẩm vẫn có phần TARGET.
 
@@ -253,3 +253,47 @@ Tham khảo NoteTatCa theo yêu cầu trực tiếp. Frontend typecheck/lint29un
 Kết quả cuối AccountsTest13tests/82assertions PASS (221202ms), migration và field validation/persistence đã kiểm trên MySQL test local. Mobile390profile/drawer no overflow PASS với me fixture. PHP syntax/Pint và diff check PASS. Không chạy migration cloud hoặc tích hợp OAuth/upload thật. Push main theo quyền phiên.
 
 2026-10-30: theo yêu cầu trực tiếp, chuyển sidebar toggle sang trái header trước breadcrumb; giữ toggle mobile hiện hành. Kiểm TypeScript/diff trước push main.
+
+### 2026-10-31 — Phỏng vấn mở cổng quiz/chat/notification/hosting và rà nút React
+
+Chủ dự án trả lời Q-028/029/030 (cả3 "do giáo viên chọn"), Q-015 (group chat cả lớp, chưa chat riêng 1–1), Q-016 (cần email thật, nhắc hạn nộp do giáo viên chọn), Q-026 phần DB (Aiven Singapore free plan đã mở). Ghi DEC-031/032/033/034; cập nhật PROJECT-INTAKE (Q ANSWERED kèm ngày), 14-architecture-decisions, QUIZZES (thiết kế quiz config), 01-plan (rủi ro/bước kế tiếp). Không code đợt này.
+
+Rà docs+React tại chỗ (không sửa code): xác nhận các module còn thiếu khớp 01-plan (bản tin/quiz/chat/email/Excel). Phát hiện 7 điểm nút trùng/ẩn trong atd_react: CalendarPage 1form gộp single+weekly và 2nút submit "Tạo lịch"/"Xem số buổi trước" cùng payload; ClassWorkspace shortcut "Bài tập/Lịch & buổi học" trùng 2tab bên dưới; Dashboard metric card #priority trùng queue; CheckInPage 3nút camera chồng behavior; MembersPanel Duyệt/Từ chối song song; QrPage confirm() không nêu hậu quả chốt vắng. Ghi nhận UX, chưa thay code.
+
+Còn OPEN chờ chủ dự án: Q-025 retention/xóa tài khoản (đã đề xuất phương án), 3lựa chọn mở rộng attendance (xin nghỉ excused / reopen window / co-teacher, đã ví dụ), Q-026 phần domain/ngân sách/thời hạn/SLA. Ưu tiên đã duyệt: TASK-009 bản tin → 012 quiz (DEC-031) → 013 chat group (DEC-032) → 015 Excel → Google/avatar → production (DEC-033/034 khi có SMTP/credentials).
+
+### 2026-10-31 — Mở rộng quyết định và TASK-009 bản tin lớp (VERIFIED LOCAL)
+
+Chủ dự án trả lời thêm: HS được bình luận dưới bản tin (Q-ann1); GV không xóa bình luận mà chỉ ẩn/masking nội dung nhạy cảm, tự linh hoạt (Q-ann2); bản tin cho cả có-hạn-đầu và không-hết-hạn (Q-ann3) → DEC-035. Export Excel cho cả attendance và grades, cần template mẫu (Q-exp1/2) → DEC-036 PROPOSED chưa code. Chat tạm thời chỉ group/bản tin lớp (Q-chat1), được gửi file (Q-chat2), được sửa/xóa tin (Q-chat3) → DEC-037 PROPOSED kế hoạch. Q-030 thời điểm hiện điểm quiz do đề xuất, chủ dự án đồng ý làm trước rồi xem.
+
+TASK-009 bản tin lớp IMPLEMENTED/VERIFIED LOCAL (backend+React):
+
+- Migration 2026_10_31_140000 thêm2bảng announcements (state draft/published/archived, pinned, hidden, expires_at, version) và announcement_comments (body≤20000, hidden, version).
+- Action ManageAnnouncements (save/publish/addComment/moderateComment/deleteComment/archive): owner lớp active, version control, lock class; công bố tạo inbox+outbox cho member active (type announcement.published); HS chỉ xem published + comment không ẩn; GV xem comment ẩn để moderation. Policy Classroom view/update sẵn có, không thêm bypass.
+- 9 routes dưới /api/v1/classes/{classroom}: index/store/show/update/publish/archive + comments store/hide/delete; rate limit comments dùng throttle submit.
+- React: model Announcement/AnnouncementComment, thêm classApi (announcements/announcement/saveAnnouncement/publishAnnouncement/archiveAnnouncement/addComment/hideComment/deleteComment); tab "Bản tin" trong ClassWorkspace với AnnouncementsPanel (create/publish, pin, hết hạn, comment, ẩn/xóa comment moderation cho teacher); CSS .announcement-row/.comments-panel trong global.css.
+
+Kết quả kiểm chứng: backend full suite 108tests/902assertions PASS (thêm AnnouncementsTest6tests/58assertions); Pint dirty PASS; route:list cho thấy9route mới. React typecheck (tsc -b) PASS, eslint4file PASS, vitest29tests PASS, vite build PASS. Chưa browser E2E, chưa cloud/SMTP, chưa production. Chờ chủ dự án: Q-025 retention/xóa tài khoản, Q-026 phần domain/ngân sách/thời hạn. Tiếp theo: TASK-012 quiz engine theo DEC-031, sau đó TASK-013 chat group theo DEC-032/037, TASK-015 Excel theo DEC-036.
+### 2026-10-31 — Comment audits, DEC-031 Q-030 và sửa 7 điểm trùng React
+
+Chủ dự án yêu cầu thêm comment_audits để HS biết khi GV xóa; Q-030 chốt "cho riêng và chờ công bố"; sửa 7 điểm nút trùng React.
+
+Comment soft-delete + audit (backend, VERIFIED LOCAL):
+- Migration 2026_10_31_150000: thêm deleted_at vào announcement_comments (soft delete) và bảng announcement_comment_audits (comment_id, actor_id, action, before_data/after_data, timestamps, append-only).
+- Model AnnouncementComment dùng SoftDeletes; model AnnouncementCommentAudit mới.
+- Action ManageAnnouncements.moderateComment/deleteComment ghi audit (hidden/unhidden/deleted + before/after) và deleteComment chuyển soft-delete + tạo inbox notification announcement.comment.removed cho tác giả.
+- Controller show: HS thấy comment live + comment đã xóa của chính mình (marked deletedAt), comment hidden vẫn ẩn với tất cả; GV thấy hết. Resource trả deletedAt.
+- AnnouncementsTest thêm assertions audit + soft-delete + notification; full suite 108tests/907assertions PASS, Pint PASS.
+
+DEC-031 cập nhật phần Q-030: điểm "cho riêng" (gán từng attempt khi nhiều lượt) và học sinh chỉ thấy điểm sau khi GV công bố (chờ công bố, giống grade publication DEC-019), đáp án chỉ sau quiz đóng. Ghi QUIZZES (scorePublication flag) và 14-architecture-decisions.
+
+Sửa 7 điểm nút trùng React (atd_react, UI-only, không đổi nghiệp vụ):
+- App.tsx verify card: "Tôi đã xác minh" → "Kiểm tra lại xác minh".
+- ClassWorkspace: bỏ 2 shortcut "Bài tập của lớp"/"Lịch & buổi học" trùng tab, giữ chỉ dòng timezone; bỏ import Link.
+- CalendarPage: weekly preview thành 2 bước rõ (nút "Xem trước số buổi" trước, sau đó "Tạo lịch (hủy bỏ nếu trùng)"), single dùng "Tạo buổi học".
+- QrPage: confirm "Đóng điểm danh" nêu rõ hậu quả (HS chưa quét → vắng, có thể sửa tay DEC-017).
+- CheckInPage: 3 nút camera đổi label theo trạng thái (Quét mã khác / Mở camera; Đóng camera giữ mã vừa quét).
+- DashboardPage: metric card teacher tách anchor riêng #queue-requests/#queue-reviews, thêm id cho 2 h3 queue.
+- MembersPanel: giữ 2 nút Duyệt/Từ chối (hành động khác nhau, rõ nghĩa) — không gộp.
+
+Kiểm chứng React: tsc -b PASS, eslint7file PASS, vitest29 PASS, vite build PASS. Chưa browser E2E. Tiếp theo TASK-012 quiz engine theo DEC-031.

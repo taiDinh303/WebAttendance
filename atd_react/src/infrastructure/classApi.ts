@@ -1,5 +1,7 @@
 import { request, params } from "./http";
 import type {
+  Announcement,
+  AnnouncementComment,
   Classroom,
   Membership,
   Page,
@@ -104,4 +106,42 @@ export const classApi = {
       method: "DELETE",
       body: { expectedVersion: item.version },
     }),
+  announcements: (
+    classId: string,
+    pageNumber: number,
+    signal?: AbortSignal,
+  ) =>
+    request<Page<Announcement>>(
+      "/classes/" + classId + "/announcements" + params({ pageNumber }),
+      { signal },
+    ),
+  announcement: (classId: string, id: string, signal?: AbortSignal) =>
+    request<{
+      announcement: Announcement;
+      comments: AnnouncementComment[];
+    }>("/classes/" + classId + "/announcements/" + id, { signal }),
+  saveAnnouncement: (classId: string, body: unknown, id?: string) =>
+    request<Announcement>("/classes/" + classId + "/announcements" + (id ? "/" + id : ""), {
+      method: id ? "PATCH" : "POST",
+      body,
+    }),
+  publishAnnouncement: (classId: string, id: string, version: number) =>
+    request<Announcement>("/classes/" + classId + "/announcements/" + id + "/publish", {
+      method: "POST",
+      body: { expectedVersion: version },
+    }),
+  archiveAnnouncement: (classId: string, id: string, version: number) =>
+    request<Announcement>("/classes/" + classId + "/announcements/" + id + "/archive", {
+      method: "POST",
+      body: { expectedVersion: version },
+    }),
+  addComment: (classId: string, announcementId: string, body: string, clientMessageId?: string) =>
+    request<AnnouncementComment>("/classes/" + classId + "/announcements/" + announcementId + "/comments", {
+      method: "POST",
+      body: { body, clientMessageId },
+    }),
+  hideComment: (classId: string, commentId: string) =>
+    request("/classes/" + classId + "/comments/" + commentId + "/hide", { method: "POST" }),
+  deleteComment: (classId: string, commentId: string) =>
+    request("/classes/" + classId + "/comments/" + commentId, { method: "DELETE" }),
 };
