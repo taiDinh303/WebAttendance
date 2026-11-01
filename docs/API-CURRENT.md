@@ -96,3 +96,5 @@ Runtime thêm5operation admin/summary, admin/users, users/{id}/lock, users/{id}/
 PATCH /api/v1/me/profile thêm optional nullable gender (male/female/other/undisclosed), birthday (YYYY-MM-DD, không tương lai), avatarKey (blue/green/amber/rose/violet). UserResource trả3field mới. Self actor + expectedVersion giữ nguyên. Migration2026_10_30_160000_add_profile_details_to_users cần áp dụng; chưa migrate cloud. Không có API upload avatar hoặc Google OAuth trong đợt chuẩn bị UI này.
 
 2026-11-01 — Rà bàn giao Bản tin: student list/show loại announcement.hidden; tạo comment trên hidden hoặc archived class bị từ chối. CommentResource trả body=null cho HS khi comment hidden/deleted, vẫn giữ tombstone deletedAt/authorId và nội dung audit server cho moderation. Không đổi quyền owner hoặc lưu trữ audit.
+
+2026-11-01 — Bản tin: GET detail hỗ trợ commentPage, trả comments20item và commentPagination; POST comments/{id}/hide nhận hidden boolean (mặc định true), hỗ trợ hiện lại. clientMessageId retry cùng body trả cùng comment kể cả tombstone, khác body/xung đột khóa trả409; không tự tạo lại comment đã xóa.

@@ -60,6 +60,23 @@ final class AnnouncementsTest extends TestCase
         $this->postJson($url.'/comments', ['body' => 'No access'])->assertNotFound();
     }
 
+    public function test_comments_are_paginated_and_hidden_comments_can_be_restored(): void
+    {
+        [$teacher, $student, $class] = $this->seedClass();
+        $id = $this->actingAs($teacher)->postJson('/api/v1/classes/'.$class.'/announcements', ['title' => 'Paged'])->assertCreated()->json('data.id');
+        $url = '/api/v1/classes/'.$class.'/announcements/'.$id;
+        $this->postJson($url.'/publish', ['expectedVersion' => 1])->assertOk();
+        for ($i = 0; $i < 21; $i++) {
+            AnnouncementComment::forceCreate(['id' => (string) Str::ulid(), 'announcement_id' => $id, 'author_id' => $student->id, 'body' => 'Comment '.$i]);
+        }
+        $this->actingAs($student)->getJson($url)->assertOk()->assertJsonCount(20, 'data.comments')->assertJsonPath('data.commentPagination.totalItems', 21);
+        $this->getJson($url.'?commentPage=2')->assertOk()->assertJsonCount(1, 'data.comments');
+        $comment = AnnouncementComment::where('announcement_id', $id)->first();
+        $this->actingAs($teacher)->postJson('/api/v1/classes/'.$class.'/comments/'.$comment->id.'/hide')->assertNoContent();
+        $this->postJson('/api/v1/classes/'.$class.'/comments/'.$comment->id.'/hide', ['hidden' => false])->assertNoContent();
+        $this->assertFalse($comment->fresh()->hidden);
+    }
+
     public function test_comment_idempotent_with_client_message_id(): void
     {
         [$teacher, $student, $class] = $this->seedClass();

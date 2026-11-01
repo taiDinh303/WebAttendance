@@ -97,6 +97,7 @@ export interface Announcement {
   updatedAt: string;
 }
 export interface AnnouncementComment {
+  deletedAt?: string | null;
   id: string;
   announcementId: string;
   authorId: string;

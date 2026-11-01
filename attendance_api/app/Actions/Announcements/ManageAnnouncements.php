@@ -112,13 +112,20 @@ final class ManageAnnouncements
             }
             // Idempotent: same client id returns existing comment
             if ($clientMessageId !== null) {
-                $existing = AnnouncementComment::where('announcement_id', $announcement->id)
+                $existing = AnnouncementComment::withTrashed()->where('announcement_id', $announcement->id)
                     ->where('author_id', $actor->id)
                     ->where('id', $clientMessageId)
                     ->first();
                 if ($existing) {
+                    if ($existing->body !== $body) {
+                        throw new ApiException('VERSION_CONFLICT', 'Comment retry payload changed.');
+                    }
+
                     return $existing;
                 }
+            }
+            if ($clientMessageId !== null && AnnouncementComment::withTrashed()->whereKey($clientMessageId)->exists()) {
+                throw new ApiException('VERSION_CONFLICT', 'Comment request key is unavailable.');
             }
             $comment = new AnnouncementComment;
             $comment->id = $clientMessageId ?? (string) Str::ulid();

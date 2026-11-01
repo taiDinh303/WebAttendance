@@ -115,11 +115,12 @@ export const classApi = {
       "/classes/" + classId + "/announcements" + params({ pageNumber }),
       { signal },
     ),
-  announcement: (classId: string, id: string, signal?: AbortSignal) =>
+  announcement: (classId: string, id: string, signal?: AbortSignal, commentPage = 1) =>
     request<{
       announcement: Announcement;
       comments: AnnouncementComment[];
-    }>("/classes/" + classId + "/announcements/" + id, { signal }),
+      commentPagination: Page<AnnouncementComment>;
+    }>("/classes/" + classId + "/announcements/" + id + params({ commentPage }), { signal }),
   saveAnnouncement: (classId: string, body: unknown, id?: string) =>
     request<Announcement>("/classes/" + classId + "/announcements" + (id ? "/" + id : ""), {
       method: id ? "PATCH" : "POST",
@@ -140,8 +141,8 @@ export const classApi = {
       method: "POST",
       body: { body, clientMessageId },
     }),
-  hideComment: (classId: string, commentId: string) =>
-    request("/classes/" + classId + "/comments/" + commentId + "/hide", { method: "POST" }),
+  hideComment: (classId: string, commentId: string, hidden = true) =>
+    request("/classes/" + classId + "/comments/" + commentId + "/hide", { method: "POST", body: { hidden } }),
   deleteComment: (classId: string, commentId: string) =>
     request("/classes/" + classId + "/comments/" + commentId, { method: "DELETE" }),
 };

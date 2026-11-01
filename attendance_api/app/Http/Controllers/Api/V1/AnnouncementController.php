@@ -68,11 +68,13 @@ final class AnnouncementController extends Controller
                 $q->orWhere(fn ($sub) => $sub->where('author_id', $request->user()->id)->whereNotNull('deleted_at'));
             });
         }
-        $comments = $commentQuery->withTrashed()->orderBy('created_at')->orderBy('id')->get();
+        $page = $request->validate(['commentPage' => ['sometimes', 'integer', 'min:1']]);
+        $comments = $commentQuery->withTrashed()->orderBy('created_at')->orderBy('id')->paginate(20, ['*'], 'commentPage', $page['commentPage'] ?? 1);
 
         return ApiResponse::success([
             'announcement' => new AnnouncementResource($announcement),
-            'comments' => $comments->map(fn ($c) => new AnnouncementCommentResource($c)),
+            'comments' => $comments->getCollection()->map(fn ($c) => new AnnouncementCommentResource($c)),
+            'commentPagination' => ['pageNumber' => $comments->currentPage(), 'totalPages' => $comments->lastPage(), 'totalItems' => $comments->total(), 'hasPreviousPage' => $comments->currentPage() > 1, 'hasNextPage' => $comments->hasMorePages()],
         ]);
     }
 
@@ -100,7 +102,8 @@ final class AnnouncementController extends Controller
 
     public function hideComment(Request $request, Classroom $classroom, string $commentId, ManageAnnouncements $action): Response
     {
-        $action->moderateComment($request->user(), $classroom, $commentId, true);
+        $data = $request->validate(['hidden' => ['sometimes', 'boolean']]);
+        $action->moderateComment($request->user(), $classroom, $commentId, $data['hidden'] ?? true);
 
         return response()->noContent();
     }

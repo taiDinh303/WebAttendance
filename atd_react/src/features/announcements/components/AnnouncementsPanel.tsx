@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Plus, Megaphone, MessageSquare, Pin, EyeOff, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../../../application/sessionContext";
@@ -12,6 +12,7 @@ import {
   Empty,
   Pagination,
   ActionButton,
+  ErrorNotice,
 } from "../../../shared/ui";
 import { text, iso, dateTime } from "../../../domain/format";
 import type { Announcement, AnnouncementComment } from "../../../domain/models";
@@ -99,11 +100,13 @@ function AnnouncementRow({
   teacher: boolean;
   refresh: () => Promise<void>;
 }) {
+  const [editing,setEditing]=useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [commentPage,setCommentPage] = useState(1);
   const { user } = useSession();
   const detail = useQuery({
-    queryKey: ["private", user?.id, "announcement-detail", classId, announcement.id],
-    queryFn: ({ signal }) => classApi.announcement(classId, announcement.id, signal),
+    queryKey: ["private", user?.id, "announcement-detail", classId, announcement.id, commentPage],
+    queryFn: ({ signal }) => classApi.announcement(classId, announcement.id, signal, commentPage),
     enabled: expanded,
     retry: false,
   });
@@ -125,6 +128,9 @@ function AnnouncementRow({
         </small>
       </div>
       <Badge value={announcement.state} />
+      {teacher && announcement.state !== "archived" ? <><button className="button small secondary" onClick={()=>setEditing(v=>!v)}>Sửa</button><ActionButton className="button small secondary" action={async()=>{await classApi.saveAnnouncement(classId,{pinned:!announcement.pinned,expectedVersion:announcement.version},announcement.id);await refresh()}}>{announcement.pinned?"Bỏ ghim":"Ghim"}</ActionButton><ActionButton className="button small secondary" action={async()=>{await classApi.saveAnnouncement(classId,{hidden:!announcement.hidden,expectedVersion:announcement.version},announcement.id);await refresh()}}>{announcement.hidden?"Hiện bản tin":"Ẩn bản tin"}</ActionButton></> : null}
+      {editing ? <div className="comments-panel"><AsyncForm onSubmit={async f=>{await classApi.saveAnnouncement(classId,{title:text(f,"title"),body:text(f,"body"),expiresAt:iso(f.get("expiresAt")),expectedVersion:announcement.version},announcement.id);await refresh();setEditing(false)}}><Field label="Tiêu đề"><input name="title" defaultValue={announcement.title} required maxLength={200}/></Field><Field label="Nội dung"><textarea name="body" defaultValue={announcement.body ?? ""} maxLength={20000}/></Field><Field label="Hết hạn"><input type="datetime-local" name="expiresAt" defaultValue={announcement.expiresAt ? new Date(new Date(announcement.expiresAt).getTime()-new Date(announcement.expiresAt).getTimezoneOffset()*60000).toISOString().slice(0,16):""}/></Field><button className="button">Lưu</button></AsyncForm></div> : null}
+      {teacher && announcement.state === "draft" ? <ActionButton className="button small" action={async()=>{await classApi.publishAnnouncement(classId,announcement.id,announcement.version);await refresh()}}>Công bố</ActionButton> : null}
       <button
         className="button ghost small"
         aria-expanded={expanded}
@@ -153,18 +159,18 @@ function AnnouncementRow({
           {comments.map((c) => (
             <div className="list-row" key={c.id}>
               <div className="grow">
-                <p>{c.body}</p>
+                <p>{c.deletedAt ? "Bình luận đã được giáo viên xóa." : c.body}</p>
                 <small>{dateTime(c.createdAt)}</small>
                 {c.hidden ? <Badge value="hidden" /> : null}
               </div>
-              {teacher ? (
+              {teacher && !c.deletedAt ? (
                 <div className="inline-actions">
-                  {!c.hidden ? (
+                  {!c.deletedAt ? (
                     <ActionButton
                       className="button ghost small"
-                      title="Ẩn bình luận"
+                      title={c.hidden ? "Hiện lại bình luận" : "Ẩn bình luận"}
                       action={async () => {
-                        await classApi.hideComment(classId, c.id);
+                        await classApi.hideComment(classId, c.id, !c.hidden);
                         await detail.refetch();
                       }}
                     >
@@ -187,7 +193,8 @@ function AnnouncementRow({
             </div>
           ))}
           {detail.isSuccess && !comments.length ? <p className="muted">Chưa có bình luận.</p> : null}
-          {teacher ? (
+          <Pagination data={detail.data?.commentPagination} onPage={setCommentPage}/>
+          {announcement.state === "published" ? (
             <CommentComposer
               classId={classId}
               announcementId={announcement.id}
@@ -211,15 +218,20 @@ function CommentComposer({
 }) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [error,setError] = useState<unknown>(null);
+  const pending = useRef<{body:string;key:string} | null>(null);
 
   const submit = async () => {
     if (!draft.trim() || sending) return;
     setSending(true);
+    setError(null);
+    pending.current ??= {body:draft,key:Array.from(crypto.getRandomValues(new Uint8Array(26)),v=>"0123456789ABCDEFGHJKMNPQRSTVWXYZ"[v%32]).join("").replace(/^./,"0")};
     try {
-      await classApi.addComment(classId, announcementId, draft);
+      await classApi.addComment(classId, announcementId, pending.current.body, pending.current.key);
+      pending.current=null;
       setDraft("");
       onSent();
-    } finally {
+    } catch(error) { setError(error); } finally {
       setSending(false);
     }
   };
@@ -231,6 +243,7 @@ function CommentComposer({
         maxLength={20000}
         placeholder="Nhập phản hồi..."
         value={draft}
+        disabled={sending || error !== null}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && draft.trim()) {
@@ -238,7 +251,8 @@ function CommentComposer({
           }
         }}
       />
-      <div className="inline-actions">
+      {error ? <button type="button" className="button secondary small" onClick={()=>{pending.current=null;setError(null)}}>Chỉnh lại nội dung</button> : null}
+      <ErrorNotice error={error}/><div className="inline-actions">
         <button className="button small" onClick={() => void submit()} disabled={sending}>
           Gửi
         </button>
