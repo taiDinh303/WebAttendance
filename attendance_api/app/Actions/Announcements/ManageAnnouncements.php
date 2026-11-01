@@ -100,7 +100,7 @@ final class ManageAnnouncements
             $class = Classroom::whereKey($classroom->id)->lockForUpdate()->firstOrFail();
             Gate::forUser($actor)->authorize('view', $class);
             $announcement = Announcement::where('class_id', $class->id)->whereKey($announcementId)->lockForUpdate()->firstOrFail();
-            if ($class->status !== 'active' || ($actor->role === 'student' && $announcement->hidden)) {
+            if ($class->status !== 'active' || ($actor->role === 'student' && ($announcement->hidden || ($announcement->expires_at !== null && $announcement->expires_at->lte(now()))))) {
                 abort(404);
             }
             if ($announcement->state !== 'published') {

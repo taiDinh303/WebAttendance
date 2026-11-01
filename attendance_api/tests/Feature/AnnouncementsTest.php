@@ -77,6 +77,24 @@ final class AnnouncementsTest extends TestCase
         $this->assertFalse($comment->fresh()->hidden);
     }
 
+    public function test_expiry_and_membership_revocation_block_student_access(): void
+    {
+        [$teacher, $student, $class] = $this->seedClass();
+        $id = $this->actingAs($teacher)->postJson('/api/v1/classes/'.$class.'/announcements', ['title' => 'Expires', 'expiresAt' => now()->addHour()->toISOString()])->assertCreated()->json('data.id');
+        $url = '/api/v1/classes/'.$class.'/announcements/'.$id;
+        $this->postJson($url.'/publish', ['expectedVersion' => 1])->assertOk();
+        $this->actingAs($student)->getJson($url)->assertOk();
+        $this->travel(61)->minutes();
+        $this->getJson($url)->assertNotFound();
+        $this->getJson('/api/v1/classes/'.$class.'/announcements')->assertJsonPath('data.totalItems', 0);
+        $this->postJson($url.'/comments', ['body' => 'Expired'])->assertNotFound();
+        $this->actingAs($teacher)->getJson($url)->assertOk();
+        $this->travelBack();
+        DB::table('class_memberships')->where('class_id', $class)->where('student_id', $student->id)->update(['status' => 'left']);
+        $this->actingAs($student)->getJson($url)->assertNotFound();
+        $this->postJson($url.'/comments', ['body' => 'Left'])->assertNotFound();
+    }
+
     public function test_comment_idempotent_with_client_message_id(): void
     {
         [$teacher, $student, $class] = $this->seedClass();
@@ -87,6 +105,12 @@ final class AnnouncementsTest extends TestCase
         $url = '/api/v1/classes/'.$class.'/announcements/'.$id.'/comments';
         $this->actingAs($student)->postJson($url, ['body' => 'Hi', 'clientMessageId' => $client])->assertCreated()->assertJsonPath('data.id', $client);
         $this->postJson($url, ['body' => 'Hi', 'clientMessageId' => $client])->assertCreated()->assertJsonPath('data.id', $client);
+        $this->assertDatabaseCount('announcement_comments', 1);
+        $this->postJson($url, ['body' => 'Changed retry', 'clientMessageId' => $client])->assertConflict();
+        $this->actingAs($teacher)->deleteJson('/api/v1/classes/'.$class.'/comments/'.$client)->assertNoContent();
+        $replay = $this->actingAs($student)->postJson($url, ['body' => 'Hi', 'clientMessageId' => $client])->assertCreated();
+        $this->assertNotNull($replay->json('data.deletedAt'));
+        $replay->assertJsonPath('data.body', null);
         $this->assertDatabaseCount('announcement_comments', 1);
     }
 

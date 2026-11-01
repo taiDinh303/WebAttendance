@@ -120,3 +120,5 @@ IMPLEMENTED: Settings cuối sidebar; desktop collapse lưu preference local; mo
 2026-10-30: nút thu/mở sidebar desktop chuyển sang trái header, trước breadcrumb.
 
 2026-11-01 — Bản tin: học sinh/giáo viên đều có composer trên published; hiển thị tombstone, xử lý lỗi gửi, retry giữ id/body. Teacher có publish draft, sửa nội dung/hạn, ghim/bỏ ghim, ẩn/hiện, archive; comment hide/unhide, xóa có confirm và bỏ nút trên tombstone. Comments phân trang20.
+
+2026-11-01: notification announcement.published/comment.removed có nhãn Việt và link tab Bản tin. Form giữ ID bản nháp sau save để retry bước publish không tạo thêm draft, gửi expectedVersion khi sửa lại. Owner thấy nhãn hidden/hết hạn.

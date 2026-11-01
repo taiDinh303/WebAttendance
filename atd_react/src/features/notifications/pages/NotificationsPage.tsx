@@ -11,6 +11,8 @@ import {
 } from "../../../shared/ui";
 import { dateTime } from "../../../domain/format";
 const labels: Record<string, string> = {
+  "announcement.published": "Lớp có bản tin mới",
+  "announcement.comment.removed": "Bình luận của bạn đã được giáo viên xóa",
   "assignment.published": "Lớp có bài tập mới",
   "submission.created": "Có bài nộp mới",
   "grade.published": "Điểm đã được công bố",
@@ -57,7 +59,7 @@ export default function NotificationsPage() {
                   to={
                     "/app/classes/" +
                     n.data.classId +
-                    (n.data.assignmentId
+                    (n.data.announcementId ? "/announcements" : n.data.assignmentId
                       ? "/assignments/" + n.data.assignmentId
                       : "")
                   }

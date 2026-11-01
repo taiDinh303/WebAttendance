@@ -21,6 +21,7 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
   const { user } = useSession();
   const { page, setPage } = usePage();
   const [open, setOpen] = useState(false);
+  const [savedDraft,setSavedDraft] = useState<Announcement | null>(null);
   const refresh = useRefresh();
   const teacher = user?.role === "teacher";
   const query = useResource(["announcements", classId, page], (s) =>
@@ -38,6 +39,7 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
           </button>
         ) : null}
       </div>
+      {savedDraft ? <p role="status">Đã lưu bản nháp. Nếu công bố lỗi, bạn có thể công bố từ danh sách.</p> : null}
       {open ? (
         <div className="panel editor-panel">
           <AsyncForm
@@ -47,11 +49,14 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
                 body: text(f, "body"),
                 pinned: f.has("pinned"),
                 expiresAt: iso(f.get("expiresAt")),
-              });
+                ...(savedDraft ? {expectedVersion:savedDraft.version}:{}),
+              }, savedDraft?.id);
+              setSavedDraft(draft);
               if (f.has("publishNow")) {
                 await classApi.publishAnnouncement(classId, draft.id, draft.version);
               }
               await refresh();
+              setSavedDraft(null);
               setOpen(false);
             }}
           >
@@ -100,6 +105,7 @@ function AnnouncementRow({
   teacher: boolean;
   refresh: () => Promise<void>;
 }) {
+  const [checkedAt] = useState(()=>Date.now());
   const [editing,setEditing]=useState(false);
   const [expanded, setExpanded] = useState(false);
   const [commentPage,setCommentPage] = useState(1);
@@ -128,6 +134,8 @@ function AnnouncementRow({
         </small>
       </div>
       <Badge value={announcement.state} />
+      {announcement.hidden ? <Badge value="hidden"/> : null}
+      {announcement.expiresAt && new Date(announcement.expiresAt).getTime() <= checkedAt ? <small>Đã hết hạn</small> : null}
       {teacher && announcement.state !== "archived" ? <><button className="button small secondary" onClick={()=>setEditing(v=>!v)}>Sửa</button><ActionButton className="button small secondary" action={async()=>{await classApi.saveAnnouncement(classId,{pinned:!announcement.pinned,expectedVersion:announcement.version},announcement.id);await refresh()}}>{announcement.pinned?"Bỏ ghim":"Ghim"}</ActionButton><ActionButton className="button small secondary" action={async()=>{await classApi.saveAnnouncement(classId,{hidden:!announcement.hidden,expectedVersion:announcement.version},announcement.id);await refresh()}}>{announcement.hidden?"Hiện bản tin":"Ẩn bản tin"}</ActionButton></> : null}
       {editing ? <div className="comments-panel"><AsyncForm onSubmit={async f=>{await classApi.saveAnnouncement(classId,{title:text(f,"title"),body:text(f,"body"),expiresAt:iso(f.get("expiresAt")),expectedVersion:announcement.version},announcement.id);await refresh();setEditing(false)}}><Field label="Tiêu đề"><input name="title" defaultValue={announcement.title} required maxLength={200}/></Field><Field label="Nội dung"><textarea name="body" defaultValue={announcement.body ?? ""} maxLength={20000}/></Field><Field label="Hết hạn"><input type="datetime-local" name="expiresAt" defaultValue={announcement.expiresAt ? new Date(new Date(announcement.expiresAt).getTime()-new Date(announcement.expiresAt).getTimezoneOffset()*60000).toISOString().slice(0,16):""}/></Field><button className="button">Lưu</button></AsyncForm></div> : null}
       {teacher && announcement.state === "draft" ? <ActionButton className="button small" action={async()=>{await classApi.publishAnnouncement(classId,announcement.id,announcement.version);await refresh()}}>Công bố</ActionButton> : null}

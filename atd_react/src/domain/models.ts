@@ -141,7 +141,7 @@ export interface GradeRow {
 export interface Notice {
   id: string;
   type: string;
-  data: { classId?: string; assignmentId?: string };
+  data: { classId?: string; assignmentId?: string; announcementId?: string; commentId?: string };
   readAt: string | null;
   createdAt: string;
 }
