@@ -308,3 +308,11 @@ Sửa thiếu composerHS/tombstone/publishdraft/unhide, thêm edit/pin/hidden ch
 
 ### 2026-11-01 — Rà hoàn thiện tiếp Bản tin
 Phát hiện expiresAt chưa enforce, notification generic/link overview và form save→publish retry tạo draft mới; đã sửa. Hết hạn theo server clock loại list/show/comments choHS, owner giữ quyền xem; savedDraft id/version giúp retry không insert draft mới sau publish fail. Bổ sung test expiry/travelBack/membership revoke và key retry deleted/mismatch. Targeted MySQL schema test tái sử dụng9tests/107assertionsPASS; React typecheck/lint29tests/build/Pint/diffPASS. Không coi là fullsuite hoặc browser real HTTP→DB. Chưa deploy/migrate cloud. Các module chưa làm vẫn quiz/chat/Excel/OAuth/upload thật theo backlog; không lẫn vào hoàn thiện Bản tin.
+
+### 2026-11-01 — TASK-015 Xuất Excel và studentCode
+
+Triển khai owner-only GET attendance/grades export + template, native OOXML inlineStr/ZipArchive không đưa thêm dependency, download ephemeral xóa sau gửi. Text không thành công thức, điểm chỉ publication hiện hành, attendance snapshot finalized; không tự0/absent cho dữ liệu chưa chốt. Optional studentCode self-profile, giữ0đầu, không uniqueness toàn hệ thống. UI download với credential/timeout/MIME check, template ở tab attendance/grades.
+
+VERIFIED LOCAL: targeted MySQL ClassExportTest4tests/34assertionsPASS (quyền/ZIPXML/totals/openwindow/publishedvsdraft/codevalidation). Fixture membership ban đầu thiếu requested_at đã sửa fixture, không nới schema. React typecheck/lint29tests/buildPASS. Native writer chỉ dùng XMLescaped text inline cells và số hữu hạn từ server; không chứa Excel formulas. Tests dùng schema attendance_test tái sử dụng sau migration student_code local, không cloud. Chưa browser real API→download hoặc Microsoft Excel app/render, chưa đo tải export lớn. Phải cập nhật backend/migrate và kiểm ext-zip trên cloud. No deploy/SMTP/import.
+
+Kiểm tra cuối mở rộng profile regression: AccountsTest+ClassExportTest17tests/116assertionsPASS; browser mobile4lượt download xlsx/template trên2tabPASS với fileZIPfixture thật và API mock. Sample chỉ dữ liệu tổng hợp, ở work/ignored. Frontend29tests/typecheck/lint/buildPASS. Không sửa code sau các kiểm này ngoài docs; writer header alignment đã được targetedAPI rerunPASS. Chuẩn bị push main.

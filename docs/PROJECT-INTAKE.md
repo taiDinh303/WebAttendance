@@ -96,3 +96,5 @@ Chủ dự án yêu cầu Settings cuối sidebar, thu/mở sidebar, hồ sơ re
 ### 2026-10-31 — Mở cổng quiz, chat, notification, hosting (CONFIRMED)
 
 Chủ dự án trả lời: quiz theo lựa chọn giáo viên (Q-028/029/030 → DEC-031); group chat cả lớp, chưa chat riêng 1–1 (Q-015 → DEC-032); email thật + nhắc hạn nộp do giáo viên chọn, chưa push (Q-016 → DEC-033); MySQL cloud Aiven free plan Singapore đã mở (phần hosting Q-026 → DEC-034). Q-025 retention/xóa tài khoản và phần domain/ngân sách/thời hạn của Q-026 vẫn OPEN. Ưu tiên module đã duyệt: TASK-009 bản tin → TASK-012 quiz → TASK-013 chat → TASK-015 Excel → Google/avatar → production; không deploy, không gửi mail thật, không chuyển dữ liệu cũ.
+
+2026-11-01 — Chủ dự án giao TASK-015 xuất Excel attendance/grades. Chốt học sinh tự nhập mã sinh viên không bắt buộc (DEC-038); chi tiết cột và triển khai xem [EXPORTS](EXPORTS.md). Không yêu cầu nhập email/điện thoại vào report mặc định, không bật import hoặc chuyển dữ liệu cũ.

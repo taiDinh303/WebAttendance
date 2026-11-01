@@ -26,12 +26,13 @@ export default function SettingsPage() {
           <p className="muted">
             {user.email} · {user.role === "teacher" ? "Giáo viên" : "Học sinh"}
           </p>
-          {!editing ? <><dl className="profile-facts"><div><dt>Họ tên</dt><dd>{user.displayName}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div><div><dt>Điện thoại</dt><dd>{user.phone || "Chưa cung cấp"}</dd></div><div><dt>Giới tính</dt><dd>{({male:"Nam",female:"Nữ",other:"Khác",undisclosed:"Không chia sẻ"})[user.gender ?? "undisclosed"]}</dd></div><div><dt>Ngày sinh</dt><dd>{user.birthday ? user.birthday.split("-").reverse().join("/") : "Chưa cung cấp"}</dd></div></dl><button className="button secondary" onClick={()=>setEditing(true)}><Pencil size={16}/>Chỉnh sửa</button></> : <><button className="icon-button" aria-label="Hủy chỉnh sửa" onClick={()=>setEditing(false)}><X size={18}/></button><AsyncForm
+          {!editing ? <><dl className="profile-facts">{user.role === "student" ? <div><dt>Mã sinh viên</dt><dd>{user.studentCode || "Chưa cung cấp"}</dd></div>:null}<div><dt>Họ tên</dt><dd>{user.displayName}</dd></div><div><dt>Email</dt><dd>{user.email}</dd></div><div><dt>Điện thoại</dt><dd>{user.phone || "Chưa cung cấp"}</dd></div><div><dt>Giới tính</dt><dd>{({male:"Nam",female:"Nữ",other:"Khác",undisclosed:"Không chia sẻ"})[user.gender ?? "undisclosed"]}</dd></div><div><dt>Ngày sinh</dt><dd>{user.birthday ? user.birthday.split("-").reverse().join("/") : "Chưa cung cấp"}</dd></div></dl><button className="button secondary" onClick={()=>setEditing(true)}><Pencil size={16}/>Chỉnh sửa</button></> : <><button className="icon-button" aria-label="Hủy chỉnh sửa" onClick={()=>setEditing(false)}><X size={18}/></button><AsyncForm
             key={user.id}
             success="Đã lưu thông tin cá nhân."
             onSubmit={async (f) => {
               await authApi.profile({
                 displayName: text(f, "displayName"),
+                ...(user.role === "student" ? {studentCode:text(f,"studentCode") || null}:{}),
                 phone: text(f, "phone") || null,
                 gender: text(f,"gender") || null,
                 avatarKey: text(f,"avatarKey") || null,
@@ -45,6 +46,7 @@ export default function SettingsPage() {
             }}
           >
             <Field label="Avatar"><div className="avatar-options">{["blue","green","amber","rose","violet"].map(key=><label key={key}><input type="radio" name="avatarKey" value={key} defaultChecked={(user.avatarKey ?? "blue")===key}/><span className={"avatar avatar-"+key}>{user.displayName.slice(0,1)}</span></label>)}</div></Field><button type="button" className="button secondary" disabled title="Chưa cấu hình kho ảnh"><Camera size={16}/>Tải ảnh cá nhân</button><small className="muted">Tải ảnh sẽ mở khi kho lưu ảnh được kết nối.</small>
+            {user.role === "student" ? <Field label="Mã sinh viên (không bắt buộc)"><input name="studentCode" defaultValue={user.studentCode ?? ""} maxLength={40}/></Field>:null}
             <Field label="Họ tên">
               <input
                 name="displayName"

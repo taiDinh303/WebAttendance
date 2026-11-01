@@ -133,3 +133,7 @@ Nguồn: chủ dự án trả lời Q-exp1/exp2: xuất Excel cho cả attendanc
 ### DEC-037 — Chat group: gửi file và sửa/xóa tin (CONFIRMED 2026-10-31)
 
 Nguồn: chủ dự án trả lời Q-chat2 "được" (gửi file trong chat) và Q-chat3 "được" (sửa/xóa tin). PROPOSED kế hoạch theo DEC-032: message per class channel, clientMessageId idempotent; file dùng stored_files riêng per-message (private, MIME/size theo DEC-020 limits); sửa tin trong 10 phút do chủ tin (version), xóa mềm (deleted_at) giữ audit, teacher owner có thể ẩn toàn bộ tin; pending/left/removed chặn gửi mới. Chưa IMPLEMENTED.
+
+### DEC-038 — Mã sinh viên và xuất Excel (CONFIRMED 2026-11-01)
+
+Chủ dự án giao xuất Excel điểm danh/điểm và hỏi các cột ngoài mã sinh viên/họ tên/giới tính/ngày sinh. Trả lời bổ sung: học sinh tự nhập mã sinh viên, không bắt buộc; chưa có để trống. Không dùng ID database thay mã. Các cột báo cáo/giới hạn kỹ thuật ở [EXPORTS](EXPORTS.md) là thiết kế triển khai đề xuất trong phạm vi DEC-036, không thêm quy tắc chấm điểm mới.

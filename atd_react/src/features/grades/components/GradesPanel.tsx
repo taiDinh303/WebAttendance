@@ -1,3 +1,4 @@
+import { ExportButtons } from "../../exports/components/ExportButtons";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource } from "../../../application/queries";
 import { learningApi } from "../../../infrastructure/learningApi";
@@ -18,7 +19,7 @@ function TeacherGrades({ classId }: { classId: string }) {
   );
   return (
     <>
-      <h2>Bảng điểm lớp</h2>
+      <h2>Bảng điểm lớp</h2><ExportButtons classId={classId} kind="grades"/>
       <p className="muted">
         Trung bình các điểm đã công bố, trọng số bằng nhau. Chưa có điểm hiển
         thị “—”.

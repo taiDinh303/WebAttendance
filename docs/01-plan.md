@@ -35,7 +35,7 @@ P3 và P4 có thể đổi thứ tự theo ưu tiên chủ dự án; không tri�
 | TASK-012 | Quiz/attempt/scoring — REQ-013 | DEC-021, Q-028/029/030; TASK-006/011 | TC-012/013 | NOT STARTED; timing/scoring multi-attempt còn chờ trả lời |
 | TASK-013 | Chat — REQ-014 | Q-015/025; TASK-006 | TC-015/019 | NOT STARTED |
 | TASK-014 | Notification/jobs — REQ-015 | Q-016; TASK-006, outbox nền tảng | TC-018 | PARTIAL: inbox membership + durable outbox; chưa dispatcher/realtime |
-| TASK-015 | Báo cáo/Excel — REQ-011 | TASK-008/011/012 | TC-009/020 | PARTIAL: attendance summary đã có; Excel/grade report chưa có |
+| TASK-015 | Báo cáo/Excel — REQ-011 | TASK-008/011/012 | TC-009/020 | IMPLEMENTED LOCAL: summary + XLSX attendance/grades/template; xem EXPORTS.md, chưa cloud verified |
 | TASK-016 | Admin/tài khoản — REQ-012 | Q-021/020; TASK-004 | TC-003/019 | NOT STARTED |
 | TASK-017 | Pagination/filter, responsive, accessibility — REQ-016 | Xuyên suốt từng module | TC-020/021 | PARTIAL: API collections + React core, xem FRONTEND-IMPLEMENTATION |
 | TASK-018 | Migration tùy chọn | Q-017, target schema ổn định | Đối soát dry run, rollback | NOT STARTED |
@@ -66,3 +66,7 @@ Owner Codex; VERIFIED LOCAL theo DEC-025/026, evidence tại06-testing: PHP79/69
 TASK-024 — Admin, persistent demo và rubric8nhóm (2026-10-28), ownerCodex, VERIFIED LOCAL. DEC-027/028: admin account moderation/summary/audit, privacy isolation; seed1admin+3teacher+90student+3class×30, lịch/attendance/learning samples; kiểm bảo vệ seed/rerun, revoke/version/audit, browseradmin và workload30. Rubric phải có code+evidence cho kiến trúc/trách nhiệm/dependency/changeability/dataAPI/config/security/vận hành, không đồng nhất điểm đánh giá local với production đã deploy.
 
 TASK-024 nghiệm thu local: PHP101/838, Vitest29, browseradmin1scenario, HTTP30check-in+30replay, restore35bảng/52FK/45file PASS. Source/seed/admin/diagnostics/runbook và rubric8nhóm ở03 đã thực hiện; chưa commit/push/deploy đợt này.
+
+## 2026-11-01 — TASK-015 Export Excel
+
+IMPLEMENTED LOCAL: XLSX điểm danh/bảng điểm đã công bố + mẫu trống, download owner-only, profile studentCode optional. Xem [EXPORTS](EXPORTS.md). Report sync có giới hạn kích thước, chưa background job. Không coi việc có nút Excel là đã VERIFIED cloud; kết quả kiểm ở worklog.

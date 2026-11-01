@@ -106,3 +106,12 @@ export const params = (
 };
 export const fileUrl = (id: string) =>
   origin + "/api/v1/files/" + encodeURIComponent(id) + "/download";
+
+export const exportUrl = (classId:string,kind:"attendance"|"grades",template=false) => origin+"/api/v1/classes/"+encodeURIComponent(classId)+"/"+kind+"/export"+(template?"?template=1":"");
+
+export async function downloadReport(classId:string,kind:"attendance"|"grades",template=false):Promise<Blob>{
+    const response=await fetch(exportUrl(classId,kind,template),{credentials:"include",cache:"no-store",signal:AbortSignal.timeout(60000)});
+    if(!response.ok || !response.headers.get("Content-Type")?.includes("spreadsheetml")) throw new Error("Không xuất được Excel. Kiểm tra quyền truy cập rồi thử lại.");
+
+return response.blob();
+}

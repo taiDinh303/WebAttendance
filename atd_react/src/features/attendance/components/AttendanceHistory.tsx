@@ -1,3 +1,4 @@
+import { ExportButtons } from "../../exports/components/ExportButtons";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource } from "../../../application/queries";
 import { attendanceApi } from "../../../infrastructure/attendanceApi";
@@ -14,7 +15,7 @@ export function AttendanceHistory({ classId }: { classId: string }) {
   );
   return (
     <>
-      <h2>Lịch sử điểm danh</h2>
+      <h2>Lịch sử điểm danh</h2>{user?.role==="teacher" ? <ExportButtons classId={classId} kind="attendance"/>:null}
       <p className="muted">
         {user?.role === "teacher"
           ? "Mở buổi học trong tab Lịch học để xem roster và điều chỉnh có lý do."

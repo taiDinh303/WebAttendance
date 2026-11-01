@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\AnnouncementController;
 use App\Http\Controllers\Api\V1\AssignmentController;
 use App\Http\Controllers\Api\V1\AttendanceController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ClassExportController;
 use App\Http\Controllers\Api\V1\ClassroomController;
 use App\Http\Controllers\Api\V1\CourseController;
 use App\Http\Controllers\Api\V1\DashboardController;
@@ -88,6 +89,7 @@ Route::prefix('v1')->middleware('web')->group(function () {
             Route::post('attendance-windows/{windowId}/close', [AttendanceController::class, 'close']);
             Route::post('attendance/check-ins', [AttendanceController::class, 'checkIn'])->middleware('throttle:check-in');
             Route::get('classes/{classroom}/attendance', [AttendanceController::class, 'index']);
+            Route::get('classes/{classroom}/{kind}/export', [ClassExportController::class, 'download'])->where('kind', 'attendance|grades')->middleware('throttle:submit');
             Route::get('classes/{classroom}/attendance-summary', [AttendanceController::class, 'summary']);
             Route::get('classes/{classroom}/attendance/{recordId}/audit', [AttendanceController::class, 'audit']);
             Route::put('classes/{classroom}/sessions/{sessionId}/attendance/{studentId}', [AttendanceController::class, 'correct']);

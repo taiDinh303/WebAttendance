@@ -7,6 +7,7 @@ final class ProfileRequest extends ApiRequest
     public function rules(): array
     {
         return [
+            'studentCode' => $this->user()?->role === 'student' ? ['sometimes', 'nullable', 'string', 'max:40', 'regex:/^[\pL\pN._\-]+$/u'] : ['prohibited'],
             'displayName' => ['sometimes', 'required', 'string', 'max:120'],
             'avatarKey' => ['sometimes', 'nullable', 'in:blue,green,amber,rose,violet'],
             'gender' => ['sometimes', 'nullable', 'in:male,female,other,undisclosed'],
