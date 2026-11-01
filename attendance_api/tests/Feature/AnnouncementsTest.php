@@ -49,6 +49,17 @@ final class AnnouncementsTest extends TestCase
         $this->actingAs($teacher)->getJson('/api/v1/classes/'.$class.'/announcements/'.$id)->assertOk()->assertJsonCount(1, 'data.comments');
     }
 
+    public function test_hidden_announcement_is_not_readable_or_commentable_by_student(): void
+    {
+        [$teacher, $student, $class] = $this->seedClass();
+        $id = $this->actingAs($teacher)->postJson('/api/v1/classes/'.$class.'/announcements', ['title' => 'Hidden', 'hidden' => true])->assertCreated()->json('data.id');
+        $url = '/api/v1/classes/'.$class.'/announcements/'.$id;
+        $this->postJson($url.'/publish', ['expectedVersion' => 1])->assertOk();
+        $this->actingAs($student)->getJson('/api/v1/classes/'.$class.'/announcements')->assertOk()->assertJsonPath('data.totalItems', 0);
+        $this->getJson($url)->assertNotFound();
+        $this->postJson($url.'/comments', ['body' => 'No access'])->assertNotFound();
+    }
+
     public function test_comment_idempotent_with_client_message_id(): void
     {
         [$teacher, $student, $class] = $this->seedClass();
@@ -96,5 +107,6 @@ final class AnnouncementsTest extends TestCase
         $response = $this->actingAs($student)->getJson('/api/v1/classes/'.$class.'/announcements/'.$id)->assertOk();
         $this->assertNotNull($response->json('data.comments.0.deletedAt'));
         $this->assertSame($student->id, $response->json('data.comments.0.authorId'));
+        $this->assertNull($response->json('data.comments.0.body'));
     }
 }

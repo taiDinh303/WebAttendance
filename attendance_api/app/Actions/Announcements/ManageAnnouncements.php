@@ -100,6 +100,9 @@ final class ManageAnnouncements
             $class = Classroom::whereKey($classroom->id)->lockForUpdate()->firstOrFail();
             Gate::forUser($actor)->authorize('view', $class);
             $announcement = Announcement::where('class_id', $class->id)->whereKey($announcementId)->lockForUpdate()->firstOrFail();
+            if ($class->status !== 'active' || ($actor->role === 'student' && $announcement->hidden)) {
+                abort(404);
+            }
             if ($announcement->state !== 'published') {
                 throw new ApiException('STATE_CONFLICT', 'Comments are only allowed on published announcements.');
             }

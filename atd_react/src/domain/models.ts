@@ -100,7 +100,7 @@ export interface AnnouncementComment {
   id: string;
   announcementId: string;
   authorId: string;
-  body: string;
+  body: string | null;
   hidden: boolean;
   version: number;
   createdAt: string;

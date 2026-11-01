@@ -297,3 +297,8 @@ Sửa 7 điểm nút trùng React (atd_react, UI-only, không đổi nghiệp v�
 - MembersPanel: giữ 2 nút Duyệt/Từ chối (hành động khác nhau, rõ nghĩa) — không gộp.
 
 Kiểm chứng React: tsc -b PASS, eslint7file PASS, vitest29 PASS, vite build PASS. Chưa browser E2E. Tiếp theo TASK-012 quiz engine theo DEC-031.
+
+### 2026-11-01 — Tiếp nhận bàn giao Agnes19f5ffe
+Đã đọc bàn giao và đối chiếu local/remote main sạch trước sửa. Không coi số test trong báo cáo là kiểm chứng độc lập. Rà thấy hidden announcement vẫn readable/commentable bởi HS và deleted comment body vẫn trả JSON; sửa REST scope/resource và thêm regression. TS AnnouncementComment.body chuyển nullable theo contract. Chưa migrate/deploy cloud. Ưu tiên tiếp theo đang hỏi lại chủ dự án: Quiz DEC-031 hoặc hoàn thiện Bản tin. Lượt kiểm targeted dùng SQLite memory cô lập, không dùng DB cloud/dump cũ; kết quả/giới hạn ghi tiếp sau chạy.
+
+Kết quả: PHPUnit MySQL lần đầu6/7PASS, test mới phát hiện show endpoint còn thiếu hidden filter; sửa và chạy lại7/7tests,73assertionsPASS. Rerun dùng bootstrap ignored tái sử dụng schema attendance_test vừa migrate thành công, vẫn transaction rollback mỗi test; không áp dụng cách này cho CI. SQLite bị TestCase guard từ chối và không vượt guard. React typecheck29testsPASS, Pint/diffPASS. Không có browser E2E hoặc cloud verification mới. Push main bản sửa bảo vệ nội dung trước khi mở rộng module.

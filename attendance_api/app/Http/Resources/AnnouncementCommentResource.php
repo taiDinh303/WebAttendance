@@ -15,7 +15,7 @@ final class AnnouncementCommentResource extends JsonResource
             'id' => $this->id,
             'announcementId' => $this->announcement_id,
             'authorId' => $this->author_id,
-            'body' => $this->body,
+            'body' => $request->user()?->role === 'student' && ($this->hidden || $this->deleted_at !== null) ? null : $this->body,
             'hidden' => $this->hidden,
             'deletedAt' => $this->deleted_at?->toISOString(),
             'version' => $this->version,

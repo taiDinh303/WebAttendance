@@ -25,7 +25,7 @@ final class AnnouncementController extends Controller
         Gate::authorize('view', $classroom);
         $query = Announcement::where('class_id', $classroom->id);
         if ($request->user()->role === 'student') {
-            $query->where('state', 'published');
+            $query->where('state', 'published')->where('hidden', false);
         }
         $data = $request->validated();
         if (! empty($data['q'])) {
@@ -56,7 +56,7 @@ final class AnnouncementController extends Controller
         Gate::authorize('view', $classroom);
         $query = Announcement::where('class_id', $classroom->id)->whereKey($announcementId);
         if ($request->user()->role === 'student') {
-            $query->where('state', 'published');
+            $query->where('state', 'published')->where('hidden', false);
         }
         $announcement = $query->firstOrFail();
         $commentQuery = AnnouncementComment::where('announcement_id', $announcement->id);
