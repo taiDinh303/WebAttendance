@@ -20,7 +20,7 @@ import type { Session } from "../../../domain/models";
 export default function CalendarPage() {
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="SẮP XẾP & CHỦ ĐỘNG"
         title="Lịch học"
         description="Các buổi học của bạn, ở cùng một nơi."

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Pencil, X, Camera } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Pencil, X, Camera, UserRound, ShieldCheck, Mail, Phone, KeyRound, Link2 } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { authApi } from "../../../infrastructure/authApi";
 import {
-  PageHeader,
   AsyncForm,
   Field,
   PasswordInput,
@@ -11,16 +11,19 @@ import {
 import { text } from "../../../domain/format";
 export default function SettingsPage() {
   const [editing,setEditing]=useState(false);
+  const [params,setParams]=useSearchParams();
+  const tab=params.get("tab")==="account" ? "account" : "profile";
   const { user, reload } = useSession();
   if (!user) return null;
   return (
     <>
-      <PageHeader
-        title="Cài đặt tài khoản"
-        description="Thông tin cá nhân và bảo mật của bạn."
-      />
-      <div className="detail-grid">
-        <section className="panel editor-panel">
+      <nav className="settings-tabs" aria-label="Cài đặt">
+        <button type="button" aria-current={tab==="profile" ? "page" : undefined} onClick={()=>setParams({tab:"profile"})}><UserRound size={17}/>Profile</button>
+        <button type="button" aria-current={tab==="account" ? "page" : undefined} onClick={()=>setParams({tab:"account"})}><ShieldCheck size={17}/>Account</button>
+      </nav>
+      <div className="settings-content">
+        {tab==="profile" ? <section className="panel editor-panel">
+
           <h2>Thông tin cá nhân</h2>
           <span className={"avatar profile-avatar avatar-"+(user.avatarKey ?? "blue")}>{user.displayName.slice(0,1)}</span>
           <p className="muted">
@@ -61,9 +64,11 @@ export default function SettingsPage() {
             <Field label="Giới tính"><select name="gender" defaultValue={user.gender ?? "undisclosed"}><option value="undisclosed">Không chia sẻ</option><option value="male">Nam</option><option value="female">Nữ</option><option value="other">Khác</option></select></Field><Field label="Ngày sinh"><input type="date" name="birthday" defaultValue={user.birthday ?? ""} max={new Date().toLocaleDateString("en-CA")}/></Field>
             <button className="button">Lưu thông tin</button>
           </AsyncForm></>}
-        </section>
-        <section className="panel editor-panel">
-          <h2>Đổi mật khẩu</h2>
+        </section> : <section className="panel account-settings">
+          <div className="account-setting-row"><span className="setting-icon"><Mail size={21}/></span><strong>Email</strong><span>{user.email}</span><span className="badge">{user.emailVerified ? "Đã xác minh" : "Chưa xác minh"}</span></div>
+          <div className="account-setting-row"><span className="setting-icon"><Phone size={21}/></span><strong>Điện thoại</strong><span>{user.phone || "Chưa cung cấp"}</span><button className="button secondary small" onClick={()=>{setEditing(true);setParams({tab:"profile"})}}>Điều chỉnh</button></div>
+          <div className="account-setting-row"><span className="setting-icon"><Link2 size={21}/></span><strong>Tài khoản liên kết</strong><span>Google</span><button className="button secondary small" disabled title="Chưa cấu hình Google">Chưa khả dụng</button></div>
+          <details className="password-settings"><summary><span className="setting-icon"><KeyRound size={21}/></span><strong>Mật khẩu</strong><span className="button secondary small">Đổi mật khẩu</span></summary><div className="password-editor">
           <AsyncForm
             success="Đã đổi mật khẩu. Vui lòng đăng nhập lại nếu được yêu cầu."
             onSubmit={async (f) => {
@@ -104,7 +109,8 @@ export default function SettingsPage() {
             </Field>
             <button className="button secondary">Đổi mật khẩu</button>
           </AsyncForm>
-        </section>
+          </div></details>
+        </section>}
       </div>
     </>
   );

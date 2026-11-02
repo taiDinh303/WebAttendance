@@ -126,3 +126,7 @@ IMPLEMENTED: Settings cuối sidebar; desktop collapse lưu preference local; mo
 ### Shell/theme — DEC-039 (2026-11-02)
 
 IMPLEMENTED: Brand dùng chung Home/auth/workspace và favicon SVG; header đầy chiều ngang, sidebar ẩn/mở có lưu trạng thái desktop, drawer mobile có focus trap/Escape; menu avatar chỉ một vị trí với Settings/đăng xuất. ThemeToggle dùng useSyncExternalStore, localStorage không chứa dữ liệu tài khoản, theo OS khi chưa có lựa chọn; theme khởi tạo trước React render. Light/dark dùng tokens trong shared/styles/theme.css, hỗ trợ form/table/card/auth. Không đổi API/session, không bật Google hoặc upload ảnh đang chờ cấu hình.
+
+### 2026-11-02 — Tinh gọn workspace và Settings
+
+Theo yêu cầu chủ dự án: catalog dùng “Điều chỉnh”/“Xóa” (đỏ), menu đăng xuất đồng bộ thay native button mặc định do ActionButton có wrapper; dropdown/select theo theme. Settings chia Profile/Account bằng query tab có lưu qua reload; Profile giữ xem trước/chỉnh sửa, Account trình bày email/điện thoại/Google và form mật khẩu chỉ mở khi chọn. Google vẫn chưa khả dụng khi chưa cấu hình. Ẩn tiêu đề/lời giới thiệu chung tại dashboard/classes/calendar/notifications/catalog, giữ tên trang cho accessibility và action chính; giữ tiêu đề ngữ cảnh lớp/bài tập.

@@ -327,3 +327,8 @@ Cloud VERIFIED cho seed: Render env update merge đã tự trigger dep-dbk5qcmc6
 ### 2026-11-02 — DEC-039 phong cách NoteTatCa
 
 Đã tham khảo AppShell/ShellControls/useTheme/SidebarLayout của NoteTatCa. Header full-width với Menu+Brand trái, theme+avatar phải; Settings cuối sidebar, bỏ tài khoản trùng. Sidebar desktop ẩn hoàn toàn, mobile drawer giữ focus/Escape. Thêm theme theo thiết bị/lưu lựa chọn, palette neutral/amber, Brand và favicon thống nhất Home/login/register/workspace. Kiểm local typecheck/lint29unit/buildPASS; Edge42route snapshots và tương tác theme/sidebar/avatar/logoutPASS với fixture API, không real cloud auth. Sửa màu search/footer/badge dark và metric mobile sau visual review rồi kiểm lại browser. Không đổi nghiệp vụ/backend/credentials.
+
+### 2026-11-02 — Tinh gọn workspace và Settings
+
+Theo yêu cầu chủ dự án: catalog dùng “Điều chỉnh”/“Xóa” (đỏ), menu đăng xuất đồng bộ thay native button mặc định do ActionButton có wrapper; dropdown/select theo theme. Settings chia Profile/Account bằng query tab có lưu qua reload; Profile giữ xem trước/chỉnh sửa, Account trình bày email/điện thoại/Google và form mật khẩu chỉ mở khi chọn. Google vẫn chưa khả dụng khi chưa cấu hình. Ẩn tiêu đề/lời giới thiệu chung tại dashboard/classes/calendar/notifications/catalog, giữ tên trang cho accessibility và action chính; giữ tiêu đề ngữ cảnh lớp/bài tập.
+Kiểm local: typecheck/lint/Vitest29/build PASS. Browser fixture kiểm desktop/mobile light/dark cho tab/reload/profile edit/password/menu/catalog; không kiểm auth hoặc thay đổi DB cloud.

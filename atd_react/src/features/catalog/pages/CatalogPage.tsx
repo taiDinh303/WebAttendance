@@ -29,7 +29,7 @@ export default function CatalogPage() {
     return <p>Danh mục riêng dành cho giáo viên.</p>;
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         title="Môn học & học kỳ"
         description="Danh mục độc lập của riêng bạn. Môn học và học kỳ không bắt buộc khi tạo lớp."
       />
@@ -79,10 +79,10 @@ export default function CatalogPage() {
                     className="button secondary small"
                     onClick={() => setEditing(item)}
                   >
-                    Sửa {item.name}
+                    Điều chỉnh
                   </button>
                   <ActionButton
-                    className="button ghost small"
+                    className="button danger small"
                     action={async () => {
                       if (
                         !window.confirm(
@@ -97,7 +97,7 @@ export default function CatalogPage() {
                       await refresh();
                     }}
                   >
-                    Xóa {item.name}
+                    Xóa
                   </ActionButton>
                 </div>
               </div>

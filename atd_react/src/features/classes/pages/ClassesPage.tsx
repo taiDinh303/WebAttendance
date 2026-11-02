@@ -29,7 +29,7 @@ export default function ClassesPage() {
   );
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="KẾT NỐI & HỌC TẬP"
         title="Lớp học của bạn"
         description="Cùng nhau tạo nên những giờ học ý nghĩa."

@@ -32,7 +32,7 @@ export default function NotificationsPage() {
   );
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow="LUÔN GIỮ KẾT NỐI"
         title="Thông báo"
         description="Các cập nhật mới từ lớp học của bạn."

@@ -59,7 +59,7 @@ export default function DashboardPage() {
   ];
   return (
     <>
-      <PageHeader
+      <PageHeader compact
         eyebrow={teacher ? "KHÔNG GIAN GIẢNG DẠY" : "HÀNH TRÌNH HỌC TẬP"}
         title={
           "Chào " +
