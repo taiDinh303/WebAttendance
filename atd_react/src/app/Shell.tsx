@@ -1,16 +1,12 @@
-import { NavLink, Outlet, Link } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import {
   BookOpen,
   CalendarDays,
-  GraduationCap,
   LayoutDashboard,
   Bell,
   Settings,
-  LogOut,
   ScanLine,
   Menu,
-  PanelLeftClose,
-  PanelLeftOpen,
   Library,
   Clock3,
   X,
@@ -22,12 +18,13 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "../application/sessionContext";
 import { useResource } from "../application/queries";
 import { classApi } from "../infrastructure/classApi";
-import { initials } from "../domain/format";
 import { roleLabel } from "../domain/access";
-import { ActionButton } from "../shared/ui";
+import { Brand } from "../shared/components/Brand";
+import { ThemeToggle } from "../shared/components/ThemeToggle";
+import { AccountMenu } from "./AccountMenu";
 export default function Shell() {
-  const { user, logout } = useSession();
-  const [collapsed, setCollapsed] = useState(()=>localStorage.getItem("attendance.sidebar.collapsed")==="true");
+  const { user } = useSession();
+  const [collapsed, setCollapsed] = useState(()=>{try{return localStorage.getItem("attendance.sidebar.collapsed")==="true"}catch{return false}});
   const [menu, setMenu] = useState(false);
   const [compact, setCompact] = useState(
     () => window.matchMedia("(max-width: 760px)").matches,
@@ -99,10 +96,18 @@ export default function Shell() {
         { to: "/app/settings", icon: Settings, label: "Cài đặt" },
       ];
   return (
-    <div className={"workspace workspace-v2 " + (collapsed && !compact ? "sidebar-collapsed" : "")}>
+    <div className={"workspace workspace-v2 workspace-notelike " + (collapsed && !compact ? "sidebar-collapsed" : "")}>
       <a className="skip-link" href="#main">
         Bỏ qua đến nội dung
       </a>
+      <header className="topbar" inert={compact && menu}>
+        <div className="topbar-brand">
+          <button type="button" className="icon-button navigation-toggle" aria-label={compact ? (menu ? "Đóng menu" : "Mở menu") : (collapsed ? "Hiện sidebar" : "Ẩn sidebar")} aria-expanded={compact ? menu : !collapsed} aria-controls="workspace-navigation" onClick={()=>{if(compact)setMenu(v=>!v);else setCollapsed(v=>{try{localStorage.setItem("attendance.sidebar.collapsed",String(!v))}catch{/* Preference is optional. */}return !v})}}><Menu size={21}/></button>
+          <Brand/>
+        </div>
+        <span className="workspace-context"><ShieldCheck size={14}/>{roleLabel(user.role)}</span>
+        <div className="header-controls"><ThemeToggle/><AccountMenu/></div>
+      </header>
       {menu ? (
         <button
           className="menu-backdrop"
@@ -113,7 +118,7 @@ export default function Shell() {
       <aside
         ref={sidebar}
         id="workspace-navigation"
-        inert={compact && !menu}
+        inert={compact ? !menu : collapsed}
         role={compact && menu ? "dialog" : undefined}
         aria-modal={compact && menu ? true : undefined}
         aria-label="Menu chính"
@@ -127,15 +132,7 @@ export default function Shell() {
         >
           <X size={20} />
         </button>
-        <Link to={admin ? "/admin" : "/app"} className="brand">
-          <span className="brand-mark">
-            <GraduationCap size={24} />
-          </span>
-          <span>
-            attendance<span className="brand-dot">.</span>
-            <small>CLASSROOM WORKSPACE · 2.0</small>
-          </span>
-        </Link>
+
         <div className="workspace-label">KHÔNG GIAN CỦA BẠN</div>
         <nav>
           {navigation
@@ -169,40 +166,9 @@ export default function Shell() {
           ) : null}
         </nav>
         <nav className="sidebar-bottom"><NavLink to="/app/settings" title="Cài đặt" aria-label="Cài đặt" onClick={()=>setMenu(false)}><Settings size={19}/><span className="nav-label">Cài đặt</span></NavLink></nav>
-        <div className="sidebar-account">
-          <span className={"avatar avatar-"+(user.avatarKey ?? "blue")}>{initials(user.displayName)}</span>
-          <div>
-            <strong>{user.displayName}</strong>
-            <small>{roleLabel(user.role)}</small>
-          </div>
-          <ActionButton
-            className="icon-button"
-            title="Đăng xuất"
-            aria-label="Đăng xuất"
-            action={logout}
-          >
-            <LogOut size={18} />
-          </ActionButton>
-        </div>
       </aside>
       <div className="workspace-body" inert={compact && menu}>
-        <header className="topbar">
-          <button
-            className="icon-button mobile-menu"
-            aria-label="Mở menu"
-            aria-expanded={menu}
-            aria-controls="workspace-navigation"
-            onClick={() => setMenu(!menu)}
-          >
-            <Menu />
-          </button>
-          <button className="icon-button sidebar-toggle" aria-label={collapsed?"Mở rộng sidebar":"Thu gọn sidebar"} aria-expanded={!collapsed} onClick={()=>setCollapsed(v=>{localStorage.setItem("attendance.sidebar.collapsed",String(!v));return !v})}>{collapsed?<PanelLeftOpen/>:<PanelLeftClose/>}</button>
-          <span className="breadcrumb">
-            Không gian học tập <span>/</span>{" "}
-            <strong>{roleLabel(user.role)}</strong>
-          </span>
 
-        </header>
         <main id="main" className="main-content">
           <Outlet />
         </main>

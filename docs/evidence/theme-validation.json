@@ -1,0 +1,13 @@
+{
+  "routeSnapshots": 42,
+  "pageErrors": [],
+  "verified": [
+    "theme persistence",
+    "sidebar persistence",
+    "mobile dialog focus",
+    "avatar menu Escape",
+    "logout redirect",
+    "no horizontal overflow"
+  ],
+  "backend": "API fixtures, not authenticated cloud verification"
+}

@@ -137,3 +137,7 @@ Nguồn: chủ dự án trả lời Q-chat2 "được" (gửi file trong chat) v
 ### DEC-038 — Mã sinh viên và xuất Excel (CONFIRMED 2026-11-01)
 
 Chủ dự án giao xuất Excel điểm danh/điểm và hỏi các cột ngoài mã sinh viên/họ tên/giới tính/ngày sinh. Trả lời bổ sung: học sinh tự nhập mã sinh viên, không bắt buộc; chưa có để trống. Không dùng ID database thay mã. Các cột báo cáo/giới hạn kỹ thuật ở [EXPORTS](EXPORTS.md) là thiết kế triển khai đề xuất trong phạm vi DEC-036, không thêm quy tắc chấm điểm mới.
+
+### DEC-039 — Shell và dark/light theo NoteTatCa (CONFIRMED 2026-11-02)
+
+Nguồn: yêu cầu trực tiếp chủ dự án. Header xuyên suốt chứa nút sidebar + logo trái, theme và menu avatar phải; bỏ tài khoản trùng cuối sidebar. Sidebar ẩn hoàn toàn trên desktop, drawer trên mobile; Settings cuối navigation. Theme theo thiết bị khi chưa chọn, lưu lựa chọn riêng trên trình duyệt. Học bố cục/palette từ NoteTatCa, không sao chép dữ liệu hoặc auth. IMPLEMENTED; kiểm chứng local tại06-testing.

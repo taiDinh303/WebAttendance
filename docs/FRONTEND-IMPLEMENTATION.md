@@ -122,3 +122,7 @@ IMPLEMENTED: Settings cuối sidebar; desktop collapse lưu preference local; mo
 2026-11-01 — Bản tin: học sinh/giáo viên đều có composer trên published; hiển thị tombstone, xử lý lỗi gửi, retry giữ id/body. Teacher có publish draft, sửa nội dung/hạn, ghim/bỏ ghim, ẩn/hiện, archive; comment hide/unhide, xóa có confirm và bỏ nút trên tombstone. Comments phân trang20.
 
 2026-11-01: notification announcement.published/comment.removed có nhãn Việt và link tab Bản tin. Form giữ ID bản nháp sau save để retry bước publish không tạo thêm draft, gửi expectedVersion khi sửa lại. Owner thấy nhãn hidden/hết hạn.
+
+### Shell/theme — DEC-039 (2026-11-02)
+
+IMPLEMENTED: Brand dùng chung Home/auth/workspace và favicon SVG; header đầy chiều ngang, sidebar ẩn/mở có lưu trạng thái desktop, drawer mobile có focus trap/Escape; menu avatar chỉ một vị trí với Settings/đăng xuất. ThemeToggle dùng useSyncExternalStore, localStorage không chứa dữ liệu tài khoản, theo OS khi chưa có lựa chọn; theme khởi tạo trước React render. Light/dark dùng tokens trong shared/styles/theme.css, hỗ trợ form/table/card/auth. Không đổi API/session, không bật Google hoặc upload ảnh đang chờ cấu hình.

@@ -1,3 +1,5 @@
+import { Brand } from "../../../shared/components/Brand";
+import { ThemeToggle } from "../../../shared/components/ThemeToggle";
 import {
   Link,
   Navigate,
@@ -6,7 +8,6 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import {
-  GraduationCap,
   ArrowRight,
   Check,
   ShieldCheck,
@@ -42,12 +43,7 @@ export default function AuthPage() {
   return (
     <div className="auth-layout">
       <aside className="auth-story">
-        <Link className="brand" to="/">
-          <span className="brand-mark">
-            <GraduationCap />
-          </span>
-          <span>attendance.</span>
-        </Link>
+        <Brand/>
         <div className="story-content">
           <p className="eyebrow">KHÔNG GIAN CHO VIỆC HỌC</p>
           <h1>
@@ -85,8 +81,8 @@ export default function AuthPage() {
         </div>
         <small>Attendance · Không gian lớp học của bạn.</small>
       </aside>
-      <main className="auth-main">
-        <Link className="brand auth-mobile-brand" to="/"><span className="brand-mark"><GraduationCap /></span><span>attendance.</span></Link>
+      <main className="auth-main"><div className="auth-theme-control"><ThemeToggle/></div>
+        <Brand className="auth-mobile-brand"/>
         <div className="auth-form">
           <span className="label-chip">CÙNG NHAU HỌC TỐT HƠN</span>
           <h1>{title}</h1>

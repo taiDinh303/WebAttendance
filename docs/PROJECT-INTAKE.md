@@ -100,3 +100,7 @@ Chủ dự án trả lời: quiz theo lựa chọn giáo viên (Q-028/029/030 �
 2026-11-01 — Chủ dự án giao TASK-015 xuất Excel attendance/grades. Chốt học sinh tự nhập mã sinh viên không bắt buộc (DEC-038); chi tiết cột và triển khai xem [EXPORTS](EXPORTS.md). Không yêu cầu nhập email/điện thoại vào report mặc định, không bật import hoặc chuyển dữ liệu cũ.
 
 2026-11-02: chủ dự án giao dữ liệu minh họa3teacher×3class có10/20/30HS, có attendance và các bảng UI, chọn Aiven cloud và xác nhận Render My Workspace/dinhvantai079@gmail.com; cho phép tự deploy cho công việc này. Phạm vi/guard tại DEMO-VISUAL.md. Không import dữ liệu thật hoặc gửi mail.
+
+### 2026-11-02 — Phong cách NoteTatCa (CONFIRMED)
+
+Chủ dự án yêu cầu đồng bộ sidebar, nút ẩn/hiện bên trái header, logo, avatar/menu tài khoản và dark/light theo NoteTatCa local. DEC-039 thay phần dark mode để sau của Q-019; giữ nghiệp vụ và thương hiệu Attendance.
