@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import type { Session } from "../../../domain/models";
 import { localDateTimeInput } from "../../../domain/schedule";
 import { iso, text } from "../../../domain/format";
@@ -14,8 +15,7 @@ export function SessionEditor({
 }) {
   const refresh = useRefresh();
   return (
-    <section className="session-editor">
-      <h3>Sửa buổi học</h3>
+    <Modal title="Điều chỉnh buổi học" onClose={onClose}>
       <p className="muted">
         Giờ theo thiết bị của bạn. Buổi đã có lịch sử điểm danh sẽ được máy chủ
         bảo vệ khỏi đổi lịch.
@@ -76,13 +76,13 @@ export function SessionEditor({
           <input name="allowConflicts" type="checkbox" />
           Tôi chấp nhận nếu lịch bị trùng
         </label>
-        <div className="inline-actions">
-          <button className="button">Lưu buổi học</button>
+        <footer className="modal-actions">
           <button type="button" className="button secondary" onClick={onClose}>
-            Hủy sửa buổi
+            Đóng
           </button>
-        </div>
+          <button className="button">Lưu</button>
+        </footer>
       </AsyncForm>
-    </section>
+    </Modal>
   );
 }

@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource, useRefresh } from "../../../application/queries";
@@ -17,6 +18,7 @@ export default function CatalogPage() {
   const { user } = useSession();
   const [kind, setKind] = useState("courses");
   const [editing, setEditing] = useState<CatalogItem | null>(null);
+  const [mode,setMode]=useState<"view"|"edit"|"create"|null>(null);
   const [formVersion, setFormVersion] = useState(0);
   const { page, setPage } = usePage();
   const refresh = useRefresh();
@@ -55,7 +57,8 @@ export default function CatalogPage() {
           Học kỳ
         </button>
       </div>
-      <div className="detail-grid">
+      <div className="catalog-toolbar"><button className="button" onClick={()=>{setEditing(null);setMode("create")}}>Thêm {kind === "courses" ? "môn học" : "học kỳ"}</button></div>
+      <div className="catalog-content">
         <section>
           <QueryState
             pending={query.isPending}
@@ -77,7 +80,7 @@ export default function CatalogPage() {
                   <button
                     type="button"
                     className="button secondary small"
-                    onClick={() => setEditing(item)}
+                    onClick={() => {setEditing(item);setMode("view")}}
                   >
                     Điều chỉnh
                   </button>
@@ -108,7 +111,8 @@ export default function CatalogPage() {
           </div>
           <Pagination data={query.data} onPage={setPage} />
         </section>
-        <section className="panel editor-panel">
+        {mode ? <Modal title={mode==="view" ? (editing?.name ?? "Chi tiết") : (mode==="create" ? "Thêm danh mục" : "Điều chỉnh")} onClose={()=>setMode(null)}>
+          {mode==="view" && editing ? <><dl className="profile-facts"><dt>Tên</dt><dd>{editing.name}</dd><dt>{kind==="courses" ? "Mã môn" : "Thời gian"}</dt><dd>{kind==="courses" ? editing.code || "Chưa đặt mã" : editing.startDate+" → "+editing.endDate}</dd></dl><footer className="modal-actions"><button className="button secondary" onClick={()=>setMode(null)}>Đóng</button><button className="button" onClick={()=>setMode("edit")}>Điều chỉnh</button></footer></> : <>
           <h2>
             {editing ? "Sửa " : "Thêm "}
             {kind === "courses" ? "môn học" : "học kỳ"}
@@ -134,6 +138,7 @@ export default function CatalogPage() {
               await refresh();
               setEditing(null);
               setFormVersion((version) => version + 1);
+              setMode(null);
             }}
           >
             <Field label="Tên">
@@ -180,22 +185,9 @@ export default function CatalogPage() {
                 </label>
               </>
             )}
-            <div className="inline-actions">
-              <button className="button">
-                {editing ? "Lưu danh mục" : "Thêm mới"}
-              </button>
-              {editing ? (
-                <button
-                  type="button"
-                  className="button secondary"
-                  onClick={() => setEditing(null)}
-                >
-                  Hủy sửa
-                </button>
-              ) : null}
-            </div>
-          </AsyncForm>
-        </section>
+            <footer className="modal-actions"><button type="button" className="button secondary" onClick={()=>setMode(null)}>Đóng</button><button className="button">Lưu</button></footer>
+          </AsyncForm></>}
+        </Modal> : null}
       </div>
     </>
   );

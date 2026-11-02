@@ -130,3 +130,7 @@ IMPLEMENTED: Brand dùng chung Home/auth/workspace và favicon SVG; header đầ
 ### 2026-11-02 — Tinh gọn workspace và Settings
 
 Theo yêu cầu chủ dự án: catalog dùng “Điều chỉnh”/“Xóa” (đỏ), menu đăng xuất đồng bộ thay native button mặc định do ActionButton có wrapper; dropdown/select theo theme. Settings chia Profile/Account bằng query tab có lưu qua reload; Profile giữ xem trước/chỉnh sửa, Account trình bày email/điện thoại/Google và form mật khẩu chỉ mở khi chọn. Google vẫn chưa khả dụng khi chưa cấu hình. Ẩn tiêu đề/lời giới thiệu chung tại dashboard/classes/calendar/notifications/catalog, giữ tên trang cho accessibility và action chính; giữ tiêu đề ngữ cảnh lớp/bài tập.
+
+### 2026-11-02 — View/edit modal cho catalog và calendar
+
+Yêu cầu trực tiếp chủ dự án: bỏ “Các buổi học” và hướng dẫn vào lịch từng lớp. Catalog full-width, nút thêm mở form; Điều chỉnh mở chi tiết read-only rồi nút Điều chỉnh mở form. Buổi học: Xem → chi tiết → Điều chỉnh, tạo/sửa trong modal. Footer Đóng/Lưu bên phải dưới. Modal native dialog portal có focus trap/Escape, khóa scroll nền, trả focus khi đóng; API/expectedVersion và lỗi form giữ nguyên. Browser fixture desktop/mobile PASS catalog view/edit/create/close/Escape và calendar view/edit, không gọi DB cloud. Typecheck/lint/build PASS.
