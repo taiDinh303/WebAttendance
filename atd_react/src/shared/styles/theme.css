@@ -238,3 +238,18 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .comment-input-row { display:flex; align-items:flex-end; gap:12px; }
 .comment-input-row .field { flex:1; min-width:0; }
 .comment-input-row > .button { flex-shrink:0; margin-bottom:1px; }
+
+.member-desktop-table { width:100%; overflow-x:auto; }
+.member-desktop-table table { width:100%; table-layout:fixed; border-collapse:collapse; }
+.member-desktop-table th,.member-desktop-table td { padding:18px 22px; text-align:left; border-bottom:1px solid var(--ui-line); vertical-align:middle; }
+.member-desktop-table tr:last-child td { border-bottom:0; }
+.member-code { display:block; color:var(--ui-muted); margin-bottom:5px; }
+.member-name { display:block; overflow-wrap:anywhere; }
+.member-desktop-table .inline-actions { justify-content:flex-end; flex-wrap:wrap; }
+.member-desktop-table .button { white-space:nowrap; }
+.member-desktop-table th:last-child { text-align:right; }
+.member-mobile-cards { display:none; }
+@media(max-width:760px) { .member-desktop-table { display:none; } .member-mobile-cards { display:block; } }
+
+.member-desktop-table table { min-width:720px; }
+.member-desktop-table .inline-actions { flex-wrap:nowrap; }

@@ -10,6 +10,7 @@ import {
   Pagination,
   ActionButton,
 } from "../../../shared/ui";
+import type { Membership } from "../../../domain/models";
 import { initials } from "../../../domain/format";
 export function MembersPanel({ classId }: { classId: string }) {
   const { page, setPage, search } = usePage();
@@ -49,14 +50,80 @@ export function MembersPanel({ classId }: { classId: string }) {
         error={query.error}
         retry={query.refetch}
       />
-      <div className="panel">
+      <div className="panel member-desktop-table">
+        <table
+          aria-label={
+            kind === "members" ? "Danh sách học sinh" : "Yêu cầu vào lớp"
+          }
+        >
+          <colgroup>
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "16%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "24%" }} />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Học sinh</th>
+              <th>Giới tính</th>
+              <th>Ngày sinh</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {query.data?.items.map((m) => (
+              <tr key={m.id}>
+                <td>
+                  <small className="member-code">
+                    {m.studentCode || "Chưa có mã sinh viên"}
+                  </small>
+                  <strong className="member-name">
+                    {m.studentName || m.studentId}
+                  </strong>
+                  {m.status !== "active" ? <Badge value={m.status} /> : null}
+                </td>
+                <td>
+                  {{
+                    male: "Nam",
+                    female: "Nữ",
+                    other: "Khác",
+                    undisclosed: "Không chia sẻ",
+                  }[m.gender ?? ""] || "Chưa cập nhật"}
+                </td>
+                <td>
+                  {m.birthday
+                    ? new Date(m.birthday + "T00:00:00").toLocaleDateString(
+                        "vi-VN",
+                      )
+                    : "Chưa cập nhật"}
+                </td>
+                <td>
+                  <MemberActions
+                    member={m}
+                    classId={classId}
+                    refresh={refresh}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {query.isSuccess && !query.data.items.length ? (
+          <Empty
+            title={
+              kind === "members" ? "Chưa có thành viên" : "Chưa có yêu cầu"
+            }
+          />
+        ) : null}
+      </div>
+      <div className="panel member-mobile-cards">
         {query.data?.items.map((m) => (
           <div className="list-row member-row" key={m.id}>
             <div className="person">
               <span className="avatar">{initials(m.studentName ?? "HS")}</span>
               <div>
                 <h3>{m.studentName ?? m.studentId}</h3>
-                <Badge value={m.status} />
+                {m.status !== "active" ? <Badge value={m.status} /> : null}
                 <dl className="member-basics">
                   <div>
                     <dt>Mã sinh viên</dt>
@@ -86,43 +153,7 @@ export function MembersPanel({ classId }: { classId: string }) {
                 </dl>
               </div>
             </div>
-            <div className="inline-actions">
-              {(m.status === "pending"
-                ? ["approve", "reject"]
-                : m.status === "active"
-                  ? ["remove"]
-                  : m.status === "removed"
-                    ? ["allow-rejoin"]
-                    : []
-              ).map((action) => (
-                <ActionButton
-                  key={action}
-                  className={
-                    "button small " + (action === "approve" ? "" : "secondary")
-                  }
-                  action={async () => {
-                    if (
-                      action === "remove" &&
-                      !(await askDialog(
-                        "Loại học sinh khỏi lớp? Quyền truy cập sẽ dừng ngay.",
-                      ))
-                    )
-                      return;
-                    await classApi.membership(classId, m, action);
-                    await refresh();
-                  }}
-                >
-                  {
-                    {
-                      approve: "Duyệt",
-                      reject: "Từ chối",
-                      remove: "Loại khỏi lớp",
-                      "allow-rejoin": "Cho xin vào lại",
-                    }[action]
-                  }
-                </ActionButton>
-              ))}
-            </div>
+            <MemberActions member={m} classId={classId} refresh={refresh} />
           </div>
         ))}
         {query.isSuccess && !query.data.items.length ? (
@@ -136,5 +167,56 @@ export function MembersPanel({ classId }: { classId: string }) {
       </div>
       <Pagination data={query.data} onPage={setPage} />
     </>
+  );
+}
+
+function MemberActions({
+  member,
+  classId,
+  refresh,
+}: {
+  member: Membership;
+  classId: string;
+  refresh: () => Promise<void>;
+}) {
+  return (
+    <div className="inline-actions">
+      {(member.status === "pending"
+        ? ["approve", "reject"]
+        : member.status === "active"
+          ? ["remove"]
+          : member.status === "removed"
+            ? ["allow-rejoin"]
+            : []
+      ).map((action) => (
+        <ActionButton
+          errorPlacement="popup"
+          key={action}
+          className={
+            "button small " + (action === "approve" ? "" : "secondary")
+          }
+          action={async () => {
+            if (
+              action === "remove" &&
+              !(await askDialog(
+                "Loại học sinh khỏi lớp? Quyền truy cập sẽ dừng ngay.",
+              ))
+            )
+              return;
+            await classApi.membership(classId, member, action);
+            await refresh();
+          }}
+        >
+          {
+            {
+              approve: "Duyệt",
+              reject: "Từ chối",
+              remove: "Loại khỏi lớp",
+              "allow-rejoin": "Cho xin vào lại",
+            }[action]
+          }
+        </ActionButton>
+      ))}
+    </div>
   );
 }
