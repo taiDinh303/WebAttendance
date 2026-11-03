@@ -1,3 +1,4 @@
+import { validateAttendanceTimes } from "./schedule";
 import { singleSessionTimes } from "./schedule";
 import { parseScheduleDate, parseScheduleTime, parseScheduleDateTime } from "./schedule";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -76,4 +77,15 @@ describe("single day session", () => {
   it("explains equal or reversed hours in Vietnamese", () => {
     for (const end of ["08:30", "07:00"]) expect(() => singleSessionTimes("03/11/2026", "08:30", end)).toThrow("Giờ kết thúc phải sau giờ bắt đầu");
   });
+});
+
+describe("QR opening times", () => {
+ const now = Date.parse("2026-11-03T07:00:00Z");
+ it("accepts a window around now", () => expect(() => validateAttendanceTimes("2026-11-03T06:59:00Z", "2026-11-03T07:05:00Z", "2026-11-03T07:15:00Z", now)).not.toThrow());
+ it("explains reversed close and late thresholds", () => expect(() => validateAttendanceTimes("2026-11-03T06:00:00Z", "2026-11-03T12:10:00Z", "2026-11-03T05:20:00Z", now)).toThrow("Đóng lúc phải sau Mở từ"));
+ it("rejects a late threshold after closing", () => expect(() => validateAttendanceTimes("2026-11-03T06:59:00Z", "2026-11-03T08:00:00Z", "2026-11-03T07:15:00Z", now)).toThrow("Tính muộn sau"));
+ it("rejects future opening and expired closing", () => {
+ expect(() => validateAttendanceTimes("2026-11-03T07:01:00Z", "2026-11-03T07:05:00Z", "2026-11-03T07:15:00Z", now)).toThrow("Mở từ không được ở tương lai");
+ expect(() => validateAttendanceTimes("2026-11-03T06:00:00Z", "2026-11-03T06:05:00Z", "2026-11-03T06:15:00Z", now)).toThrow("Đóng lúc đã qua");
+ });
 });

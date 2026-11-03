@@ -36,3 +36,12 @@ export function singleSessionTimes(day: string, start: string, end: string) {
   if (endTime <= startTime) throw Error("Giờ kết thúc phải sau giờ bắt đầu trong cùng ngày. Hãy kiểm tra lại hai ô giờ.");
   return { startsAt: parseScheduleDateTime(date + "T" + startTime), endsAt: parseScheduleDateTime(date + "T" + endTime) };
 }
+
+export function validateAttendanceTimes(opensAt: string | null, lateAfter: string | null, closesAt: string | null, now = Date.now()) {
+  const open = Date.parse(opensAt ?? ""), late = Date.parse(lateAfter ?? ""), close = Date.parse(closesAt ?? "");
+  if (![open, late, close].every(Number.isFinite)) throw Error("Nhập đầy đủ ngày và giờ mở, tính muộn và đóng điểm danh.");
+  if (close <= open) throw Error("Đóng lúc phải sau Mở từ. Hãy kiểm tra ngày và giờ đóng điểm danh.");
+  if (late < open || late > close) throw Error("Tính muộn sau phải nằm trong khoảng từ Mở từ đến Đóng lúc.");
+  if (open > now) throw Error("Mở từ không được ở tương lai. Chọn giờ mở bằng hoặc trước thời điểm hiện tại để mở QR ngay.");
+  if (close <= now) throw Error("Đóng lúc đã qua. Chọn giờ đóng sau thời điểm hiện tại để test QR.");
+}

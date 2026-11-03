@@ -90,13 +90,19 @@ async function performRequest<T>(
       EMPTY_SERIES: "Không có buổi học phù hợp. Hãy kiểm tra khoảng ngày và các thứ đã chọn.",
       SCHEDULE_CONFLICT: "Lịch này trùng với một buổi học khác. Hãy đổi thời gian hoặc chọn Chấp nhận trùng để tiếp tục.",
     };
+    const qrFields: Record<string, string> = {
+      opensAt: "Giờ mở phải bằng hoặc trước thời điểm hiện tại.",
+      lateAfter: "Mốc tính muộn phải bằng hoặc sau giờ mở và không sau giờ đóng.",
+      closesAt: "Giờ đóng phải sau thời điểm hiện tại và sau giờ mở.",
+    };
+    const fields = Object.fromEntries(Object.entries(body?.errors ?? {}).map(([key, value]) => [key, qrFields[key] ? [qrFields[key]] : Array.isArray(value) ? value.map(String) : [String(value)]]));
     throw new ApiError(
       response.status,
       body?.code ?? "REQUEST_FAILED",
       scheduleMessages[body?.code] ?? messages[response.status] ??
-        body?.message ??
+        (body?.message === "Please check the submitted fields." ? "Vui lòng kiểm tra thông tin đã nhập." : body?.message) ??
         "Không thể hoàn tất thao tác.",
-      body?.errors ?? {},
+      fields,
       body?.traceId,
     );
   }

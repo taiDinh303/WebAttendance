@@ -1,3 +1,4 @@
+import { validateAttendanceTimes } from "../../../domain/schedule";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { RosterEntry } from "../components/RosterEntry";
@@ -73,11 +74,9 @@ export default function QrPage() {
             >
               <AsyncForm
                 onSubmit={async (f) => {
-                  await attendanceApi.open(classId, sessionId, {
-                    opensAt: iso(f.get("opensAt")),
-                    lateAfter: iso(f.get("lateAfter")),
-                    closesAt: iso(f.get("closesAt")),
-                  });
+                  const times = { opensAt: iso(f.get("opensAt")), lateAfter: iso(f.get("lateAfter")), closesAt: iso(f.get("closesAt")) };
+                  validateAttendanceTimes(times.opensAt, times.lateAfter, times.closesAt);
+                  await attendanceApi.open(classId, sessionId, times);
                   await refresh();
                   setConfiguring(false);
                 }}
@@ -103,8 +102,7 @@ export default function QrPage() {
                   </Field>
                 ))}
                 <p className="muted">
-                  Giờ mở cần bao gồm
-                  thời điểm hiện tại.
+                  Để mở QR ngay: giờ mở không sau hiện tại, giờ đóng phải sau hiện tại. Mốc tính muộn nằm trong khoảng mở–đóng.
                 </p>
                 <footer className="modal-actions">
                   <button
@@ -259,3 +257,4 @@ function QrImage({ data }: { data: Qr }) {
     </>
   );
 }
+

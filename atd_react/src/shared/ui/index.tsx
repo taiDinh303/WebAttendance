@@ -58,7 +58,7 @@ export function ErrorNotice({ error }: { error: unknown }) {
             <ul>
               {Object.entries(e.fields).map(([field, values]) => (
                 <li key={field}>
-                  {field}: {values.join(" ")}
+                  {{ opensAt: "Mở từ", lateAfter: "Tính muộn sau", closesAt: "Đóng lúc" }[field] ?? field}: {values.join(" ")}
                 </li>
               ))}
             </ul>
