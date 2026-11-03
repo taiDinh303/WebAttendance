@@ -108,7 +108,7 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .settings-content .profile-facts dt{font-size:12px;color:var(--ui-muted)}
 .settings-content .profile-facts dd{margin:7px 0 0}
 .account-settings{padding:0 24px}
-.account-setting-row,.password-settings>summary{display:grid;grid-template-columns:44px minmax(130px,1fr) minmax(160px,2fr) auto;align-items:center;gap:16px;padding:24px 0;min-width:0}
+.account-setting-row,.password-settings>summary{display:grid;grid-template-columns:44px minmax(130px,1fr) minmax(160px,2fr) 150px;align-items:center;gap:16px;padding:24px 0;min-width:0}
 .account-setting-row{border-bottom:1px solid var(--ui-line)}
 .account-setting-row>span{overflow-wrap:anywhere}
 .setting-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:var(--ui-accent-soft);color:var(--ui-accent-text)}
@@ -264,3 +264,5 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .checkin-centered > .button { justify-content:center; margin:0 auto 16px; }
 .checkin-centered > .form .muted { text-align:center; margin:0 0 8px; }
 @media(max-width:600px) { .checkin-panel.checkin-centered { padding:18px; } .checkin-stage { min-height:calc(100dvh - 112px); } .checkin-clock { padding:16px; margin-bottom:18px; } }
+
+.account-setting-row > :last-child { justify-self:end; }
