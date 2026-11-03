@@ -211,6 +211,12 @@ function QrImage({ data }: { data: Qr }) {
       ) : (
         <p className="info">Đang lấy mã QR mới…</p>
       )}
+      <ActionButton className="button secondary small" disabled={seconds <= 0} action={async () => {
+        const url = new URL("/app/check-in", location.origin);
+        url.searchParams.set("token", data.qrToken);
+        try { await navigator.clipboard.writeText(url.toString()); }
+        catch { throw Error("Không sao chép được. Hãy cho phép truy cập bộ nhớ tạm và thử lại."); }
+      }}>Sao chép liên kết</ActionButton>
       <p className="qr-countdown">Mã hiện tại còn {seconds} giây</p>
     </>
   );

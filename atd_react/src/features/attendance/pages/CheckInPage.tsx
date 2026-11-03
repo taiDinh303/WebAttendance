@@ -1,6 +1,7 @@
+import { readQrImage } from "../../../infrastructure/qrImage";
 import { Modal } from "../../../shared/components/Modal";
 import { useSearchParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ScanLine, Camera, CheckCircle2 } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { attendanceApi } from "../../../infrastructure/attendanceApi";
@@ -13,9 +14,27 @@ export default function CheckInPage() {
   const [token, setToken] = useState(search.get("token") ?? "");
   const [editing, setEditing] = useState(false);
   const [qrDraft, setQrDraft] = useState("");
+  const [readingImage, setReadingImage] = useState(false);
+  const [imageMessage, setImageMessage] = useState("");
   const [camera, setCamera] = useState(false);
   const [result, setResult] = useState<Attendance | null>(null);
   const { user } = useSession();
+  const imageRequest = useRef(0);
+  useEffect(() => () => { imageRequest.current++; }, [editing]);
+  async function acceptImage(file: File) {
+    if (readingImage) return;
+    const request = ++imageRequest.current;
+    setQrDraft("");
+    setReadingImage(true); setImageMessage("Đang đọc ảnh QR…");
+    try {
+      const value = await readQrImage(file);
+      if (request !== imageRequest.current) return;
+      extractQrToken(value, window.location.origin);
+      setQrDraft(value);
+      setImageMessage("Đã đọc ảnh QR. Nhấn Áp dụng rồi xác nhận điểm danh.");
+    } catch (error) { if (request === imageRequest.current) setImageMessage(error instanceof Error ? error.message : "Không đọc được ảnh QR."); }
+    finally { if (request === imageRequest.current) setReadingImage(false); }
+  }
   if (user?.role !== "student")
     return (
       <>
@@ -83,12 +102,14 @@ export default function CheckInPage() {
               <p className="muted">
                 {token
                   ? "Đã nhận mã QR. Bạn có thể xác nhận điểm danh."
-                  : "Quét QR hoặc dán liên kết điểm danh."}
+                  : "Quét QR, dán ảnh hoặc liên kết điểm danh."}
               </p>
               <button
                 type="button"
                 className="button secondary"
                 onClick={() => {
+                  setReadingImage(false);
+                  setImageMessage("");
                   setQrDraft(token);
                   setEditing(true);
                 }}
@@ -101,10 +122,16 @@ export default function CheckInPage() {
               <Modal title="Nhập mã QR" onClose={() => setEditing(false)}>
                 <AsyncForm
                   onSubmit={async () => {
+                    if (readingImage) throw Error("Đang đọc ảnh QR. Vui lòng chờ một chút.");
+                    extractQrToken(qrDraft, window.location.origin);
                     setToken(qrDraft);
                     setEditing(false);
                   }}
                 >
+                  <div onPaste={(event) => {
+                    const image = Array.from(event.clipboardData.items).find((item) => item.type.startsWith("image/"))?.getAsFile();
+                    if (image) { event.preventDefault(); void acceptImage(image); }
+                  }}>
                   <Field
                     label="Liên kết hoặc nội dung mã QR"
                     hint="Mã thay đổi mỗi 30 giây. Không nhập mã lớp vào ô này."
@@ -115,9 +142,18 @@ export default function CheckInPage() {
                       value={qrDraft}
                       onChange={(e) => setQrDraft(e.target.value)}
                       rows={4}
-                      placeholder="Quét QR hoặc dán liên kết điểm danh…"
+                      placeholder="Ctrl+V để dán ảnh QR hoặc liên kết điểm danh…"
                     />
                   </Field>
+                  <Field label="Chọn ảnh QR từ máy">
+                    <input type="file" accept="image/*" disabled={readingImage} onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void acceptImage(file);
+                      event.target.value = "";
+                    }} />
+                  </Field>
+                  {imageMessage ? <p role="status">{imageMessage}</p> : null}
+                  </div>
                   <footer className="modal-actions">
                     <button
                       type="button"
@@ -126,7 +162,7 @@ export default function CheckInPage() {
                     >
                       Đóng
                     </button>
-                    <button className="button">Áp dụng</button>
+                    <button className="button" disabled={readingImage}>Áp dụng</button>
                   </footer>
                 </AsyncForm>
               </Modal>
