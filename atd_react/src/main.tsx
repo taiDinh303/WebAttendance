@@ -1,3 +1,4 @@
+import { MutationStatus } from "./shared/components/MutationStatus";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "@fontsource-variable/manrope";
@@ -11,6 +12,6 @@ import { initializeTheme } from "./shared/useTheme";
 initializeTheme();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <App /><MutationStatus/>
   </React.StrictMode>,
 );

@@ -1,3 +1,4 @@
+import { trackMutation } from "../domain/mutationTasks";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useResource } from "./queries";
@@ -20,16 +21,20 @@ export function useAccountPreference<T>(key: string, fallback: T) {
     setSaving(true);
     setError(null);
     try {
-      const result = await request<{ value: T; version: number }>(
-        "/me/preferences/" + encodeURIComponent(key),
-        {
-          method: "PUT",
-          body: {
-            value:
-              typeof next === "function" ? (next as (v: T) => T)(value) : next,
-            expectedVersion: query.data.version,
+      const result = await trackMutation("Lưu giao diện", () =>
+        request<{ value: T; version: number }>(
+          "/me/preferences/" + encodeURIComponent(key),
+          {
+            method: "PUT",
+            body: {
+              value:
+                typeof next === "function"
+                  ? (next as (v: T) => T)(value)
+                  : next,
+              expectedVersion: query.data.version,
+            },
           },
-        },
+        ),
       );
       client.setQueryData(["private", user?.id, "preference", key], result);
       return true;

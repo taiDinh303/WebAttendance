@@ -110,6 +110,19 @@ final class ManageSchedule
         });
     }
 
+    public function destroy(User $actor, Classroom $classroom, string $id, int $version): void
+    {
+        DB::transaction(function () use ($actor, $classroom, $id, $version) {
+            $this->lockClass($actor, $classroom);
+            $session = ClassSession::where('class_id', $classroom->id)->whereKey($id)->lockForUpdate()->firstOrFail();
+            $this->requireVersion($session, $version);
+            if ($session->status !== 'cancelled' || AttendanceWindow::where('session_id', $id)->exists() || DB::table('attendance_records')->where('session_id', $id)->exists()) {
+                throw new ApiException('STATE_CONFLICT', 'Only cancelled sessions without attendance history can be permanently deleted.');
+            }
+            $session->delete();
+        });
+    }
+
     private function lockClass(User $actor, Classroom $classroom): Classroom
     {
         Gate::forUser($actor)->authorize('update', $classroom);

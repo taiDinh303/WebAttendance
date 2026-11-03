@@ -35,6 +35,7 @@ export function Modal({
       }}
     >
       <header>
+        <button className="button secondary small" style={{float:"right"}} onClick={onClose}>Thu gọn</button>
         <h2 id={titleId}>{title}</h2>
       </header>
       <div className="modal-body">{children}</div>

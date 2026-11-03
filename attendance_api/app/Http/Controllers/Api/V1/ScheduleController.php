@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CalendarRequest;
 use App\Http\Requests\SeriesRequest;
 use App\Http\Requests\SessionRequest;
+use App\Http\Requests\VersionRequest;
 use App\Http\Resources\SessionResource;
 use App\Models\Classroom;
 use App\Models\ClassSession;
@@ -72,6 +73,13 @@ final class ScheduleController extends Controller
         return ApiResponse::success(new SessionResource($action->cancel($request->user(), $classroom, $sessionId, $data)));
     }
 
+    public function destroy(VersionRequest $request, Classroom $classroom, string $sessionId, ManageSchedule $action): JsonResponse
+    {
+        $action->destroy($request->user(), $classroom, $sessionId, $request->integer('expectedVersion'));
+
+        return ApiResponse::success(null);
+    }
+
     public function preview(SeriesRequest $request, Classroom $classroom, ManageSchedule $action): JsonResponse
     {
         return ApiResponse::success($action->preview($request->user(), $classroom, $request->validated()));
@@ -91,9 +99,7 @@ final class ScheduleController extends Controller
             throw new ApiException('RANGE_TOO_LARGE', 'Calendar range may not exceed 93 days.', 422);
         }
         $query->where('starts_at', '<', $to)->where('ends_at', '>', $from);
-        if (isset($data['status'])) {
-            $query->where('status', $data['status']);
-        }
+        $query->where('status', $data['status'] ?? 'scheduled');
 
         return ApiResponse::page($query->orderBy('starts_at')->orderBy('id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($row) => new SessionResource($row));
     }

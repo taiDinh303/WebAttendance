@@ -1,3 +1,4 @@
+import { trackMutation } from "../../domain/mutationTasks";
 import {
   useState,
   type ReactNode,
@@ -152,7 +153,7 @@ export function AsyncForm({
     setError(null);
     setDone(false);
     try {
-      await onSubmit(data);
+      await trackMutation((e.nativeEvent as SubmitEvent).submitter?.textContent?.trim() || "Lưu",()=>onSubmit(data));
       setDone(true);
     } catch (error) {
       setError(error);
@@ -194,7 +195,7 @@ export function ActionButton({
           setBusy(true);
           setError(null);
           try {
-            await action();
+            await trackMutation(typeof children === "string" ? children : props.title || "Cập nhật", action);
           } catch (e) {
             setError(e);
           } finally {

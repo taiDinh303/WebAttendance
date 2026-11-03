@@ -79,6 +79,7 @@ export const classApi = {
       "/classes/" + id + "/session-series" + (preview ? "/preview" : ""),
       { method: "POST", body },
     ),
+  deleteSession: (session:Session) => request("/classes/"+session.classId+"/sessions/"+session.id,{method:"DELETE",body:{expectedVersion:session.version}}),
   cancelSession: (id: string, s: Session, reason: string) =>
     request("/classes/" + id + "/sessions/" + s.id + "/cancel", {
       method: "POST",

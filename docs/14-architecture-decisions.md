@@ -153,3 +153,7 @@ Nguồn: chủ dự án yêu cầu rà toàn bộ project, chuyển input nhập
 ### DEC-042 — Giao diện lưu theo tài khoản (CONFIRMED 2026-11-03)
 
 Chủ dự án yêu cầu banner/giao diện đi theo tài khoản để đăng nhập thiết bị khác giữ thiết lập. Thay giới hạn local-only trước đó: banner riêng theo tài khoản+lớp, sáng/tối, sidebar ẩn/mở và lớp/học kỳ ghim lưu server. Không hiểu đây là banner dùng chung mọi thành viên lớp; tài khoản khác có thiết lập riêng. Không tự lấy dữ liệu local chưa xác minh ghi đè thiết lập server. Source implementation không đồng nghĩa cloud đã migrate/deploy.
+
+### DEC-043 — Thùng rác lịch và xóa vĩnh viễn (CONFIRMED 2026-11-03)
+
+Nguồn: chủ dự án yêu cầu buổi đã hủy không hiện lịch chính, có Thùng rác trong Lịch học để xóa cứng và thao tác không chặn khi chờ. IMPLEMENTED: lịch mặc định scheduled, Thùng rác query cancelled, teacher chọn từng/trang/toàn tháng để xóa vĩnh viễn. Thiết kế bảo toàn lịch sử: chỉ owner lớp active xóa buổi cancelled, expectedVersion khớp, chưa có attendance_window/record; không cascade xóa lịch sử điểm danh/audit. Phần xử lý nền là browser-session với tiến trình toàn cục và Thu gọn modal, chưa durable queue server/offline.

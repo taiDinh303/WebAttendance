@@ -1,3 +1,4 @@
+import { trackMutation } from "../domain/mutationTasks";
 import { ApiError } from "../domain/errors";
 export { ApiError } from "../domain/errors";
 const origin = (import.meta.env.VITE_API_ORIGIN ?? "").replace(/\/$/, "");
@@ -27,7 +28,7 @@ async function csrf() {
     });
   await csrfPending;
 }
-export async function request<T>(
+async function performRequest<T>(
   path: string,
   options: {
     method?: string;
@@ -115,3 +116,5 @@ export async function downloadReport(classId:string,kind:"attendance"|"grades",t
 
 return response.blob();
 }
+
+export function request<T>(path:string,options:Parameters<typeof performRequest>[1]={}):Promise<T>{const method=options?.method??"GET";if(method==="GET"||method==="HEAD")return performRequest<T>(path,options);return trackMutation(method==="DELETE"?"Xóa":method==="PATCH"||method==="PUT"?"Lưu thay đổi":"Gửi yêu cầu",()=>performRequest<T>(path,options));}

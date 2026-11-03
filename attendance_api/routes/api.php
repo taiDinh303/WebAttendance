@@ -82,6 +82,7 @@ Route::prefix('v1')->middleware('web')->group(function () {
             Route::post('classes/{classroom}/sessions', [ScheduleController::class, 'store']);
             Route::get('classes/{classroom}/sessions/{sessionId}', [ScheduleController::class, 'show']);
             Route::patch('classes/{classroom}/sessions/{sessionId}', [ScheduleController::class, 'update']);
+            Route::delete('classes/{classroom}/sessions/{sessionId}', [ScheduleController::class, 'destroy']);
             Route::post('classes/{classroom}/sessions/{sessionId}/cancel', [ScheduleController::class, 'cancel']);
             Route::post('classes/{classroom}/session-series/preview', [ScheduleController::class, 'preview']);
             Route::post('classes/{classroom}/session-series', [ScheduleController::class, 'series']);
