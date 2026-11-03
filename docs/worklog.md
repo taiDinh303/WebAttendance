@@ -402,3 +402,5 @@ Theo yêu cầu chủ dự án: xóa Bài tập của lớp, nút/filter cùng h
 2026-11-03 — Yêu cầu vào lớp/Quét điểm danh: bỏ tiêu đề và giải thích đầu trang theo yêu cầu, giữ tên trang cho screen reader. Lint/build PASS; không nghiệp vụ/API đổi.
 
 2026-11-03 — Calendar form theo yêu cầu: nhập tay ngày/giờ tạo+sửa; parser validate ngày thật/24h; checkbox Lặp hằng tuần ở dưới, Chấp nhận trùng ngắn. Preview-only default, tạo explicit và confirm, reset preview khi sửa, Hủy footer; loại success báo tạo sau preview. Lint39unit/buildPASS, Edge fixture preview/cancel không createPASS (work/check-schedule-preview.cjs ignored). Không backend đổi; chưa cloud verification.
+
+2026-11-03 — Bulk cancel theo yêu cầu tạo nhầm lịch: checkbox từng buổi/trang/toàn tháng (đủ trang), reason/confirm modal, giữ lịch sử và permission/version API hiện có. Hủy tuần tự, có kết quả từng phần và giữ lỗi để kiểm tra. Lint/buildPASS; browser fixture success2 và partial409 giữ selectionPASS, không ghi trước confirm. Chưa cloud verification.
