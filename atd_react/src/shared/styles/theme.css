@@ -178,3 +178,10 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .classes-toolbar-action{margin-left:auto;flex:0 0 auto}.workspace-v2 .classes-toolbar{align-items:center}@media(max-width:600px){.classes-toolbar-action{flex-basis:100%;display:flex;justify-content:flex-end}}
 .bulk-session-toolbar{margin-bottom:16px;gap:12px}.session-selector{width:18px!important;height:18px;flex-shrink:0;accent-color:var(--ui-accent)}
 .app-modal .button.danger{background:#a62f43;color:#fff;border-color:#a62f43}.app-modal .button.danger:disabled{background:#713342;color:#fff;opacity:1}.mutation-status{position:fixed;bottom:16px;right:16px;z-index:1000;max-width:min(400px,calc(100vw - 32px));padding:14px 18px;background:var(--ui-surface);color:var(--ui-text);border:1px solid var(--ui-line);border-radius:12px;box-shadow:0 6px 30px #0003}.mutation-status p{margin:4px 0}.mutation-status .failed{color:#e95d73}
+
+.schedule-field { border: 0; padding: 0; margin: 0; min-width: 0; }
+.schedule-field legend { font-weight: 700; font-size: .875rem; margin-bottom: .5rem; }
+.schedule-segments { display: flex; align-items: center; gap: 2px; padding: .7rem .8rem; border: 1px solid var(--border); border-radius: 10px; min-height: 44px; }
+.schedule-segments:focus-within { outline: 2px solid #7394f7; outline-offset: 2px; }
+.schedule-segments input { flex: 0 0 auto; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; text-align: center; box-shadow: none; outline: none; min-height: 0; }
+.schedule-segments span { white-space: pre; }

@@ -1,3 +1,4 @@
+import { ScheduleInput } from "../../../shared/components/ScheduleInput";
 import { Modal } from "../../../shared/components/Modal";
 import type { Session } from "../../../domain/models";
 import { localDateTimeInput, parseScheduleDateTime } from "../../../domain/schedule";
@@ -53,24 +54,8 @@ export function SessionEditor({
               defaultValue={session.room ?? ""}
             />
           </Field>
-          <Field label="Bắt đầu mới">
-            <input
-              name="startsAt"
-              type="text" placeholder="dd/mm/yyyy hh:mm"
-              step={1}
-              required
-              defaultValue={localDateTimeInput(session.startsAt)}
-            />
-          </Field>
-          <Field label="Kết thúc mới">
-            <input
-              name="endsAt"
-              type="text" placeholder="dd/mm/yyyy hh:mm"
-              step={1}
-              required
-              defaultValue={localDateTimeInput(session.endsAt)}
-            />
-          </Field>
+          <ScheduleInput label="Bắt đầu mới" name="startsAt" kind="datetime" defaultValue={localDateTimeInput(session.startsAt)} />
+          <ScheduleInput label="Kết thúc mới" name="endsAt" kind="datetime" defaultValue={localDateTimeInput(session.endsAt)} />
         </div>
         <label className="check">
           <input name="allowConflicts" type="checkbox" />

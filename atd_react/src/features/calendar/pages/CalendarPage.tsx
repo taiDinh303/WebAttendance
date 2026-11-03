@@ -1,3 +1,4 @@
+import { ScheduleInput } from "../../../shared/components/ScheduleInput";
 import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
@@ -305,7 +306,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
               setOpen(false);
             }}
           >
-            <div onChange={() => setPreview(null)}>
+            <div onPasteCapture={() => setPreview(null)} onChange={() => setPreview(null)}>
               <div className="form-grid">
                 <Field label="Tên buổi học">
                   <input name="title" maxLength={200} />
@@ -315,57 +316,15 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 </Field>
                 {weekly ? (
                   <>
-                    <Field label="Từ ngày">
-                      <input
-                        name="startDate"
-                        type="text"
-                        placeholder="dd/mm/yyyy"
-                        required
-                      />
-                    </Field>
-                    <Field label="Đến ngày">
-                      <input
-                        name="endDate"
-                        type="text"
-                        placeholder="dd/mm/yyyy"
-                        required
-                      />
-                    </Field>
-                    <Field label="Giờ bắt đầu">
-                      <input
-                        name="startTime"
-                        type="text"
-                        placeholder="08:30"
-                        required
-                      />
-                    </Field>
-                    <Field label="Giờ kết thúc">
-                      <input
-                        name="endTime"
-                        type="text"
-                        placeholder="10:00"
-                        required
-                      />
-                    </Field>
+                    <ScheduleInput key="startDate" label="Từ ngày" name="startDate" kind="date" />
+                    <ScheduleInput key="endDate" label="Đến ngày" name="endDate" kind="date" />
+                    <ScheduleInput key="startTime" label="Giờ bắt đầu" name="startTime" kind="time" />
+                    <ScheduleInput key="endTime" label="Giờ kết thúc" name="endTime" kind="time" />
                   </>
                 ) : (
                   <>
-                    <Field label="Bắt đầu">
-                      <input
-                        name="startsAt"
-                        type="text"
-                        placeholder="03/11/2026 08:30"
-                        required
-                      />
-                    </Field>
-                    <Field label="Kết thúc">
-                      <input
-                        name="endsAt"
-                        type="text"
-                        placeholder="03/11/2026 10:00"
-                        required
-                      />
-                    </Field>
+                    <ScheduleInput key="startsAt" label="Bắt đầu" name="startsAt" kind="datetime" />
+                    <ScheduleInput key="endsAt" label="Kết thúc" name="endsAt" kind="datetime" />
                   </>
                 )}
               </div>
