@@ -6,12 +6,7 @@ import { Copy } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
-import {
-  QueryState,
-  AsyncForm,
-  Field,
-  ActionButton,
-} from "../../../shared/ui";
+import { QueryState, AsyncForm, Field, ActionButton } from "../../../shared/ui";
 import { text } from "../../../domain/format";
 import { MembersPanel } from "../components/MembersPanel";
 import { AssignmentsPanel } from "../../assignments/components/AssignmentsPanel";
@@ -48,6 +43,7 @@ function ClassWorkspaceContent() {
     ...(teacher ? [["members", "Thành viên"]] : []),
     ["attendance", "Điểm danh"],
     ["grades", "Điểm số"],
+    ["settings", "Cài đặt"],
   ];
   if (!c)
     return (
@@ -59,7 +55,13 @@ function ClassWorkspaceContent() {
     );
   return (
     <>
-      <ClassBanner id={c.id} name={c.name} description={c.description} editable={teacher} actorId={user?.id ?? ""}/>
+      <ClassBanner
+        id={c.id}
+        name={c.name}
+        description={c.description}
+        editable={teacher}
+        actorId={user?.id ?? ""}
+      />
       <nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
@@ -90,7 +92,7 @@ function ClassWorkspaceContent() {
           <section className="panel editor-panel">
             <div className="section-heading">
               <h2>Thông tin lớp</h2>
-              {teacher ? (
+              {teacher && tab === "settings" ? (
                 <button
                   className="button secondary small"
                   onClick={() => setEditing(true)}
@@ -103,7 +105,6 @@ function ClassWorkspaceContent() {
               <p className="class-description">{c.description}</p>
             ) : null}
             <dl className="class-facts">
-              
               {teacher ? (
                 <>
                   <ClassCatalogFact
@@ -173,96 +174,112 @@ function ClassWorkspaceContent() {
               </Modal>
             ) : null}
           </section>
-          {teacher ? (
-            <aside className="panel editor-panel">
-              <h2>Mã tham gia lớp</h2>
-              <p className="muted">Học sinh nhập mã và chờ duyệt.</p>
-              {invite ? (
-                <div className="invite-code">
-                  <code>{invite}</code>
-                  <ActionButton
-                    className="icon-button"
-                    title="Sao chép mã lớp"
-                    action={() => navigator.clipboard.writeText(invite)}
-                  >
-                    <Copy size={18} />
-                  </ActionButton>
-                </div>
-              ) : (
-                <p className="info">Tạo mã mới nếu bạn không còn giữ mã cũ.</p>
-              )}
-              <ActionButton
-                className="button secondary"
-                action={async () => {
-                  if (!await askDialog("Đổi mã sẽ vô hiệu mã cũ. Tiếp tục?"))
-                    return;
-                  const result = await classApi.action(
-                    classId,
-                    "invite-code/rotate",
-                    { expectedVersion: c.version },
-                  );
-                  setInvite(result.inviteCode ?? "");
-                  await refresh();
-                }}
-              >
-                Tạo mã mới
-              </ActionButton>
-              <div className="inline-actions class-controls">
+          {tab === "settings" ? (
+            teacher ? (
+              <aside className="panel editor-panel">
+                <h2>Mã tham gia lớp</h2>
+                <p className="muted">Học sinh nhập mã và chờ duyệt.</p>
+                {invite ? (
+                  <div className="invite-code">
+                    <code>{invite}</code>
+                    <ActionButton
+                      className="icon-button"
+                      title="Sao chép mã lớp"
+                      action={() => navigator.clipboard.writeText(invite)}
+                    >
+                      <Copy size={18} />
+                    </ActionButton>
+                  </div>
+                ) : (
+                  <p className="info">
+                    Tạo mã mới nếu bạn không còn giữ mã cũ.
+                  </p>
+                )}
                 <ActionButton
                   className="button secondary"
                   action={async () => {
-                    await classApi.action(classId, "invite-code/disable", {
-                      expectedVersion: c.version,
-                    });
-                    setInvite("");
+                    if (
+                      !(await askDialog("Đổi mã sẽ vô hiệu mã cũ. Tiếp tục?"))
+                    )
+                      return;
+                    const result = await classApi.action(
+                      classId,
+                      "invite-code/rotate",
+                      { expectedVersion: c.version },
+                    );
+                    setInvite(result.inviteCode ?? "");
                     await refresh();
                   }}
                 >
-                  Tắt mã tham gia
+                  Tạo mã mới
                 </ActionButton>
-                {c.status === "active" ? (
+                <div className="inline-actions class-controls">
+                  <ActionButton
+                    className="button secondary"
+                    action={async () => {
+                      if (
+                        !(await askDialog(
+                          "Tắt mã tham gia? Học sinh sẽ không thể dùng mã hiện tại để xin vào lớp.",
+                        ))
+                      )
+                        return;
+                      await classApi.action(classId, "invite-code/disable", {
+                        expectedVersion: c.version,
+                      });
+                      setInvite("");
+                      await refresh();
+                    }}
+                  >
+                    Tắt mã tham gia
+                  </ActionButton>
+                  {c.status === "active" ? (
+                    <ActionButton
+                      className="button danger"
+                      action={async () => {
+                        if (
+                          !(await askDialog(
+                            "Lưu trữ lớp sẽ dừng các thao tác học tập mới. Tiếp tục?",
+                          ))
+                        )
+                          return;
+                        await classApi.action(classId, "archive", {
+                          expectedVersion: c.version,
+                        });
+                        await refresh();
+                      }}
+                    >
+                      Lưu trữ lớp
+                    </ActionButton>
+                  ) : null}
+                </div>
+              </aside>
+            ) : (
+              <aside className="panel editor-panel">
+                <h2>Rời lớp</h2>
+                <p className="muted">
+                  Rời lớp sẽ ngừng quyền truy cập của bạn.
+                </p>
+                {c.membershipVersion !== undefined ? (
                   <ActionButton
                     className="button danger"
                     action={async () => {
                       if (
-                        !await askDialog(
-                          "Lưu trữ lớp sẽ dừng các thao tác học tập mới. Tiếp tục?",
-                        )
+                        !(await askDialog(
+                          "Rời lớp sẽ ngừng quyền truy cập ngay. Bạn vẫn có thể gửi yêu cầu tham gia lại. Tiếp tục?",
+                        ))
                       )
                         return;
-                      await classApi.action(classId, "archive", {
-                        expectedVersion: c.version,
-                      });
+                      await classApi.leave(classId, c.membershipVersion!);
                       await refresh();
+                      navigate("/app/classes", { replace: true });
                     }}
                   >
-                    Lưu trữ lớp
+                    Rời lớp học
                   </ActionButton>
                 ) : null}
-              </div>
-            </aside>
-          ) : (
-            <aside className="tip-card">
-              {c.membershipVersion !== undefined ? (
-                <ActionButton
-                  className="button danger"
-                  action={async () => {
-                    if (
-                      !await askDialog(
-                        "Rời lớp sẽ ngừng quyền truy cập ngay. Bạn vẫn có thể gửi yêu cầu tham gia lại. Tiếp tục?",
-                      )
-                    )
-                      return;
-                    await classApi.leave(classId, c.membershipVersion!);
-                    await refresh();
-                    navigate("/app/classes", { replace: true });
-                  }}
-                >
-                  Rời lớp học
-                </ActionButton>
-              ) : null}
-            </aside>
-          )}
+              </aside>
+            )
+          ) : null}
         </div>
       )}
     </>

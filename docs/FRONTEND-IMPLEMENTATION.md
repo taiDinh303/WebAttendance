@@ -168,3 +168,7 @@ IMPLEMENTED frontend: banner lớp với hình nền hình học có sẵn,6màu
 ### 2026-11-03 — Giao diện theo tài khoản, DEC-042
 
 IMPLEMENTED: useAccountPreference dùng private actor/key React Query; chỉ đổi sau ACK, lỗi được hiển thị, chặn lưu trước GET thành công, expectedVersion khi PUT. ClassBanner chuyển từ localStorage sang server (màu/ảnh), AccountThemeToggle cho shell authenticated lưu sáng/tối, Shell lưu collapsed, SidebarClasses lưu hidden trên server. Guest theme vẫn theo trình duyệt/hệ điều hành. Không tự import các key localStorage trước đó hoặc ghi đè server. Preferences actor-specific; ảnh không chia sẻ với tài khoản khác. Refresh/relogin trên thiết bị mới tải server. Backend migration bắt buộc, không coi push là đã hoạt động cloud. Browser fixture hai context cùng account giữ màu banner, account khác default PASS. Backend evidence xem worklog.
+
+### 2026-11-03 — Tab Cài đặt trong lớp
+
+IMPLEMENTED: tab settings nhãn Cài đặt theo yêu cầu ngắn gọn; overview chỉ thông tin read-only. Sửa thông tin, quản lý mã tham gia, lưu trữ lớp (teacher) và rời lớp (student) chuyển sang tab Cài đặt; giữ role/version/confirm modal, bổ sung confirm tắt mã. Không thêm xóa lớp vì chưa có nghiệp vụ/API xóa. Lint/typecheck/build kiểm local; chưa browser/cloud verification mới.
