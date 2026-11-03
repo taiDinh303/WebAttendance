@@ -386,3 +386,7 @@ Kiểm bổ sung Edge API fixture: overview không có nút Lưu trữ lớp, v�
 ### 2026-11-03 — Student sidebar pin
 
 Theo yêu cầu: sidebar học sinh hiển thị lớp được duyệt và điều chỉnh ghim, lưu tài khoản. Dùng API classes scoped hiện có, teacher-only semester query disabled cho student, nhóm Đang theo học. Lint/build PASS, browser fixture pin/unpin/reopen context/restore/no semester403 PASS; không đổi API/DB. Evidence work/check-student-sidebar.cjs ignored. Chưa production verification.
+
+### 2026-11-03 — Overview pending requests notice
+
+Theo yêu cầu đặt một dòng rộng100% ở Tổng quan, thêm teacher-only thông báo Có n yêu cầu vào lớp đang chờ duyệt và Xem yêu cầu. API totalItems, enabled theo role/class/tab, cập nhật30s;0ẩn. Giữ quyền server, không thêm popup hoặc badge sidebar ngoài yêu cầu. Lint/build và browser fixture fullwidth/count/deeplink PASS; chưa cloud mới.

@@ -1,8 +1,14 @@
 import { ClassBanner } from "../components/ClassBanner";
 import { askDialog } from "../../../shared/components/askDialog";
-import { useLocation, useParams, NavLink, useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useParams,
+  NavLink,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import { useState } from "react";
-import { Copy } from "lucide-react";
+import { Copy, UserPlus, ArrowRight } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
@@ -35,6 +41,14 @@ function ClassWorkspaceContent() {
   );
   const c = query.data;
   const teacher = user?.role === "teacher";
+  const pending = useResource(
+    ["members", classId, "join-requests", 1],
+    (signal) => classApi.members(classId, "join-requests", 1, signal),
+    {
+      enabled: teacher && query.isSuccess && tab === "overview",
+      refetchInterval: 30000,
+    },
+  );
   const tabs = [
     ["overview", "Tổng quan"],
     ["announcements", "Bản tin"],
@@ -75,6 +89,30 @@ function ClassWorkspaceContent() {
           </NavLink>
         ))}
       </nav>
+      {teacher && tab === "overview" ? (
+        <>
+          <QueryState
+            pending={false}
+            error={pending.error}
+            retry={pending.refetch}
+          />
+          {pending.data && pending.data.totalItems > 0 ? (
+            <Link
+              className="panel class-request-notice"
+              to={"/app/classes/" + classId + "/members?queue=pending&page=1"}
+            >
+              <UserPlus size={20} />
+              <span>
+                Có <strong>{pending.data.totalItems}</strong> yêu cầu vào lớp
+                đang chờ duyệt
+              </span>
+              <span className="request-notice-action">
+                Xem yêu cầu <ArrowRight size={16} />
+              </span>
+            </Link>
+          ) : null}
+        </>
+      ) : null}
       {tab === "announcements" ? (
         <AnnouncementsPanel classId={classId} />
       ) : tab === "assignments" ? (

@@ -176,3 +176,7 @@ IMPLEMENTED: tab settings nhãn Cài đặt theo yêu cầu ngắn gọn; overvi
 ### 2026-11-03 — Sidebar lớp học sinh
 
 IMPLEMENTED: học sinh cũng dùng SidebarClasses và Ghim theo account_preferences. API classes sẵn có scope active membership, lấy đủ pagination lớp active. Student gom nhóm Đang theo học, không gọi catalog semesters vốn chỉ teacher có quyền; giáo viên vẫn nhóm học kỳ như cũ. Không mở quyền xem pending/removed hoặc catalog giáo viên. Lint/typecheck/build PASS; Edge API fixture student hiển thị lớp, bỏ ghim, context mới vẫn ẩn, bật lại và không request teacher catalog PASS. Checkbox controlled đợi server ACK, QA dùng click+wait thay uncheck kiểm tức thời. Chưa cloud/student real API kiểm mới.
+
+### 2026-11-03 — Nhắc yêu cầu vào lớp tại Tổng quan
+
+IMPLEMENTED: teacher overview có list notification full-width phía trên thông tin lớp, ghi Có n yêu cầu vào lớp đang chờ duyệt, link /members?queue=pending&page=1 mở thẳng queue. Dùng totalItems API join-requests scoped owner, không dùng số item trang hoặc unread. Chỉ query khi teacher+class loaded+overview; refresh30s và invalidation sau xử lý membership. Không hiện khi0, không gọi pending endpoint cho student. Lint/typecheck/build PASS; Edge fixture3pending kiểm nhãn, width bằng content main và link queue PASS (work/check-request-notice.cjs ignored). Chưa cloud verification mới.
