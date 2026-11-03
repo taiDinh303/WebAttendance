@@ -16,4 +16,4 @@ Reset xóa theo owner giáo viên demo và phụ thuộc, trong một transactio
 
 ## Kiểm chứng
 
-PortfolioDemoTest kiểm tra seed idempotent, reset cả quan hệ grades/attendance/comments không lỗi FK, giữ lớp ngoài demo, chặn upload/đổi mật khẩu, email collision rollback, quota và phục hồi. Frontend lint/47unit/build. Ảnh và kiểm tra production sẽ được ghi khi bản triển khai hoàn tất.
+PortfolioDemoTest kiểm tra seed idempotent, reset cả quan hệ grades/attendance/comments không lỗi FK, giữ lớp ngoài demo, chặn upload/đổi mật khẩu, email collision rollback, quota và phục hồi. Frontend lint/47unit/build. VERIFIED production: khởi tạo baseline, đăng nhập hai vai trò, QR/check-in/chặn trùng/duyệt khóa, duyệt hàng loạt10bản ghi, nộp ghi chú/công bố điểm và export; xem [bằng chứng](evidence/portfolio-validation.md). Bộ ảnh26màn ở [tour](FEATURE-TOUR.md).

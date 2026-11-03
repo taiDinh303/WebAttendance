@@ -127,3 +127,25 @@ Hồ sơ và tài khoản; Google chưa áp dụng.
 Thành viên dạng card ở màn hình hẹp.
 
 ![Giao diện mobile](media/mobile-members.png)
+
+## Nộp bài demo
+
+Form nộp ghi chú được giới hạn riêng tài khoản demo; retry giữ Idempotency-Key.
+
+![Nộp bài](media/submission-modal.png)
+
+![Bài đã nộp](media/submission.png)
+
+## Chấm và công bố điểm
+
+Giáo viên lưu điểm/công bố; học sinh chỉ truy cập bài nộp của mình.
+
+![Chấm điểm](media/grading.png)
+
+![Lịch sử học sinh](media/student-result.png)
+
+## Duyệt hàng loạt
+
+Đã thử chọn10bản ghi và xác nhận duyệt qua giao diện; ngày đã hoàn tất chuyển xanh và dữ liệu được khóa.
+
+![Duyệt hàng loạt](media/bulk-approved.png)
