@@ -57,7 +57,6 @@ export function CalendarContent({ classId }: { classId?: string }) {
       document.removeEventListener("visibilitychange", update);
     };
   }, []);
-  const [trash, setTrash] = useState(false);
   const [selected, setSelected] = useState<Session[]>([]);
   const [bulkOpen, setBulkOpen] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
@@ -72,13 +71,13 @@ export function CalendarContent({ classId }: { classId?: string }) {
     new Date(month + "-01T00:00:00"),
     new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 1),
   ];
-  const query = useResource(["calendar", classId, month, page, trash], (s) =>
+  const query = useResource(["calendar", classId, month, page], (s) =>
     classApi.sessions(
       {
         from: from.toISOString(),
         to: to.toISOString(),
         pageNumber: page,
-        status: trash ? "cancelled" : "scheduled",
+        status: "scheduled",
         ...(classId ? { classId } : {}),
       },
       s,
@@ -87,20 +86,6 @@ export function CalendarContent({ classId }: { classId?: string }) {
   return (
     <>
       <ClassToolbar>
-        {user?.role === "teacher" ? (
-          <button
-            className="button secondary small"
-            disabled={bulkLoading}
-            onClick={() => {
-              setTrash(!trash);
-              setSelected([]);
-              setPage(1);
-              setBulkResult("");
-            }}
-          >
-            {trash ? "Quay lại lịch học" : "Thùng rác"}
-          </button>
-        ) : null}
         <div className="inline-actions">
           <input
             aria-label="Tháng xem lịch"
@@ -133,23 +118,23 @@ export function CalendarContent({ classId }: { classId?: string }) {
               disabled={
                 bulkLoading ||
                 !query.data?.items.some(
-                  (s) => s.status === (trash ? "cancelled" : "scheduled"),
+                  (s) => s.status === ("scheduled"),
                 )
               }
               checked={
                 !!query.data?.items.some(
-                  (s) => s.status === (trash ? "cancelled" : "scheduled"),
+                  (s) => s.status === ("scheduled"),
                 ) &&
                 query.data.items
                   .filter(
-                    (s) => s.status === (trash ? "cancelled" : "scheduled"),
+                    (s) => s.status === ("scheduled"),
                   )
                   .every((s) => selected.some((x) => x.id === s.id))
               }
               onChange={(e) => {
                 const rows =
                   query.data?.items.filter(
-                    (s) => s.status === (trash ? "cancelled" : "scheduled"),
+                    (s) => s.status === ("scheduled"),
                   ) ?? [];
                 setSelected((prev) =>
                   e.target.checked
@@ -176,12 +161,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
                     from: from.toISOString(),
                     to: to.toISOString(),
                     pageNumber: next,
-                    status: trash ? "cancelled" : "scheduled",
+                    status: "scheduled",
                     ...(classId ? { classId } : {}),
                   });
                   rows.push(
                     ...result.items.filter(
-                      (s) => s.status === (trash ? "cancelled" : "scheduled"),
+                      (s) => s.status === ("scheduled"),
                     ),
                   );
                   if (!result.hasNextPage) break;
@@ -208,7 +193,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
             disabled={bulkLoading || !selected.length}
             onClick={() => setBulkOpen(true)}
           >
-            {trash ? "Xóa vĩnh viễn" : "Hủy đã chọn"} ({selected.length})
+            {"Xóa đã chọn"} ({selected.length})
           </button>
         </div>
       ) : null}
@@ -216,31 +201,22 @@ export function CalendarContent({ classId }: { classId?: string }) {
       {bulkOpen ? (
         <Modal
           title={
-            (trash ? "Xóa vĩnh viễn " : "Hủy ") + selected.length + " buổi học"
+            ("Xóa vĩnh viễn ") + selected.length + " buổi học"
           }
           onClose={() => setBulkOpen(false)}
         >
           <p>
-            {trash
-              ? "Xóa vĩnh viễn không thể hoàn tác. Buổi có lịch sử điểm danh sẽ được giữ lại."
-              : "Các buổi được chọn sẽ chuyển vào Thùng rác."}
+            Xóa vĩnh viễn không thể hoàn tác. Buổi có lịch sử điểm danh sẽ được giữ lại.
           </p>
           <AsyncForm
-            onSubmit={async (f) => {
-              const reason = text(f, "reason");
+            onSubmit={async () => {
               const failed: Session[] = [];
               let done = 0;
               setBulkLoading(true);
               try {
                 for (const session of selected) {
                   try {
-                    if (trash) await classApi.deleteSession(session);
-                    else
-                      await classApi.cancelSession(
-                        session.classId,
-                        session,
-                        reason,
-                      );
+                    await classApi.deleteSession(session);
                     done++;
                   } catch {
                     failed.push(session);
@@ -248,7 +224,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 }
                 setSelected(failed);
                 setBulkResult(
-                  (trash ? "Đã xóa " : "Đã hủy ") +
+                  ("Đã xóa ") +
                     done +
                     " buổi" +
                     (failed.length
@@ -260,7 +236,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   throw Error(
                     "Còn " +
                       failed.length +
-                      " buổi chưa hủy. Có thể lịch đã thay đổi hoặc đang có điểm danh. Đóng hộp thoại, kiểm tra lại trước khi thử tiếp.",
+                      " buổi chưa xóa. Có thể lịch đã thay đổi hoặc đang có điểm danh. Đóng hộp thoại, kiểm tra lại trước khi thử tiếp.",
                   );
                 setBulkOpen(false);
               } finally {
@@ -268,15 +244,6 @@ export function CalendarContent({ classId }: { classId?: string }) {
               }
             }}
           >
-            <Field label={trash ? "Lý do xóa" : "Lý do hủy"}>
-              <textarea
-                name="reason"
-                required
-                minLength={3}
-                maxLength={500}
-                rows={3}
-              />
-            </Field>
             <footer className="modal-actions">
               <button
                 className="button secondary"
@@ -286,7 +253,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 Đóng
               </button>
               <button className="button danger">
-                Xác nhận {trash ? "xóa vĩnh viễn" : "hủy"} {selected.length}{" "}
+                Xác nhận {"xóa vĩnh viễn"} {selected.length}{" "}
                 buổi
               </button>
             </footer>
@@ -524,7 +491,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 }
                 disabled={
                   bulkLoading ||
-                  s.status !== (trash ? "cancelled" : "scheduled")
+                  s.status !== ("scheduled")
                 }
                 checked={selected.some((x) => x.id === s.id)}
                 onChange={(e) =>
@@ -571,16 +538,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 <ActionButton
                   className="button ghost small"
                   action={async () => {
-                    const reason = await askDialog(
-                      "Lý do hủy buổi học (ít nhất 3 ký tự)",
-                      true,
-                    );
-                    if (!reason) return;
-                    await classApi.cancelSession(s.classId, s, reason);
+                    if (!(await askDialog("Xóa vĩnh viễn buổi học này? Không thể hoàn tác."))) return;
+                    await classApi.deleteSession(s);
                     await refresh();
                   }}
                 >
-                  Hủy
+                  Xóa
                 </ActionButton>
               </div>
             ) : null}

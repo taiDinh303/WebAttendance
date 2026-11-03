@@ -265,11 +265,10 @@ final class ScheduleAttendanceTest extends TestCase
         $this->actingAs($second)->getJson('/api/v1/me/attendance')->assertOk()->assertJsonPath('data.totalItems', 0);
     }
 
-    public function test_trash_permanent_delete_requires_owner_cancelled_version_and_no_attendance(): void
+    public function test_permanent_delete_requires_owner_version_and_no_attendance(): void
     {
         [$teacher, $student, , $classId, $sessionId] = $this->workspace();
         $url = '/api/v1/classes/'.$classId.'/sessions/'.$sessionId;
-        $this->deleteJson($url, ['expectedVersion' => 1])->assertConflict();
         $this->postJson($url.'/cancel', ['expectedVersion' => 1, 'reason' => 'Created by mistake'])->assertOk();
         $this->actingAs($student)->deleteJson($url, ['expectedVersion' => 2])->assertNotFound();
         $this->actingAs($teacher)->deleteJson($url, ['expectedVersion' => 1])->assertConflict();
@@ -285,5 +284,12 @@ final class ScheduleAttendanceTest extends TestCase
         $this->postJson($url.'/cancel', ['expectedVersion' => 1, 'reason' => 'Cancelled lesson'])->assertOk();
         $this->deleteJson($url, ['expectedVersion' => 2])->assertConflict();
         $this->assertDatabaseHas('class_sessions', ['id' => $sessionId]);
+    }
+
+    public function test_owner_can_permanently_delete_scheduled_session_without_attendance(): void
+    {
+        [, , , $classId, $sessionId] = $this->workspace();
+        $this->deleteJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId, ['expectedVersion' => 1])->assertOk();
+        $this->assertDatabaseMissing('class_sessions', ['id' => $sessionId]);
     }
 }

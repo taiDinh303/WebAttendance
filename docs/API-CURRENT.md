@@ -114,3 +114,5 @@ Backend regression: AccountsTest14tests/99assertionsPASS, bao gồm preference p
 ### 2026-11-03 — Calendar trash/permanent delete
 
 IMPLEMENTED: calendar/session index mặc định status scheduled, status cancelled cho trash. DELETE /api/v1/classes/{classroom}/sessions/{sessionId}, VersionRequest, ManageSchedule.destroy transaction cùng owner schedule lock/class lock/session lock, gate update, class active, version khớp. Chỉ cancelled và chưa attendance_windows/records mới delete;409 nếu còn lịch sử, không cascade FK. Không migration mới. Targeted ScheduleAttendanceTest17/236PASS (MySQL test schema reuse, rollback), gồm student denied, stale version, scheduled denied, cancelled delete và attendance-history denied. Chưa cloud deploy/HTTP verification mới.
+
+2026-11-03: DELETE session nay cho scheduled hoặc cancelled nếu chưa có attendance history; không cần chuyển trash trước. Owner/version/class active guard giữ nguyên. Lịch mặc định vẫn scheduled; không tự xóa cancelled cũ. Thùng rác UI đã bỏ theo chỉ đạo mới.

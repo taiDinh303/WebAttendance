@@ -157,3 +157,5 @@ Chủ dự án yêu cầu banner/giao diện đi theo tài khoản để đăng 
 ### DEC-043 — Thùng rác lịch và xóa vĩnh viễn (CONFIRMED 2026-11-03)
 
 Nguồn: chủ dự án yêu cầu buổi đã hủy không hiện lịch chính, có Thùng rác trong Lịch học để xóa cứng và thao tác không chặn khi chờ. IMPLEMENTED: lịch mặc định scheduled, Thùng rác query cancelled, teacher chọn từng/trang/toàn tháng để xóa vĩnh viễn. Thiết kế bảo toàn lịch sử: chỉ owner lớp active xóa buổi cancelled, expectedVersion khớp, chưa có attendance_window/record; không cascade xóa lịch sử điểm danh/audit. Phần xử lý nền là browser-session với tiến trình toàn cục và Thu gọn modal, chưa durable queue server/offline.
+
+2026-11-03 — DEC-043 superseded phần Thùng rác theo yêu cầu mới: bỏ Thùng rác, xóa cứng trực tiếp buổi chọn/từng buổi sau modal xác nhận. Không cần cancelled trước; giữ điều kiện owner/class active/version và không attendance history. Không tự purge buổi đã hủy trước đó hoặc các dữ liệu lịch sử.

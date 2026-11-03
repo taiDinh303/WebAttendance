@@ -206,3 +206,5 @@ IMPLEMENTED: CalendarContent gửi status scheduled/cancelled phía server (pagi
 VERIFIED LOCAL lint/typecheck39unit/build PASS. Edge fixture calendar/trash, select cancelled, danger contrast, delayed DELETE700ms + Thu gọn rồi hoàn tất/refresh PASS. Backend17tests236assertionsPASS, không cloud mới. Backend phải cập nhật trước dùng DELETE trên production.
 
 Tiến trình ghi còn được theo dõi tại HTTP gateway cho mọi POST/PUT/PATCH/DELETE; composer/upload vẫn giữ logic retry/idempotency riêng nhưng đều có thông báo nền chung. Không báo thành công trước ACK, không tự retry hoặc cam kết tiếp tục khi tắt trình duyệt.
+
+2026-11-03 — Bỏ Thùng rác theo yêu cầu mới, calendar row Xóa và Xóa đã chọn gọi DELETE trực tiếp; không bước cancel trước. Bỏ ô lý do vì đây là xác nhận xóa vĩnh viễn, không ghi giả lý do vào server. Backend bỏ yêu cầu status cancelled nhưng giữ owner/version/class active/history guards. ScheduleAttendanceTest18/239PASS; lint/buildPASS; Edge fixture scheduled direct-delete/no-trash/confirm/minimizePASS. Không xóa dữ liệu cloud thật.
