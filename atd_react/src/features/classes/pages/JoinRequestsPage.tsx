@@ -1,7 +1,6 @@
 import { usePage, useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
 import {
-  PageHeader,
   QueryState,
   Empty,
   Badge,
@@ -16,10 +15,7 @@ export default function JoinRequestsPage() {
   );
   return (
     <>
-      <PageHeader
-        title="Yêu cầu vào lớp"
-        description="Theo dõi trạng thái phê duyệt từ giáo viên."
-      />
+      <h1 className="sr-only">Yêu cầu vào lớp</h1>
       <QueryState
         pending={query.isPending}
         error={query.error}

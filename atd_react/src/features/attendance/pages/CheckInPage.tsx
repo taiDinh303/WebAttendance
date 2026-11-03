@@ -25,11 +25,7 @@ export default function CheckInPage() {
     );
   return (
     <>
-      <PageHeader
-        eyebrow="CÓ MẶT, SẴN SÀNG HỌC"
-        title="Điểm danh bằng QR"
-        description="Quét mã giáo viên đang hiển thị rồi xác nhận check-in."
-      />
+      <h1 className="sr-only">Điểm danh bằng QR</h1>
       <section className="panel checkin-panel">
         {result ? (
           <div className="empty">
