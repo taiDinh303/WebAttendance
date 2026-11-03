@@ -180,3 +180,5 @@ IMPLEMENTED: học sinh cũng dùng SidebarClasses và Ghim theo account_prefere
 ### 2026-11-03 — Nhắc yêu cầu vào lớp tại Tổng quan
 
 IMPLEMENTED: teacher overview có list notification full-width phía trên thông tin lớp, ghi Có n yêu cầu vào lớp đang chờ duyệt, link /members?queue=pending&page=1 mở thẳng queue. Dùng totalItems API join-requests scoped owner, không dùng số item trang hoặc unread. Chỉ query khi teacher+class loaded+overview; refresh30s và invalidation sau xử lý membership. Không hiện khi0, không gọi pending endpoint cho student. Lint/typecheck/build PASS; Edge fixture3pending kiểm nhãn, width bằng content main và link queue PASS (work/check-request-notice.cjs ignored). Chưa cloud verification mới.
+
+2026-11-03: theo chỉnh vị trí của chủ dự án, dòng yêu cầu vào lớp chuyển xuống ngay dưới khung Thông tin lớp, ngoài detail-grid để giữ width100%. Build/typecheck PASS; không đổi query/quyền/link.

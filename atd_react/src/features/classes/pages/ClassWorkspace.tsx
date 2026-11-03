@@ -89,30 +89,6 @@ function ClassWorkspaceContent() {
           </NavLink>
         ))}
       </nav>
-      {teacher && tab === "overview" ? (
-        <>
-          <QueryState
-            pending={false}
-            error={pending.error}
-            retry={pending.refetch}
-          />
-          {pending.data && pending.data.totalItems > 0 ? (
-            <Link
-              className="panel class-request-notice"
-              to={"/app/classes/" + classId + "/members?queue=pending&page=1"}
-            >
-              <UserPlus size={20} />
-              <span>
-                Có <strong>{pending.data.totalItems}</strong> yêu cầu vào lớp
-                đang chờ duyệt
-              </span>
-              <span className="request-notice-action">
-                Xem yêu cầu <ArrowRight size={16} />
-              </span>
-            </Link>
-          ) : null}
-        </>
-      ) : null}
       {tab === "announcements" ? (
         <AnnouncementsPanel classId={classId} />
       ) : tab === "assignments" ? (
@@ -320,6 +296,31 @@ function ClassWorkspaceContent() {
           ) : null}
         </div>
       )}
+      {teacher && tab === "overview" ? (
+        <>
+          <QueryState
+            pending={false}
+            error={pending.error}
+            retry={pending.refetch}
+          />
+          {pending.data && pending.data.totalItems > 0 ? (
+            <Link
+              className="panel class-request-notice"
+              to={"/app/classes/" + classId + "/members?queue=pending&page=1"}
+            >
+              <UserPlus size={20} />
+              <span>
+                Có <strong>{pending.data.totalItems}</strong> yêu cầu vào lớp
+                đang chờ duyệt
+              </span>
+              <span className="request-notice-action">
+                Xem yêu cầu <ArrowRight size={16} />
+              </span>
+            </Link>
+          ) : null}
+        </>
+      ) : null}
+
     </>
   );
 }
