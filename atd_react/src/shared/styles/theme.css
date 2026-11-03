@@ -253,3 +253,14 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 
 .member-desktop-table table { min-width:720px; }
 .member-desktop-table .inline-actions { flex-wrap:nowrap; }
+
+.checkin-stage { min-height:calc(100dvh - 128px); display:grid; place-items:center; width:100%; }
+.checkin-panel.checkin-centered { width:100%; max-width:760px; padding:24px; margin:auto; }
+.checkin-clock { padding:20px; border-radius:12px; text-align:center; background:#162c40; color:#eaf2fa; margin-bottom:22px; }
+.checkin-clock > div { font-size:14px; color:#bdcbd8; font-weight:600; }
+.checkin-clock time { display:block; font-size:clamp(32px,6vw,46px); line-height:1.35; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:1px; }
+.checkin-centered .camera-video { display:block; width:100%; max-width:520px; aspect-ratio:4/3; min-height:0; max-height: min(42dvh,390px); margin:0 auto 18px; object-fit:cover; }
+.checkin-centered .checkin-scan-icon { margin:0 auto 16px; }
+.checkin-centered > .button { justify-content:center; margin:0 auto 16px; }
+.checkin-centered > .form .muted { text-align:center; margin:0 0 8px; }
+@media(max-width:600px) { .checkin-panel.checkin-centered { padding:18px; } .checkin-stage { min-height:calc(100dvh - 112px); } .checkin-clock { padding:16px; margin-bottom:18px; } }

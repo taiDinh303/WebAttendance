@@ -1,3 +1,4 @@
+import { CheckInClock } from "../components/CheckInClock";
 import { readQrImage } from "../../../infrastructure/qrImage";
 import { Modal } from "../../../shared/components/Modal";
 import { useSearchParams, Link } from "react-router-dom";
@@ -57,149 +58,158 @@ export default function CheckInPage() {
   return (
     <>
       <h1 className="sr-only">Điểm danh bằng QR</h1>
-      <section className="panel checkin-panel">
-        {result ? (
-          <div className="empty">
-            <CheckCircle2 size={48} className="teal" />
-            <h2>Đã ghi nhận điểm danh</h2>
-            <Badge value={result.status} />
-            <p>
-              Chờ giáo viên kiểm tra và duyệt. Nếu cần điều chỉnh, hãy liên hệ
-              giáo viên.
-            </p>
-            <button
-              className="button secondary"
-              onClick={() => {
-                setResult(null);
-                setToken("");
-                setSearch({}, { replace: true });
-              }}
-            >
-              Quét buổi học khác
-            </button>
-          </div>
-        ) : (
-          <>
-            <span className="empty-icon">
-              <ScanLine size={42} />
-            </span>
-            {camera ? (
-              <>
-                <CameraScanner
-                  onResult={(value) => {
-                    setToken(value);
-                    setCamera(false);
-                  }}
-                />
-                <button
-                  className="button secondary"
-                  onClick={() => setCamera(false)}
-                >
-                  Đóng camera (giữ mã vừa quét)
-                </button>
-              </>
-            ) : (
-              <button
-                className="button secondary"
-                onClick={() => setCamera(true)}
-              >
-                <Camera size={17} />
-                {token ? "Quét mã khác" : "Mở camera"}
-              </button>
-            )}
-            <AsyncForm
-              onSubmit={async () => {
-                const qrToken = extractQrToken(token, window.location.origin);
-                setResult(await attendanceApi.checkIn(qrToken));
-                setSearch({}, { replace: true });
-              }}
-            >
-              <p className="muted">
-                {token
-                  ? "Đã nhận mã QR. Bạn có thể xác nhận điểm danh."
-                  : "Quét QR, dán ảnh hoặc liên kết điểm danh."}
+      <div className="checkin-stage">
+        <section className="panel checkin-panel checkin-centered">
+          <CheckInClock />
+          {result ? (
+            <div className="empty">
+              <CheckCircle2 size={48} className="teal" />
+              <h2>Đã ghi nhận điểm danh</h2>
+              <Badge value={result.status} />
+              <p>
+                Chờ giáo viên kiểm tra và duyệt. Nếu cần điều chỉnh, hãy liên hệ
+                giáo viên.
               </p>
               <button
-                type="button"
                 className="button secondary"
                 onClick={() => {
-                  setReadingImage(false);
-                  setImageMessage("");
-                  setQrDraft(token);
-                  setEditing(true);
+                  setResult(null);
+                  setToken("");
+                  setSearch({}, { replace: true });
                 }}
               >
-                {token ? "Sửa mã QR" : "Dán mã QR"}
+                Quét buổi học khác
               </button>
-              <button className="button wide">Xác nhận điểm danh</button>
-            </AsyncForm>
-            {editing ? (
-              <Modal title="Nhập mã QR" onClose={() => setEditing(false)}>
-                <AsyncForm
-                  onSubmit={async () => {
-                    if (readingImage)
-                      throw Error("Đang đọc ảnh QR. Vui lòng chờ một chút.");
-                    extractQrToken(qrDraft, window.location.origin);
-                    setToken(qrDraft);
-                    setEditing(false);
+            </div>
+          ) : (
+            <>
+              {!camera ? (
+                <span className="empty-icon checkin-scan-icon">
+                  <ScanLine size={32} />
+                </span>
+              ) : null}
+              {camera ? (
+                <>
+                  <CameraScanner
+                    onResult={(value) => {
+                      setToken(value);
+                      setCamera(false);
+                    }}
+                  />
+                  <button
+                    className="button secondary"
+                    onClick={() => setCamera(false)}
+                  >
+                    Đóng camera
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="button secondary"
+                  onClick={() => setCamera(true)}
+                >
+                  <Camera size={17} />
+                  {token ? "Quét mã khác" : "Mở camera"}
+                </button>
+              )}
+              <AsyncForm
+                onSubmit={async () => {
+                  const qrToken = extractQrToken(token, window.location.origin);
+                  setResult(await attendanceApi.checkIn(qrToken));
+                  setSearch({}, { replace: true });
+                }}
+              >
+                <p className="muted">
+                  {token
+                    ? "Đã nhận mã QR. Bạn có thể xác nhận điểm danh."
+                    : "Quét QR, dán ảnh hoặc liên kết điểm danh."}
+                </p>
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => {
+                    setReadingImage(false);
+                    setImageMessage("");
+                    setQrDraft(token);
+                    setEditing(true);
                   }}
                 >
-                  <div
-                    onPaste={(event) => {
-                      const image = Array.from(event.clipboardData.items)
-                        .find((item) => item.type.startsWith("image/"))
-                        ?.getAsFile();
-                      if (image) {
-                        event.preventDefault();
-                        void acceptImage(image);
-                      }
+                  {token ? "Sửa mã QR" : "Dán mã QR"}
+                </button>
+                <button className="button wide" disabled={!token.trim()}>
+                  Xác nhận điểm danh
+                </button>
+              </AsyncForm>
+              {editing ? (
+                <Modal title="Nhập mã QR" onClose={() => setEditing(false)}>
+                  <AsyncForm
+                    onSubmit={async () => {
+                      if (readingImage)
+                        throw Error("Đang đọc ảnh QR. Vui lòng chờ một chút.");
+                      extractQrToken(qrDraft, window.location.origin);
+                      setToken(qrDraft);
+                      setEditing(false);
                     }}
                   >
-                    <Field
-                      label="Liên kết hoặc nội dung mã QR"
-                      hint="Mã thay đổi mỗi 30 giây. Không nhập mã lớp vào ô này."
+                    <div
+                      onPaste={(event) => {
+                        const image = Array.from(event.clipboardData.items)
+                          .find((item) => item.type.startsWith("image/"))
+                          ?.getAsFile();
+                        if (image) {
+                          event.preventDefault();
+                          void acceptImage(image);
+                        }
+                      }}
                     >
-                      <textarea
-                        name="qrToken"
-                        required
-                        value={qrDraft}
-                        onChange={(e) => setQrDraft(e.target.value)}
-                        rows={4}
-                        placeholder="Ctrl+V để dán ảnh QR hoặc liên kết điểm danh…"
-                      />
-                    </Field>
-                    <Field label="Chọn ảnh QR từ máy">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        disabled={readingImage}
-                        onChange={(event) => {
-                          const file = event.target.files?.[0];
-                          if (file) void acceptImage(file);
-                          event.target.value = "";
-                        }}
-                      />
-                    </Field>
-                    {imageMessage ? <p role="status">{imageMessage}</p> : null}
-                  </div>
-                  <footer className="modal-actions">
-                    <button
-                      type="button"
-                      className="button secondary"
-                      onClick={() => setEditing(false)}
-                    >
-                      Đóng
-                    </button>
-                    <button className="button" disabled={readingImage}>
-                      Áp dụng
-                    </button>
-                  </footer>
-                </AsyncForm>
-              </Modal>
-            ) : null}
-          </>
-        )}
-      </section>
+                      <Field
+                        label="Liên kết hoặc nội dung mã QR"
+                        hint="Mã thay đổi mỗi 30 giây. Không nhập mã lớp vào ô này."
+                      >
+                        <textarea
+                          name="qrToken"
+                          required
+                          value={qrDraft}
+                          onChange={(e) => setQrDraft(e.target.value)}
+                          rows={4}
+                          placeholder="Ctrl+V để dán ảnh QR hoặc liên kết điểm danh…"
+                        />
+                      </Field>
+                      <Field label="Chọn ảnh QR từ máy">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          disabled={readingImage}
+                          onChange={(event) => {
+                            const file = event.target.files?.[0];
+                            if (file) void acceptImage(file);
+                            event.target.value = "";
+                          }}
+                        />
+                      </Field>
+                      {imageMessage ? (
+                        <p role="status">{imageMessage}</p>
+                      ) : null}
+                    </div>
+                    <footer className="modal-actions">
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setEditing(false)}
+                      >
+                        Đóng
+                      </button>
+                      <button className="button" disabled={readingImage}>
+                        Áp dụng
+                      </button>
+                    </footer>
+                  </AsyncForm>
+                </Modal>
+              ) : null}
+            </>
+          )}
+        </section>
+      </div>
     </>
   );
 }
