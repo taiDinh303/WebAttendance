@@ -34,6 +34,8 @@ export const statusLabel: Record<string, string> = {
   submitted: "Đã nộp",
   closed: "Đã đóng",
   scheduled: "Sắp diễn ra",
+  ongoing: "Đang diễn ra",
+  ended: "Đã kết thúc",
   cancelled: "Đã hủy",
   present: "Có mặt",
   late: "Đi muộn",

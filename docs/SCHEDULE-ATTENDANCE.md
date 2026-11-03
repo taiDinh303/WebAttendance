@@ -96,3 +96,5 @@ Summary chỉ cửa sổ đã đóng/hết hạn và buổi không cancelled. P/
 ## Kiểm chứng và phần còn lại
 
 Feature tests và HTTP fixture chạy trên MySQL synthetic riêng; kết quả cuối ở [evidence/schedule-attendance-validation.md](evidence/schedule-attendance-validation.md). Đã kiểm clock boundary/TTL/late/snapshot/owner/self/version/audit/DST/cancel/report/backlog; không tuyên bố đã stress concurrency hoặc camera/browser thật. Reverb/attendance notifications realtime, Excel, co-teacher, bulk corrections, xin nghỉ/excused và reopen window chưa triển khai. Các module bài tập/quiz/chat vẫn cần câu trả lời riêng, không suy ra từ quyết định lịch/QR.
+
+2026-11-03 — UI lịch: nhãn theo giờ bắt đầu/kết thúc (Sắp diễn ra/Đang diễn ra/Đã kết thúc), ưu tiên Đã hủy; auto refresh30giây và quay lại tab. Đây là nhãn hiển thị, không đổi trạng thái schedule DB hoặc tự chốt vắng/QR. Chi tiết FRONTEND-IMPLEMENTATION.

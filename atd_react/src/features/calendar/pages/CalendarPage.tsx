@@ -1,5 +1,5 @@
 import { Modal } from "../../../shared/components/Modal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, MapPin, ScanLine } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
@@ -17,11 +17,13 @@ import {
 } from "../../../shared/ui";
 import { dateTime, text, iso } from "../../../domain/format";
 import { SessionEditor } from "../components/SessionEditor";
+import { sessionDisplayStatus } from "../../../domain/schedule";
 import type { Session } from "../../../domain/models";
 export default function CalendarPage() {
   return (
     <>
-      <PageHeader compact
+      <PageHeader
+        compact
         eyebrow="SẮP XẾP & CHỦ ĐỘNG"
         title="Lịch học"
         description="Các buổi học của bạn, ở cùng một nơi."
@@ -36,9 +38,21 @@ export function CalendarContent({ classId }: { classId?: string }) {
   const [month, setMonth] = useState(() =>
     new Date().toISOString().slice(0, 7),
   );
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const update = () => setNow(Date.now());
+    const timer = window.setInterval(update, 30000);
+    window.addEventListener("focus", update);
+    document.addEventListener("visibilitychange", update);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", update);
+      document.removeEventListener("visibilitychange", update);
+    };
+  }, []);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Session | null>(null);
-  const [viewing,setViewing]=useState<Session|null>(null);
+  const [viewing, setViewing] = useState<Session | null>(null);
   const [weekly, setWeekly] = useState(false);
   const [preview, setPreview] = useState<number | null>(null);
   const refresh = useRefresh();
@@ -60,7 +74,6 @@ export function CalendarContent({ classId }: { classId?: string }) {
   return (
     <>
       <div className="section-heading">
-
         <div className="inline-actions">
           <input
             aria-label="Tháng xem lịch"
@@ -83,7 +96,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
         </div>
       </div>
       {open && classId ? (
-        <Modal title="Tạo lịch học" onClose={()=>setOpen(false)}>
+        <Modal title="Tạo lịch học" onClose={() => setOpen(false)}>
           <label className="check">
             <input
               type="checkbox"
@@ -178,34 +191,72 @@ export function CalendarContent({ classId }: { classId?: string }) {
               <input type="checkbox" name="allowConflicts" />
               Tôi chấp nhận nếu lịch bị trùng
             </label>
-            <footer className="modal-actions"><button type="button" className="button secondary" onClick={()=>setOpen(false)}>Đóng</button>
-            {weekly && preview === null ? (
+            <footer className="modal-actions">
               <button
+                type="button"
                 className="button secondary"
-                type="submit"
-                name="intent"
-                value="preview"
+                onClick={() => setOpen(false)}
               >
-                Xem trước số buổi
+                Đóng
               </button>
-            ) : (
-              <button className="button" type="submit">
-                {weekly && preview !== null
-                  ? "Tạo lịch (hủy bỏ nếu trùng)"
-                  : "Tạo buổi học"}
-              </button>
-            )}
+              {weekly && preview === null ? (
+                <button
+                  className="button secondary"
+                  type="submit"
+                  name="intent"
+                  value="preview"
+                >
+                  Xem trước số buổi
+                </button>
+              ) : (
+                <button className="button" type="submit">
+                  {weekly && preview !== null
+                    ? "Tạo lịch (hủy bỏ nếu trùng)"
+                    : "Tạo buổi học"}
+                </button>
+              )}
             </footer>
             {preview !== null ? (
               <p className="info">
-                Dự kiến {preview} buổi học trong khoảng thời gian trên. Bấm
-                “Tạo lịch” để xác nhận.
+                Dự kiến {preview} buổi học trong khoảng thời gian trên. Bấm “Tạo
+                lịch” để xác nhận.
               </p>
             ) : null}
           </AsyncForm>
         </Modal>
       ) : null}
-      {viewing ? <Modal title={viewing.title || "Buổi học"} onClose={()=>setViewing(null)}><dl className="profile-facts"><dt>Thời gian</dt><dd>{dateTime(viewing.startsAt)} → {dateTime(viewing.endsAt)}</dd><dt>Phòng học</dt><dd>{viewing.room || "Chưa cung cấp"}</dd></dl><footer className="modal-actions"><button className="button secondary" onClick={()=>setViewing(null)}>Đóng</button><button className="button" onClick={()=>{setEditing(viewing);setViewing(null)}}>Điều chỉnh</button></footer></Modal> : null}
+      {viewing ? (
+        <Modal
+          title={viewing.title || "Buổi học"}
+          onClose={() => setViewing(null)}
+        >
+          <dl className="profile-facts">
+            <dt>Thời gian</dt>
+            <dd>
+              {dateTime(viewing.startsAt)} → {dateTime(viewing.endsAt)}
+            </dd>
+            <dt>Phòng học</dt>
+            <dd>{viewing.room || "Chưa cung cấp"}</dd>
+          </dl>
+          <footer className="modal-actions">
+            <button
+              className="button secondary"
+              onClick={() => setViewing(null)}
+            >
+              Đóng
+            </button>
+            <button
+              className="button"
+              onClick={() => {
+                setEditing(viewing);
+                setViewing(null);
+              }}
+            >
+              Điều chỉnh
+            </button>
+          </footer>
+        </Modal>
+      ) : null}
       <QueryState
         pending={query.isPending}
         error={query.error}
@@ -237,7 +288,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 </small>
               ) : null}
             </div>
-            <Badge value={s.status} />
+            <Badge value={sessionDisplayStatus(s, now)} />
             {user?.role === "teacher" && s.status === "scheduled" ? (
               <div className="inline-actions">
                 <button

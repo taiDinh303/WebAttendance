@@ -167,3 +167,7 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 }
 .sr-only {position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important;}
 .modal-actions {flex-wrap:wrap;}
+
+.badge-ongoing {background:#e9f6f0;color:#278063}
+.badge-ended {background:var(--ui-raised);color:var(--ui-muted)}
+:root[data-theme="dark"] .badge-ongoing {background:#243f38;color:#a2d9c4}
