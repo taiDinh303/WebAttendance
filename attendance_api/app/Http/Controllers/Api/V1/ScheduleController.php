@@ -17,6 +17,7 @@ use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 final class ScheduleController extends Controller
@@ -98,7 +99,18 @@ final class ScheduleController extends Controller
         if ($from->diffInDays($to) > 93) {
             throw new ApiException('RANGE_TOO_LARGE', 'Calendar range may not exceed 93 days.', 422);
         }
-        $query->where('starts_at', '<', $to)->where('ends_at', '>', $from);
+        $query->where('starts_at', '<', $to);
+        if ($request->boolean('startWithin')) {
+            $query->where('starts_at', '>=', $from);
+        } else {
+            $query->where('ends_at', '>', $from);
+        }
+        $query->select('class_sessions.*')
+            ->selectSub(DB::table('attendance_records')->selectRaw('COUNT(*)')->whereColumn('session_id', 'class_sessions.id'), 'review_record_count')
+            ->selectSub(DB::table('attendance_records')->selectRaw('COUNT(*)')->whereColumn('session_id', 'class_sessions.id')->whereNull('approved_at'), 'review_pending_count')
+            ->selectSub(DB::table('attendance_windows')->select('state')->whereColumn('session_id', 'class_sessions.id'), 'review_window_state')
+            ->selectSub(DB::table('attendance_windows')->select('closes_at')->whereColumn('session_id', 'class_sessions.id'), 'review_closes_at')
+            ->selectSub(DB::table('attendance_rosters as roster')->join('attendance_windows as window', 'window.id', '=', 'roster.window_id')->selectRaw('COUNT(*)')->whereColumn('window.session_id', 'class_sessions.id'), 'review_roster_count');
         $query->where('status', $data['status'] ?? 'scheduled');
 
         return ApiResponse::page($query->orderBy('starts_at')->orderBy('id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($row) => new SessionResource($row));

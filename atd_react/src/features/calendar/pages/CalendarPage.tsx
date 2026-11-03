@@ -1,3 +1,5 @@
+import { MonthCalendar } from "../components/MonthCalendar";
+import { calendarRange, localDay } from "../../../domain/calendar";
 import { QrContent } from "../../attendance/pages/QrPage";
 import { ScheduleInput } from "../../../shared/components/ScheduleInput";
 import { ClassToolbar } from "../../../shared/components/ClassToolbar";
@@ -43,9 +45,8 @@ export default function CalendarPage() {
 export function CalendarContent({ classId }: { classId?: string }) {
   const { user } = useSession();
   const { page, setPage } = usePage();
-  const [month, setMonth] = useState(() =>
-    new Date().toISOString().slice(0, 7),
-  );
+  const [month, setMonth] = useState(() => localDay(new Date()).slice(0, 7));
+  const [day, setDay] = useState<string | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const update = () => setNow(Date.now());
@@ -73,11 +74,11 @@ export function CalendarContent({ classId }: { classId?: string }) {
     new Date(month + "-01T00:00:00"),
     new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 1),
   ];
-  const query = useResource(["calendar", classId, month, page], (s) =>
+  const query = useResource(["calendar", classId, month, day, page], (s) =>
     classApi.sessions(
       {
-        from: from.toISOString(),
-        to: to.toISOString(),
+        ...calendarRange(month, day),
+        startWithin: 1,
         pageNumber: page,
         status: "scheduled",
         ...(classId ? { classId } : {}),
@@ -99,6 +100,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
               if (e.target.value) {
                 setSelected([]);
                 setBulkResult("");
+                setDay(null);
                 setMonth(e.target.value);
                 setPage(1);
               }
@@ -112,6 +114,23 @@ export function CalendarContent({ classId }: { classId?: string }) {
           ) : null}
         </div>
       </ClassToolbar>
+      <MonthCalendar
+        classId={classId}
+        month={month}
+        day={day}
+        disabled={bulkLoading}
+        onMonth={(value) => {
+          setMonth(value);
+          setDay(null);
+          setSelected([]);
+          setPage(1);
+        }}
+        onDay={(value) => {
+          setDay(value);
+          setSelected([]);
+          setPage(1);
+        }}
+      />
       {user?.role === "teacher" ? (
         <div className="bulk-session-toolbar inline-actions">
           <label className="check">
@@ -119,25 +138,18 @@ export function CalendarContent({ classId }: { classId?: string }) {
               type="checkbox"
               disabled={
                 bulkLoading ||
-                !query.data?.items.some(
-                  (s) => s.status === ("scheduled"),
-                )
+                !query.data?.items.some((s) => s.status === "scheduled")
               }
               checked={
-                !!query.data?.items.some(
-                  (s) => s.status === ("scheduled"),
-                ) &&
+                !!query.data?.items.some((s) => s.status === "scheduled") &&
                 query.data.items
-                  .filter(
-                    (s) => s.status === ("scheduled"),
-                  )
+                  .filter((s) => s.status === "scheduled")
                   .every((s) => selected.some((x) => x.id === s.id))
               }
               onChange={(e) => {
                 const rows =
-                  query.data?.items.filter(
-                    (s) => s.status === ("scheduled"),
-                  ) ?? [];
+                  query.data?.items.filter((s) => s.status === "scheduled") ??
+                  [];
                 setSelected((prev) =>
                   e.target.checked
                     ? [
@@ -160,6 +172,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 let next = 1;
                 while (true) {
                   const result = await classApi.sessions({
+                    startWithin: 1,
                     from: from.toISOString(),
                     to: to.toISOString(),
                     pageNumber: next,
@@ -167,9 +180,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                     ...(classId ? { classId } : {}),
                   });
                   rows.push(
-                    ...result.items.filter(
-                      (s) => s.status === ("scheduled"),
-                    ),
+                    ...result.items.filter((s) => s.status === "scheduled"),
                   );
                   if (!result.hasNextPage) break;
                   next++;
@@ -202,13 +213,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
       {bulkResult ? <p role="status">{bulkResult}</p> : null}
       {bulkOpen ? (
         <Modal
-          title={
-            ("Xóa vĩnh viễn ") + selected.length + " buổi học"
-          }
+          title={"Xóa vĩnh viễn " + selected.length + " buổi học"}
           onClose={() => setBulkOpen(false)}
         >
           <p>
-            Xóa vĩnh viễn không thể hoàn tác. Buổi có lịch sử điểm danh sẽ được giữ lại.
+            Xóa vĩnh viễn không thể hoàn tác. Buổi có lịch sử điểm danh sẽ được
+            giữ lại.
           </p>
           <AsyncForm
             onSubmit={async () => {
@@ -226,7 +236,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 }
                 setSelected(failed);
                 setBulkResult(
-                  ("Đã xóa ") +
+                  "Đã xóa " +
                     done +
                     " buổi" +
                     (failed.length
@@ -255,8 +265,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 Đóng
               </button>
               <button className="button danger">
-                Xác nhận {"xóa vĩnh viễn"} {selected.length}{" "}
-                buổi
+                Xác nhận {"xóa vĩnh viễn"} {selected.length} buổi
               </button>
             </footer>
           </AsyncForm>
@@ -277,8 +286,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   weekdays: f.getAll("weekdays").map(Number),
                   allowConflicts: f.has("allowConflicts"),
                 };
-                if (payload.endDate < payload.startDate) throw Error("Đến ngày phải bằng hoặc sau Từ ngày.");
-                if (!payload.weekdays.length) throw Error("Chọn ít nhất một thứ trong tuần để tạo lịch lặp.");
+                if (payload.endDate < payload.startDate)
+                  throw Error("Đến ngày phải bằng hoặc sau Từ ngày.");
+                if (!payload.weekdays.length)
+                  throw Error(
+                    "Chọn ít nhất một thứ trong tuần để tạo lịch lặp.",
+                  );
                 const creating =
                   text(f, "intent") === "create" && preview !== null;
                 if (
@@ -301,14 +314,21 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 await classApi.saveSession(classId, {
                   title: text(f, "title"),
                   room: text(f, "room"),
-                  ...singleSessionTimes(text(f, "sessionDate"), text(f, "singleStartTime"), text(f, "singleEndTime")),
+                  ...singleSessionTimes(
+                    text(f, "sessionDate"),
+                    text(f, "singleStartTime"),
+                    text(f, "singleEndTime"),
+                  ),
                   allowConflicts: f.has("allowConflicts"),
                 });
               await refresh();
               setOpen(false);
             }}
           >
-            <div onPasteCapture={() => setPreview(null)} onChange={() => setPreview(null)}>
+            <div
+              onPasteCapture={() => setPreview(null)}
+              onChange={() => setPreview(null)}
+            >
               <div className="form-grid">
                 <Field label="Tên buổi học">
                   <input name="title" maxLength={200} />
@@ -318,45 +338,86 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 </Field>
                 {weekly ? (
                   <>
-                    <ScheduleInput key="startDate" label="Từ ngày" name="startDate" kind="date" />
-                    <ScheduleInput key="endDate" label="Đến ngày" name="endDate" kind="date" />
-                    <ScheduleInput key="startTime" label="Giờ bắt đầu" name="startTime" kind="time" />
-                    <ScheduleInput key="endTime" label="Giờ kết thúc" name="endTime" kind="time" />
+                    <ScheduleInput
+                      key="startDate"
+                      label="Từ ngày"
+                      name="startDate"
+                      kind="date"
+                    />
+                    <ScheduleInput
+                      key="endDate"
+                      label="Đến ngày"
+                      name="endDate"
+                      kind="date"
+                    />
+                    <ScheduleInput
+                      key="startTime"
+                      label="Giờ bắt đầu"
+                      name="startTime"
+                      kind="time"
+                    />
+                    <ScheduleInput
+                      key="endTime"
+                      label="Giờ kết thúc"
+                      name="endTime"
+                      kind="time"
+                    />
                   </>
                 ) : (
                   <>
-                    <ScheduleInput key="sessionDate" label="Ngày học" name="sessionDate" kind="date" />
-                    <ScheduleInput key="singleStartTime" label="Giờ bắt đầu" name="singleStartTime" kind="time" />
-                    <ScheduleInput key="singleEndTime" label="Giờ kết thúc" name="singleEndTime" kind="time" />
+                    <ScheduleInput
+                      key="sessionDate"
+                      label="Ngày học"
+                      name="sessionDate"
+                      kind="date"
+                    />
+                    <ScheduleInput
+                      key="singleStartTime"
+                      label="Giờ bắt đầu"
+                      name="singleStartTime"
+                      kind="time"
+                    />
+                    <ScheduleInput
+                      key="singleEndTime"
+                      label="Giờ kết thúc"
+                      name="singleEndTime"
+                      kind="time"
+                    />
                   </>
                 )}
               </div>
               <div className="schedule-options">
-              {weekly ? (
-                <div className="weekday-picker">
-                  {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((day, i) => (
-                    <label className="check" key={day}>
-                      <input type="checkbox" name="weekdays" value={i + 1} />
-                      {day}
-                    </label>
-                  ))}
-                </div>
-              ) : null}
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={weekly}
-                  onChange={(e) => {
-                    setWeekly(e.target.checked);
-                    setPreview(null);
-                  }}
-                />
-                Lặp hằng tuần
-              </label>
-              <label className="check">
-                <input type="checkbox" name="allowConflicts" />
-                Chấp nhận trùng
-              </label>
+                {weekly ? (
+                  <div className="weekday-picker">
+                    {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map(
+                      (day, i) => (
+                        <label className="check" key={day}>
+                          <input
+                            type="checkbox"
+                            name="weekdays"
+                            value={i + 1}
+                          />
+                          {day}
+                        </label>
+                      ),
+                    )}
+                  </div>
+                ) : null}
+                <label className="check">
+                  <input
+                    type="checkbox"
+                    checked={weekly}
+                    onChange={(e) => {
+                      setWeekly(e.target.checked);
+                      setPreview(null);
+                    }}
+                  />
+                  Lặp hằng tuần
+                </label>
+                <label className="check">
+                  <input type="checkbox" name="allowConflicts" />
+                  Chấp nhận trùng
+                </label>
               </div>
             </div>
             <footer className="modal-actions">
@@ -433,7 +494,15 @@ export function CalendarContent({ classId }: { classId?: string }) {
         error={query.error}
         retry={query.refetch}
       />
-      {qrSession ? <Modal wide title="Điểm danh QR" onClose={() => setQrSession(null)}><QrContent classId={qrSession.classId} sessionId={qrSession.id} onClose={() => setQrSession(null)} /></Modal> : null}
+      {qrSession ? (
+        <Modal wide title="Điểm danh QR" onClose={() => setQrSession(null)}>
+          <QrContent
+            classId={qrSession.classId}
+            sessionId={qrSession.id}
+            onClose={() => setQrSession(null)}
+          />
+        </Modal>
+      ) : null}
       <div className="panel">
         {editing ? (
           <SessionEditor
@@ -454,10 +523,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   " · " +
                   dateTime(s.startsAt)
                 }
-                disabled={
-                  bulkLoading ||
-                  s.status !== ("scheduled")
-                }
+                disabled={bulkLoading || s.status !== "scheduled"}
                 checked={selected.some((x) => x.id === s.id)}
                 onChange={(e) =>
                   setSelected((prev) =>
@@ -505,7 +571,12 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   errorPlacement="popup"
                   className="button ghost small"
                   action={async () => {
-                    if (!(await askDialog("Xóa vĩnh viễn buổi học này? Không thể hoàn tác."))) return;
+                    if (
+                      !(await askDialog(
+                        "Xóa vĩnh viễn buổi học này? Không thể hoàn tác.",
+                      ))
+                    )
+                      return;
                     await classApi.deleteSession(s);
                     await refresh();
                   }}

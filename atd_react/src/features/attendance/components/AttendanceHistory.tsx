@@ -1,3 +1,5 @@
+import { MonthCalendar } from "../../calendar/components/MonthCalendar";
+import { calendarRange, localDay } from "../../../domain/calendar";
 import { useState } from "react";
 import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { Modal } from "../../../shared/components/Modal";
@@ -39,13 +41,15 @@ export function AttendanceHistory({ classId }: { classId: string }) {
   const { user } = useSession();
   const { page, setPage } = usePage();
   const refresh = useRefresh();
+  const [month, setMonth] = useState(() => localDay(new Date()).slice(0, 7));
+  const [day, setDay] = useState<string | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [editing, setEditing] = useState<Attendance | "new" | null>(null);
-  const query = useResource(["attendance", classId, page], (s) =>
+  const query = useResource(["attendance", classId, month, day, page], (s) =>
     user?.role === "teacher"
-      ? attendanceApi.records(classId, page, s)
-      : attendanceApi.mine(classId, page, s),
+      ? attendanceApi.records(classId, page, s, calendarRange(month, day))
+      : attendanceApi.mine(classId, page, s, calendarRange(month, day)),
   );
   const pending =
     query.data?.items.filter((record) => !record.approvedAt) ?? [];
@@ -68,6 +72,23 @@ export function AttendanceHistory({ classId }: { classId: string }) {
         pending={query.isPending}
         error={query.error}
         retry={query.refetch}
+      />
+      <MonthCalendar
+        classId={classId}
+        month={month}
+        day={day}
+        disabled={bulkBusy}
+        onMonth={(value) => {
+          setMonth(value);
+          setDay(null);
+          setSelectedIds([]);
+          setPage(1);
+        }}
+        onDay={(value) => {
+          setDay(value);
+          setSelectedIds([]);
+          setPage(1);
+        }}
       />
       {user?.role === "teacher" ? (
         <div className="inline-actions attendance-selection">

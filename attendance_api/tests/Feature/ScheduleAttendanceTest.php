@@ -396,4 +396,22 @@ final class ScheduleAttendanceTest extends TestCase
         $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
         $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window->id.'/roster?checkedOnly=1&pageSize=1')->assertOk()->assertJsonPath('data.checkedInCount', 1)->assertJsonPath('data.totalItems', 1);
     }
+
+    public function test_calendar_review_state_requires_closed_qr_and_all_roster_records_approved(): void
+    {
+        [$teacher, $student, , $classId, $sessionId] = $this->workspace();
+        $calendar = '/api/v1/calendar?'.http_build_query(['classId' => $classId, 'from' => now()->startOfDay()->toISOString(), 'to' => now()->addDay()->startOfDay()->toISOString(), 'startWithin' => 1]);
+        $this->getJson($calendar)->assertOk()->assertJsonPath('data.items.0.attendanceReviewState', 'pending');
+        $window = $this->open($classId, $sessionId);
+        $this->postJson('/api/v1/attendance-windows/'.$window.'/close', ['expectedVersion' => 1])->assertOk();
+        foreach (AttendanceRecord::where('session_id', $sessionId)->get() as $record) {
+            $this->getJson($calendar)->assertOk()->assertJsonPath('data.items.0.attendanceReviewState', 'pending');
+            $this->postJson('/api/v1/classes/'.$classId.'/attendance/'.$record->id.'/approve', ['expectedVersion' => $record->version])->assertOk();
+        }
+        $this->getJson($calendar)->assertOk()->assertJsonPath('data.items.0.attendanceReviewState', 'approved');
+        $this->actingAs($student)->getJson($calendar)->assertOk()->assertJsonPath('data.items.0.attendanceReviewState', 'approved');
+        $this->actingAs(User::factory()->create())->getJson($calendar)->assertOk()->assertJsonPath('data.totalItems', 0);
+        $this->actingAs($teacher)->postJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance-windows', ['expectedVersion' => 2, 'opensAt' => now()->toISOString(), 'lateAfter' => now()->addMinutes(5)->toISOString(), 'closesAt' => now()->addMinutes(15)->toISOString()])->assertCreated();
+        $this->getJson($calendar)->assertOk()->assertJsonPath('data.items.0.attendanceReviewState', 'pending');
+    }
 }

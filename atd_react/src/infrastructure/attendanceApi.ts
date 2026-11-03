@@ -76,14 +76,24 @@ export const attendanceApi = {
       "/classes/" + classId + "/attendance/" + record.id + "/approve",
       { method: "POST", body: { expectedVersion: record.version } },
     ),
-  records: (c: string, pageNumber: number, signal?: AbortSignal) =>
+  records: (
+    c: string,
+    pageNumber: number,
+    signal?: AbortSignal,
+    range: { from: string; to: string } | undefined = undefined,
+  ) =>
     request<Page<Attendance>>(
-      "/classes/" + c + "/attendance" + params({ pageNumber }),
+      "/classes/" + c + "/attendance" + params({ pageNumber, ...range }),
       { signal },
     ),
-  mine: (c: string, pageNumber: number, signal?: AbortSignal) =>
+  mine: (
+    c: string,
+    pageNumber: number,
+    signal?: AbortSignal,
+    range: { from: string; to: string } | undefined = undefined,
+  ) =>
     request<Page<Attendance>>(
-      "/me/attendance" + params({ classId: c, pageNumber }),
+      "/me/attendance" + params({ classId: c, pageNumber, ...range }),
       { signal },
     ),
 };

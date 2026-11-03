@@ -46,6 +46,7 @@ export interface Membership {
   reviewNote?: string;
 }
 export interface Session {
+  attendanceReviewState?: "approved" | "pending";
   id: string;
   classId: string;
   title: string | null;

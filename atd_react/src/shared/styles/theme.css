@@ -204,3 +204,22 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .table-scroll { overflow-x:auto; max-width:100%; }
 .attendance-table th, .attendance-table td { padding:14px 16px; border-bottom:1px solid var(--ui-line); text-align:left; }
 .attendance-table .inline-actions { flex-wrap:nowrap; }
+
+.attendance-selection { margin: 20px 0 16px; }
+
+.month-calendar { margin:20px 0; padding:16px; }
+.month-calendar-header, .month-calendar-footer { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.month-calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:5px; margin:12px 0; }
+.month-weekday { text-align:center; color:var(--ui-muted); font-size:12px; padding:4px; }
+.month-day { border:1px solid transparent; border-radius:6px; padding:8px 2px; font:inherit; font-weight:700; cursor:pointer; color:var(--ui-text); }
+.month-day.approved { background:#d8f7e3; color:#096638; }
+.month-day.pending { background:#ffe1e4; color:#9c263b; }
+.month-day.no-session { background:transparent; color:var(--ui-muted); opacity:.35; cursor:default; }
+.month-day[aria-pressed=true] { outline:2px solid #477ee8; outline-offset:1px; }
+.month-day:disabled { cursor:default; }
+.month-calendar-footer { border-top:1px solid var(--ui-line); padding-top:12px; flex-wrap:wrap; }
+.month-legend { display:flex; gap:12px; flex-wrap:wrap; font-size:12px; color:var(--ui-muted); }
+.month-legend .approved { color:#16874f; }.month-legend .pending { color:#bd3650; }
+.bulk-session-toolbar { margin:20px 0 16px; }
+:root[data-theme=dark] .month-day.approved { background:#204735; color:#b0ebc7; }
+:root[data-theme=dark] .month-day.pending { background:#57303a; color:#ffc4ce; }
