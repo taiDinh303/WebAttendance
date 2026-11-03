@@ -49,6 +49,7 @@ final class AttendanceController extends Controller
         $session = ClassSession::findOrFail($window->session_id);
         Gate::authorize('update', Classroom::findOrFail($session->class_id));
         $action->finalizeAllDue($session->class_id);
+        $action->refreshRoster($request->user(), $windowId);
         $data = $request->validated();
         $query = DB::table('attendance_rosters as r')->join('users as u', 'u.id', '=', 'r.student_id')
             ->leftJoin('attendance_records as a', fn ($join) => $join->on('a.student_id', '=', 'r.student_id')->where('a.session_id', $session->id))

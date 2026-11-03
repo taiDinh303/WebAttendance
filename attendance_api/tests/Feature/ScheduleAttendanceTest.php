@@ -138,15 +138,15 @@ final class ScheduleAttendanceTest extends TestCase
         $this->assertDatabaseHas('attendance_records', ['session_id' => $sessionId, 'student_id' => $second->id, 'status' => 'absent']);
     }
 
-    public function test_roster_is_fixed_at_open_and_removal_revokes_check_in_even_if_snapshotted(): void
+    public function test_approved_student_joining_after_open_can_check_in_but_removal_revokes_access(): void
     {
         [$teacher, $student, , $classId, $sessionId] = $this->workspace();
         $window = $this->open($classId, $sessionId);
         $token = $this->qr($teacher, $window);
         $newStudent = User::factory()->create();
         ClassMembership::create(['class_id' => $classId, 'student_id' => $newStudent->id, 'status' => 'active', 'requested_at' => now()]);
-        $this->actingAs($newStudent)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertForbidden()->assertJsonPath('code', 'NOT_IN_ATTENDANCE_ROSTER');
-        $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window.'/roster?pageSize=1')->assertOk()->assertJsonPath('data.totalItems', 2)->assertJsonCount(1, 'data.items');
+        $this->actingAs($newStudent)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertCreated()->assertJsonPath('data.status', 'present');
+        $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window.'/roster?pageSize=1')->assertOk()->assertJsonPath('data.totalItems', 3)->assertJsonCount(1, 'data.items');
         $this->postJson('/api/v1/classes/'.$classId.'/members/'.$student->id.'/remove', ['expectedVersion' => 1])->assertOk();
         $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertNotFound();
     }
@@ -332,5 +332,39 @@ final class ScheduleAttendanceTest extends TestCase
             $this->assertDatabaseMissing('class_sessions', ['id' => $sessionId]);
             $this->assertDatabaseMissing('attendance_windows', ['id' => $window]);
         }
+    }
+
+    public function test_pending_students_are_blocked_then_approval_allows_current_qr_and_syncs_roster(): void
+    {
+        [$teacher, , , $classId, $sessionId] = $this->workspace();
+        $window = $this->open($classId, $sessionId);
+        $token = $this->qr($teacher, $window);
+        $new = User::factory()->create();
+        $membership = ClassMembership::create(['class_id' => $classId, 'student_id' => $new->id, 'status' => 'pending', 'requested_at' => now()]);
+        $this->actingAs($new)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertNotFound();
+        $this->assertDatabaseMissing('attendance_rosters', ['window_id' => $window, 'student_id' => $new->id]);
+        $membership->update(['status' => 'active', 'joined_at' => now()]);
+        $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window.'/roster')->assertOk()->assertJsonPath('data.totalItems', 3);
+        $this->actingAs($new)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertCreated();
+        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertOk();
+        $this->assertDatabaseCount('attendance_records', 1);
+        $missed = User::factory()->create();
+        ClassMembership::create(['class_id' => $classId, 'student_id' => $missed->id, 'status' => 'active', 'requested_at' => now(), 'joined_at' => now()]);
+        $this->actingAs($teacher)->postJson('/api/v1/attendance-windows/'.$window.'/close', ['expectedVersion' => 1])->assertOk();
+        $this->assertDatabaseHas('attendance_records', ['session_id' => $sessionId, 'student_id' => $missed->id, 'status' => 'absent']);
+    }
+
+    public function test_closed_history_does_not_add_new_students_but_reopening_does(): void
+    {
+        [$teacher, , , $classId, $sessionId] = $this->workspace();
+        $window = $this->open($classId, $sessionId);
+        $this->travel(11)->minutes();
+        $new = User::factory()->create();
+        ClassMembership::create(['class_id' => $classId, 'student_id' => $new->id, 'status' => 'active', 'requested_at' => now(), 'joined_at' => now()]);
+        $this->getJson('/api/v1/attendance-windows/'.$window.'/roster')->assertOk()->assertJsonPath('data.totalItems', 2);
+        $this->assertDatabaseMissing('attendance_records', ['session_id' => $sessionId, 'student_id' => $new->id]);
+        $this->postJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance-windows', ['expectedVersion' => 2, 'opensAt' => now()->toISOString(), 'lateAfter' => now()->addMinutes(5)->toISOString(), 'closesAt' => now()->addMinutes(15)->toISOString()])->assertCreated();
+        $fresh = $this->qr($teacher, $window);
+        $this->actingAs($new)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertCreated();
     }
 }

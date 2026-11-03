@@ -33,6 +33,8 @@ final class ManageAttendance
             $existing = AttendanceWindow::where('session_id', $session->id)->lockForUpdate()->first();
             if ($existing) {
                 if ($existing->state === 'open' && $existing->opens_at->eq($opens) && $existing->closes_at->eq($closes) && $existing->late_after?->toISOString() === $late?->toISOString()) {
+                    $this->syncActiveRoster($class->id, $existing);
+
                     return $existing;
                 }
                 if (! in_array($existing->state, ['closed', 'expired'], true)) {
@@ -44,14 +46,12 @@ final class ManageAttendance
                 $existing->forceFill(['state' => 'open', 'opened_by' => $actor->id, 'opens_at' => $opens, 'late_after' => $late, 'closes_at' => $closes,
                     'token_version' => $existing->token_version + 1, 'version' => $existing->version + 1])->save();
 
+                $this->syncActiveRoster($class->id, $existing);
+
                 return $existing;
             }
             $window = AttendanceWindow::create(['session_id' => $session->id, 'opened_by' => $actor->id, 'opens_at' => $opens, 'late_after' => $late, 'closes_at' => $closes]);
-            $students = ClassMembership::where('class_id', $class->id)->where('status', 'active')
-                ->whereHas('student', fn ($q) => $q->where('account_status', 'active'))->pluck('student_id');
-            foreach ($students as $studentId) {
-                AttendanceRoster::create(['window_id' => $window->id, 'student_id' => $studentId]);
-            }
+            $this->syncActiveRoster($class->id, $window);
 
             return $window;
         });
@@ -71,6 +71,8 @@ final class ManageAttendance
             $window = AttendanceWindow::whereKey($candidate->id)->lockForUpdate()->firstOrFail();
             $this->requireOpen($window);
 
+            $this->syncActiveRoster($class->id, $window);
+
             return $tokens->issue($window);
         });
     }
@@ -87,13 +89,11 @@ final class ManageAttendance
             Gate::forUser($actor)->authorize('view', $class);
             $this->requireWritable($class, $lockedSession);
             $locked = AttendanceWindow::whereKey($window->id)->lockForUpdate()->firstOrFail();
-            if (! AttendanceRoster::where('window_id', $locked->id)->where('student_id', $actor->id)->exists()) {
-                throw new ApiException('NOT_IN_ATTENDANCE_ROSTER', 'You were not in the roster when this window opened.', 403);
-            }
             $this->requireOpen($locked);
             if ($claims['version'] !== $locked->token_version || now()->getTimestamp() >= $claims['expiresAt'] || now()->getTimestamp() < $claims['issuedAt']) {
                 throw new ApiException('QR_EXPIRED', 'Scan the current QR code.', 410);
             }
+            AttendanceRoster::firstOrCreate(['window_id' => $locked->id, 'student_id' => $actor->id]);
             $existing = AttendanceRecord::where('session_id', $lockedSession->id)->where('student_id', $actor->id)->first();
             if ($existing) {
                 if ($existing->status === 'absent' && $existing->recorded_source === 'close_finalize') {
@@ -201,6 +201,7 @@ final class ManageAttendance
     {
         $session = ClassSession::findOrFail($window->session_id);
         if ($session->status !== 'cancelled') {
+            $this->syncActiveRoster($session->class_id, $window);
             foreach (AttendanceRoster::where('window_id', $window->id)->pluck('student_id') as $studentId) {
                 if (! AttendanceRecord::where('session_id', $session->id)->where('student_id', $studentId)->exists()) {
                     $record = AttendanceRecord::create(['session_id' => $session->id, 'student_id' => $studentId, 'window_id' => $window->id, 'status' => 'absent', 'recorded_source' => 'close_finalize']);
@@ -212,6 +213,30 @@ final class ManageAttendance
         $window->token_version++;
         $window->version++;
         $window->save();
+    }
+
+    public function refreshRoster(User $actor, string $windowId): void
+    {
+        $candidate = AttendanceWindow::findOrFail($windowId);
+        $session = ClassSession::findOrFail($candidate->session_id);
+        DB::transaction(function () use ($actor, $session, $windowId) {
+            [$class] = $this->lockSession($session->class_id, $session->id);
+            Gate::forUser($actor)->authorize('update', $class);
+            $window = AttendanceWindow::whereKey($windowId)->lockForUpdate()->firstOrFail();
+            if ($class->status === 'active' && $session->status !== 'cancelled' && $window->state === 'open' && now()->lt($window->closes_at)) {
+                $this->syncActiveRoster($class->id, $window);
+            }
+        });
+    }
+
+    private function syncActiveRoster(string $classId, AttendanceWindow $window): void
+    {
+        $students = ClassMembership::where('class_id', $classId)->where('status', 'active')
+            ->whereRaw('COALESCE(joined_at, requested_at, created_at) <= ?', [$window->closes_at])
+            ->whereHas('student', fn ($query) => $query->where('account_status', 'active'))->pluck('student_id');
+        foreach ($students as $studentId) {
+            AttendanceRoster::firstOrCreate(['window_id' => $window->id, 'student_id' => $studentId]);
+        }
     }
 
     private function lockSession(string $classId, string $sessionId): array

@@ -83,7 +83,7 @@ export function QrContent({ classId, sessionId, onClose }: { classId: string; se
                   >
                     Đóng
                   </button>
-                  <button className="button">{reopening ? "Mở lại QR" : "Mở QR & chốt danh sách"}</button>
+                  <button className="button">{reopening ? "Mở lại QR" : "Mở QR"}</button>
                 </footer>
               </AsyncForm>) : null}
     {query.data && !reopening ? <>{["closed", "expired"].includes(query.data.state) ? <button className="button" onClick={() => { setOpenedAt(Date.now()); setReopening(true); }}>Mở lại QR</button> : null}<ActiveWindow classId={classId} sessionId={sessionId} window={query.data} /><footer className="modal-actions"><button className="button secondary" onClick={onClose}>Đóng</button></footer></> : null}
@@ -151,7 +151,7 @@ function ActiveWindow({
           error={roster.error}
           retry={roster.refetch}
         />
-        {roster.data && roster.data.totalItems === 0 ? <p className="info">Danh sách điểm danh đang trống. Học sinh phải được duyệt vào lớp trước lần mở QR đầu tiên. Mở lại QR không bổ sung danh sách cũ; hãy tạo buổi học mới sau khi duyệt học sinh.</p> : null}
+        {roster.data && roster.data.totalItems === 0 ? <p className="info">Chưa có học sinh trong danh sách. Học sinh được duyệt vào lớp có thể quét khi QR đang mở; danh sách sẽ tự cập nhật.</p> : null}
         {roster.data?.items.map((row) => (
           <RosterEntry
             key={row.studentId}

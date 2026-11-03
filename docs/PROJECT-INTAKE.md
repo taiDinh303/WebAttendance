@@ -116,3 +116,5 @@ Chủ dự án giao rà toàn bộ input đang hiện sẵn, chuyển thao tác 
 2026-11-03 — CONFIRMED DEC-042: banner/giao diện phải lưu theo tài khoản để dùng lại trên thiết bị khác, thay local-only. Thiết lập riêng từng tài khoản, không đổi quyền truy cập lớp.
 
 2026-11-03 — DEC-043: chủ dự án yêu cầu tăng tương phản nút, thao tác lưu/xóa/tạo/sửa chạy nền và Thùng rác lịch để xóa cứng buổi tạo nhầm. Giới hạn triển khai: browser session đang mở, hard delete chỉ cancelled chưa có lịch sử attendance; không tự xóa lịch sử cũ.
+
+2026-11-03 — DEC-045: theo yêu cầu mới, HS active/đã duyệt đều check-in được khi window/QR hợp lệ, kể cả duyệt sau mở. Pending/removed/left vẫn bị chặn. Roster tích lũy firstOrCreate, sync ở open/reopen/QR/roster đang mở/finalize; check-in bổ sung actor sau xác thực token. Giữ lịch sử, version/audit/manual, không tự đổi roster closed, không chốt vắng HS joined sau closesAt. Không migration/cloud data write. VERIFIED backend22tests310assertions/PintPASS, frontend lint/buildPASS. Cần backend mới để áp dụng production.

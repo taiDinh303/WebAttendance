@@ -87,7 +87,7 @@ async function performRequest<T>(
     };
     const scheduleMessages: Record<string, string> = {
       SESSION_HAS_ATTENDANCE: "Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn. Chỉ buổi chưa có dữ liệu hoặc có cửa sổ QR trống mới xóa được.",
-      NOT_IN_ATTENDANCE_ROSTER: "Bạn đã ở trong lớp nhưng chưa có trong danh sách điểm danh được chốt khi mở QR lần đầu. Hãy báo giáo viên; mở lại QR không tự thêm học sinh vào danh sách cũ.",
+      NOT_IN_ATTENDANCE_ROSTER: "Máy chủ chưa cập nhật quy tắc điểm danh theo thành viên hiện tại. Hãy báo giáo viên cập nhật backend rồi thử lại.",
       QR_EXPIRED: "Mã QR đã hết hạn hoặc đã được thay mới. Hãy quét hoặc lấy liên kết QR hiện tại từ giáo viên.",
       WINDOW_CLOSED: "Điểm danh đã đóng hoặc chưa đến giờ mở. Hãy nhờ giáo viên kiểm tra và mở lại QR.",
       INVALID_QR_TOKEN: "Mã QR không hợp lệ. Hãy quét lại mã hoặc sao chép liên kết mới từ giáo viên.",

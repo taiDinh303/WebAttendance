@@ -5,7 +5,7 @@
 ## Quyết định người dùng
 
 - Lịch theo giờ thực, hỗ trợ lặp tuần, sửa/hủy một buổi không đổi những buổi còn lại.
-- Teacher chọn giờ mở/đóng/mốc muộn; QR đổi30giây, hiệu lực tối đa60giây; roster chốt khi mở. Hết window mới tạo absent.
+- Teacher chọn giờ mở/đóng/mốc muộn; QR đổi30giây, hiệu lực tối đa60giây; roster tự bổ sung học sinh đã duyệt khi cửa sổ đang mở (DEC-045). Hết window mới tạo absent.
 - Teacher owner được sửa tay; quyết định này thay giới hạn QR-only cũ. Student vẫn chỉ tự check-in bằng QR. Không GPS/IP/nhận diện mặt.
 
 Các giới hạn366ngày/104occurrences, duration24h, reason/version và cách từ chối giờ DST mơ hồ là lựa chọn triển khai kỹ thuật, không giả thành câu trả lời phỏng vấn của người dùng.
@@ -19,7 +19,7 @@ Migration `2026_10_26_171007_create_schedule_and_attendance_tables.php` (tên th
 | session_series | Definition lặp tuần + timezone lớp tại lúc tạo; các occurrence là class_sessions riêng |
 | class_sessions | class_id, series_id?, title/room?, starts_at/ends_at UTC, scheduled/cancelled, cancel_reason, version |
 | attendance_windows | Unique session_id, opened_by, opens_at/late_after?/closes_at, state, token_version, version |
-| attendance_rosters | Snapshot student_id theo window, unique(window,student); không tự thêm khi approve sau mở |
+| attendance_rosters | Danh sách tích lũy student_id theo window, unique(window,student); bổ sung thành viên active khi mở/đang mở, giữ lịch sử |
 | attendance_records | Unique(session,student), window_id, status, checked_in_at?, recorded_source, version |
 | attendance_audits | Append-only qua API: record_id, actor_id nullable cho system, action/reason, before_data/after_data, timestamp |
 | schedule_owner_locks | Mutex row theo teacher, serialize schedule writes giữa các lớp cùng owner; tách khỏi users row để không tạo chu kỳ lock với FK audit/membership |
@@ -58,20 +58,20 @@ Sửa/hủy từng occurrence không sửa definition hoặc các occurrence kh�
 | POST `/classes/{classroom}/sessions/{sessionId}/attendance-windows` | Owner: opensAt,closesAt,lateAfter? |
 | GET `…/sessions/{sessionId}/attendance-window` | Owner, trạng thái cửa sổ; finalize overdue trước đọc |
 | GET `/attendance-windows/{windowId}/qr` | Owner: qrToken,validUntil,rotatesAt,serverTime; no-store/private |
-| GET `/attendance-windows/{windowId}/roster` | Owner, snapshot paginated; studentId/name/windowId/recordId/status/recordVersion; q tìm tên |
+| GET `/attendance-windows/{windowId}/roster` | Owner, danh sách cập nhật khi đang mở, paginated; studentId/name/windowId/recordId/status/recordVersion; q tìm tên |
 | POST `/attendance-windows/{windowId}/close` | Owner: expectedVersion; lặp close không nhân bản absences/audit |
 | POST `/attendance/check-ins` | Student: qrToken, không nhận studentId/status/thời gian từ client |
 | GET `/classes/{classroom}/attendance` | Owner paginated; sessionId?,studentId?,status?,from/to? |
 | GET `/me/attendance` | Student self, chỉ lớp còn active membership; classId?/sessionId?/status?/from/to?; không đọc HS khác |
-| PUT `/classes/{classroom}/sessions/{sessionId}/attendance/{studentId}` | Owner: status,reason,expectedVersion; chỉ HS trong snapshot |
+| PUT `/classes/{classroom}/sessions/{sessionId}/attendance/{studentId}` | Owner: status,reason,expectedVersion; chỉ HS trong danh sách hiện hành của window |
 | GET `/classes/{classroom}/attendance/{recordId}/audit` | Owner, audit paginated; student không được đọc audit nội bộ |
 | GET `/classes/{classroom}/attendance-summary` | Owner, tổng hợp paginated theo HS; studentId?/sessionId?/from/to? |
 
-Open window phải chứa clock server: opensAt≤now<closesAt, duration≤24h, opensAt≤lateAfter≤closesAt nếu có. Snapshot lấy active membership và account active trong transaction cùng lock class, nên approve/remove đồng thời không làm roster thay đổi ngầm. Sau snapshot, member vừa bị remove/leave vẫn bị chặn check-in dù còn roster. HS vừa được duyệt sau mở không có trong roster và nhận403 NOT_IN_ATTENDANCE_ROSTER.
+Open window phải chứa clock server: opensAt≤now<closesAt, duration≤24h, opensAt≤lateAfter≤closesAt nếu có. Danh sách lấy active membership và account active trong transaction cùng lock class. Thành viên active được check-in với QR hợp lệ dù chưa có roster; server bổ sung row sau khi kiểm token. Mở/mở lại, lấy QR, xem roster đang mở và finalize bổ sung active members. Member pending/removed/left vẫn bị chặn theo membership hiện tại. Finalize không thêm HS tham gia sau closesAt; window đã đóng không tự đổi lịch sử. DEC-045 thay snapshot cố định DEC-016/044.
 
 Một window mỗi buổi; POST mở lại với cùng cấu hình đang open trả window cũ; đổi cấu hình/mở sau đóng trả409. Chưa reopen QR; teacher có thể sửa tay cho ngoại lệ theo lựa chọn mới. Rời trang teacher không đóng window. QR GET trả token để frontend mã hóa thành QR sau này, chưa trả ảnh PNG/SVG hoặc làm scanner UI.
 
-Token thay theo slot30giây; expires=min(slotStart+60s,closesAt), token cũ còn dùng trong overlap đến expiry. Chỉ owner lấy được token; server kiểm HMAC, actor, class/session/window, snapshot, membership hiện tại, trạng thái và thời gian. now≥expires hoặc closesAt trả410; window đóng trước hạn trả409 WINDOW_CLOSED. Không tin clock/status/studentId client. Unique buổi–HS và parent-row locks chống duplicate. QR lặp còn hiệu lực trả record cũ200, không ghi đè status/timestamp hoặc record đã sửa tay. Check-in đầu trả201; checkedInAt lưu chuẩn hóa giây, response đầu và replay khớp DB.
+Token thay theo slot30giây; expires=min(slotStart+60s,closesAt), token cũ còn dùng trong overlap đến expiry. Chỉ owner lấy được token; server kiểm HMAC, actor, class/session/window, membership hiện tại, trạng thái và thời gian. now≥expires hoặc closesAt trả410; window đóng trước hạn trả409 WINDOW_CLOSED. Không tin clock/status/studentId client. Unique buổi–HS và parent-row locks chống duplicate. QR lặp còn hiệu lực trả record cũ200, không ghi đè status/timestamp hoặc record đã sửa tay. Check-in đầu trả201; checkedInAt lưu chuẩn hóa giây, response đầu và replay khớp DB.
 
 Rate limiter check-in30request/min theoactor,600/min theoIP để không chia quota30cho cả lớp cùngWi-Fi; IP chỉ chống abuse, không dùng quyết định có mặt/vị trí. Chưa có cam kết capacity từ test31HS tuần tự cùngIP.
 

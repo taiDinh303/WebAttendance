@@ -163,3 +163,7 @@ Nguồn: chủ dự án yêu cầu buổi đã hủy không hiện lịch chính
 ### DEC-044 — Mở lại cửa sổ QR (CONFIRMED 2026-11-03)
 
 Chủ dự án yêu cầu mở lại QR đã đóng. Giữ snapshot roster và mọi lịch sử; owner chọn giờ mới, version guard và token mới. Cho phép QR cập nhật vắng tự động (close_finalize) kèm audit trước/sau; không ghi đè QR/manual đã ghi nhận. Không reset roster hoặc tự thêm thành viên vào buổi cũ. Triển khai/kiểm chứng xem SCHEDULE-ATTENDANCE/worklog.
+
+### DEC-045 — Điểm danh theo thành viên đã duyệt (CONFIRMED 2026-11-03)
+
+Chủ dự án chốt HS đã duyệt/active được điểm danh; chỉ yêu cầu pending chưa được. Thay snapshot cố định DEC-016 và phần không thêm roster DEC-044. HS active có thể dùng QR đang mở dù được duyệt sau khi tạo lịch/mở QR; bổ sung danh sách tích lũy, không xóa lịch sử. Pending/removed/left không được check-in; server giữ QR30s/TTL60s và cửa sổ giờ. Buổi closed không tự thêm vắng cho HS tham gia sau giờ đóng; mở lại cho phép thêm active hiện tại. Chi tiết SCHEDULE-ATTENDANCE.
