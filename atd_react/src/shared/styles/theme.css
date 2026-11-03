@@ -137,7 +137,7 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .class-facts {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:20px;margin:20px 0 0;}
 .class-facts dt {font-size:12px;color:var(--ui-muted);margin-bottom:6px;}
 .class-facts dd {margin:0;overflow-wrap:anywhere;}
-.class-controls {margin-top:20px;padding-top:20px;border-top:1px solid var(--ui-line);gap:12px;}
+.class-controls {margin-top:20px;gap:12px;flex-wrap:wrap;}
 .workspace-v2 .filter-bar {flex-wrap:wrap;gap:12px;}
 .workspace-v2 .filter-bar > select {width:auto;flex:0 1 240px;max-width:100%;}
 .workspace-v2 .section-heading:has(input[type=month]) .inline-actions {display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px;}
@@ -185,3 +185,6 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .schedule-segments:focus-within { outline: 2px solid #7394f7; outline-offset: 2px; }
 .schedule-segments input { flex: 0 0 auto; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; text-align: center; box-shadow: none; outline: none; min-height: 0; }
 .schedule-segments span { white-space: pre; }
+
+.schedule-options { display: grid; gap: 12px; margin-top: 20px; }
+.schedule-options .weekday-picker { margin: 0; }

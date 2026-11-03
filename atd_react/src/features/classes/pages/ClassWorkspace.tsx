@@ -210,6 +210,7 @@ function ClassWorkspaceContent() {
                     Tạo mã mới nếu bạn không còn giữ mã cũ.
                   </p>
                 )}
+                <div className="inline-actions class-controls">
                 <ActionButton
                   className="button secondary"
                   action={async () => {
@@ -228,7 +229,6 @@ function ClassWorkspaceContent() {
                 >
                   Tạo mã mới
                 </ActionButton>
-                <div className="inline-actions class-controls">
                   <ActionButton
                     className="button secondary"
                     action={async () => {

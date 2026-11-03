@@ -328,6 +328,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   </>
                 )}
               </div>
+              <div className="schedule-options">
               {weekly ? (
                 <div className="weekday-picker">
                   {["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map((day, i) => (
@@ -353,6 +354,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 <input type="checkbox" name="allowConflicts" />
                 Chấp nhận trùng
               </label>
+              </div>
             </div>
             <footer className="modal-actions">
               <button
