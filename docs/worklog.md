@@ -366,3 +366,7 @@ VERIFIED LOCAL browser Edge fixtures1440/390: ép classic scrollbar17px (không 
 ### 2026-11-03 — Lớp sidebar và tùy chọn ghim
 
 Chọn cách ghim/bỏ ghim theo yêu cầu linh hoạt giống taskbar: teacher thấy lớp active nhóm học kỳ; modal Ghim ẩn/hiện lớp/nhóm, vẫn truy cập tại Lớp học. Không thêm nghiệp vụ đóng học kỳ/archive lớp từ thao tác ẩn. Preference local actor ID, tải đủ pagination API có scope. Thông báo sát trên Settings. Lint/build gồm typecheck PASS; chưa browser runtime/cloud kiểm mới. Giới hạn: lựa chọn chỉ trên trình duyệt hiện tại, học sinh chưa có nhóm lớp sidebar.
+
+### 2026-11-03 — Classroom banner và thay native dialog
+
+Chủ dự án giao banner/tùy chỉnh theo Classroom, bỏ giờ máy của bạn, bỏ hiển thị múi giờ và native notification. Đã thêm ClassBanner chọn màu/hình nền có sẵn/ảnh local2MiB, và askDialog thay toàn bộ confirm/prompt trong features. Preview banner là local-only theo actor/class; chưa có persist/share server, chưa upload backend, nên phần banner dùng chung còn thiếu. Bỏ timezone overview/card, giữ logic thời gian. Lint37unit/typecheck+build PASS; chưa browser/cloud verification cho phần mới. Không thay permission/backend hoặc gửi mail. Push source để review theo quyền phiên.

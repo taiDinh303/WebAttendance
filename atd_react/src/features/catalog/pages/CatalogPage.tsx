@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { useSession } from "../../../application/sessionContext";
@@ -104,7 +105,7 @@ export default function CatalogPage() {
                     className="button danger small"
                     action={async () => {
                       if (
-                        !window.confirm(
+                        !await askDialog(
                           "Xóa " +
                             item.name +
                             "? Danh mục đang được lớp sử dụng sẽ không thể xóa.",

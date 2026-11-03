@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { RosterEntry } from "../components/RosterEntry";
 import { useParams, Link } from "react-router-dom";
@@ -102,7 +103,7 @@ export default function QrPage() {
                   </Field>
                 ))}
                 <p className="muted">
-                  Các mốc được nhập theo giờ máy của bạn. Giờ mở cần bao gồm
+                  Giờ mở cần bao gồm
                   thời điểm hiện tại.
                 </p>
                 <footer className="modal-actions">
@@ -168,7 +169,7 @@ function ActiveWindow({
               action={async () => {
                 const message =
                   "Đóng điểm danh? Học sinh chưa quét QR sẽ tự động được đánh dấu là vắng (absent). Sau đó bạn vẫn có thể sửa tay từng trường hợp với lý do (DEC-017).";
-                if (!confirm(message)) return;
+                if (!await askDialog(message)) return;
                 await attendanceApi.close(w);
                 await refresh();
               }}

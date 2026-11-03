@@ -55,7 +55,7 @@ export function AssignmentsPanel({ classId }: { classId: string }) {
             <Field label="Hướng dẫn">
               <textarea name="instructions" rows={4} maxLength={20000} />
             </Field>
-            <Field label="Hạn nộp (giờ máy của bạn)">
+            <Field label="Hạn nộp">
               <input name="dueAt" type="datetime-local" />
             </Field>
             <label className="check">

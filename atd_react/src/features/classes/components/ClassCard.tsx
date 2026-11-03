@@ -28,7 +28,7 @@ export function ClassCard({
           {classroom.description || "Không gian học tập và trao đổi của lớp."}
         </p>
         <div className="class-card-foot">
-          <span>{classroom.timezone}</span>
+          
           <span>Vào lớp →</span>
         </div>
       </div>

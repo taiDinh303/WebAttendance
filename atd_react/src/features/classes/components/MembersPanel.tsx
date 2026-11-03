@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { useState } from "react";
 import { usePage, useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
@@ -75,7 +76,7 @@ export function MembersPanel({ classId }: { classId: string }) {
                   action={async () => {
                     if (
                       action === "remove" &&
-                      !window.confirm(
+                      !await askDialog(
                         "Loại học sinh khỏi lớp? Quyền truy cập sẽ dừng ngay.",
                       )
                     )

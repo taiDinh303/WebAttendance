@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -92,7 +93,7 @@ export default function AssignmentPage() {
                 <ActionButton
                   className="button secondary"
                   action={async () => {
-                    if (!window.confirm("Đóng bài tập và dừng nhận bài mới?"))
+                    if (!await askDialog("Đóng bài tập và dừng nhận bài mới?"))
                       return;
                     await learningApi.transition(classId, a, "close");
                     await refresh();
@@ -156,7 +157,7 @@ export default function AssignmentPage() {
                           defaultValue={a.instructions ?? ""}
                         />
                       </Field>
-                      <Field label="Hạn nộp (giờ máy của bạn)">
+                      <Field label="Hạn nộp">
                         <input
                           type="datetime-local"
                           name="dueAt"

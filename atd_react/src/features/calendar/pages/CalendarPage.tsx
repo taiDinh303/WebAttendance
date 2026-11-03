@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -168,7 +169,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 </>
               ) : (
                 <>
-                  <Field label="Bắt đầu (giờ máy của bạn)">
+                  <Field label="Bắt đầu">
                     <input name="startsAt" type="datetime-local" required />
                   </Field>
                   <Field label="Kết thúc">
@@ -307,9 +308,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 <ActionButton
                   className="button ghost small"
                   action={async () => {
-                    const reason = window.prompt(
-                      "Lý do hủy buổi học (ít nhất 3 ký tự)",
-                    );
+                    const reason = await askDialog("Lý do hủy buổi học (ít nhất 3 ký tự)", true);
                     if (!reason) return;
                     await classApi.cancelSession(s.classId, s, reason);
                     await refresh();

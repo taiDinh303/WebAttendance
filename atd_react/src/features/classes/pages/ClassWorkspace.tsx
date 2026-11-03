@@ -1,3 +1,5 @@
+import { ClassBanner } from "../components/ClassBanner";
+import { askDialog } from "../../../shared/components/askDialog";
 import { useLocation, useParams, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Copy } from "lucide-react";
@@ -5,9 +7,7 @@ import { useSession } from "../../../application/sessionContext";
 import { useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
 import {
-  PageHeader,
   QueryState,
-  Badge,
   AsyncForm,
   Field,
   ActionButton,
@@ -59,11 +59,7 @@ function ClassWorkspaceContent() {
     );
   return (
     <>
-      <PageHeader
-        eyebrow="KHÔNG GIAN LỚP HỌC"
-        title={c.name}
-        action={<Badge value={c.status} />}
-      />
+      <ClassBanner id={c.id} name={c.name} description={c.description} editable={teacher} actorId={user?.id ?? ""}/>
       <nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
@@ -107,10 +103,7 @@ function ClassWorkspaceContent() {
               <p className="class-description">{c.description}</p>
             ) : null}
             <dl className="class-facts">
-              <div>
-                <dt>Múi giờ</dt>
-                <dd>{c.timezone}</dd>
-              </div>
+              
               {teacher ? (
                 <>
                   <ClassCatalogFact
@@ -201,7 +194,7 @@ function ClassWorkspaceContent() {
               <ActionButton
                 className="button secondary"
                 action={async () => {
-                  if (!window.confirm("Đổi mã sẽ vô hiệu mã cũ. Tiếp tục?"))
+                  if (!await askDialog("Đổi mã sẽ vô hiệu mã cũ. Tiếp tục?"))
                     return;
                   const result = await classApi.action(
                     classId,
@@ -232,7 +225,7 @@ function ClassWorkspaceContent() {
                     className="button danger"
                     action={async () => {
                       if (
-                        !window.confirm(
+                        !await askDialog(
                           "Lưu trữ lớp sẽ dừng các thao tác học tập mới. Tiếp tục?",
                         )
                       )
@@ -255,7 +248,7 @@ function ClassWorkspaceContent() {
                   className="button danger"
                   action={async () => {
                     if (
-                      !window.confirm(
+                      !await askDialog(
                         "Rời lớp sẽ ngừng quyền truy cập ngay. Bạn vẫn có thể gửi yêu cầu tham gia lại. Tiếp tục?",
                       )
                     )

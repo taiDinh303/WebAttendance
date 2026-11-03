@@ -1,3 +1,4 @@
+import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useRef, useState } from "react";
 import {
@@ -93,7 +94,7 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
             <Field label="Nội dung">
               <textarea name="body" rows={4} maxLength={20000} />
             </Field>
-            <Field label="Hết hiệu lực (giờ máy của bạn) — tùy chọn">
+            <Field label="Hết hiệu lực — tùy chọn">
               <input name="expiresAt" type="datetime-local" />
             </Field>
             <label className="check">
@@ -285,7 +286,7 @@ function AnnouncementRow({
             title="Lưu trữ bản tin"
             action={async () => {
               if (
-                !window.confirm(
+                !await askDialog(
                   "Lưu trữ bản tin? Nó sẽ khỏi danh sách công khai.",
                 )
               )
@@ -402,7 +403,7 @@ function AnnouncementRow({
                     className="button ghost small danger"
                     title="Xóa bình luận"
                     action={async () => {
-                      if (!window.confirm("Xóa bình luận này?")) return;
+                      if (!await askDialog("Xóa bình luận này?")) return;
                       await classApi.deleteComment(classId, c.id);
                       await detail.refetch();
                     }}

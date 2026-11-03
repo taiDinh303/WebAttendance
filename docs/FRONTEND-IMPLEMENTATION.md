@@ -160,3 +160,7 @@ IMPLEMENTED: root html dùng scrollbar-gutter:stable để giữ bề rộng vie
 ### 2026-11-03 — Sidebar lớp và ghim linh hoạt
 
 IMPLEMENTED: teacher sidebar lấy đủ các trang lớp active theo API actor-scoped, nhóm theo semesterId/chưa gắn; nhóm thu/mở và link vào lớp. Nút Ghim mở modal bật/tắt từng lớp hoặc cả nhóm học kỳ. Đây là ẩn shortcut, không archive lớp hoặc ngưng học kỳ. Lưu preference ID riêng theo actor trên trình duyệt, không lưu tên/nội dung lớp; không đồng bộ thiết bị. Thông báo chuyển ngay trên Cài đặt. Lint/typecheck/build PASS; chưa browser hoặc cloud verification lượt này.
+
+### 2026-11-03 — Banner lớp và dialog ứng dụng
+
+IMPLEMENTED frontend: banner lớp với hình nền hình học có sẵn,6màu và chọn ảnh JPG/PNG/WebP≤2MiB, preview/Hủy/Lưu. Preference local theo actor+class, ảnh dataURL chỉ lưu trình duyệt; CHƯA có upload server/chia sẻ banner cho học sinh/thiết bị khác. Không coi là hoàn thành tính năng banner dùng chung. Bỏ timezone khỏi overview/card và cụm giờ máy của bạn; không đổi chuyển đổi thời gian. Tất cả confirm/prompt trong src/features thay askDialog async dùng Modal (hủy không gọi action). Không override API browser. Lint37unit/build PASS; chưa browser kiểm các dialog/banner mới hoặc cloud.
