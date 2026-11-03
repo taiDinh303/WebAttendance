@@ -1,3 +1,4 @@
+import { useSession } from "../../../application/sessionContext";
 import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -15,6 +16,8 @@ export function StudentSubmit({
   classId: string;
   assignment: Assignment;
 }) {
+  const { user } = useSession();
+  const demo = !!user?.portfolioDemo;
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [files, setFiles] = useState<File[]>([]);
@@ -22,7 +25,7 @@ export function StudentSubmit({
   const [locked, setLocked] = useState(false);
   const [receipt, setReceipt] = useState<Submission | null>(null);
   const [flow] = useState(
-    () => new SubmissionFlow(classId, assignment.id, learningApi),
+    () => new SubmissionFlow(classId, assignment.id, learningApi, undefined, demo),
   );
   const refresh = useRefresh();
   const previous = useResource(["submissions", assignment.id, 1], (s) =>
@@ -67,8 +70,7 @@ export function StudentSubmit({
     <div className="panel editor-panel">
       <h2>{old ? "Nộp lại bài của bạn" : "Nộp bài của bạn"}</h2>
       <p className="muted">
-        Tối đa 5 file, mỗi file 20 MiB. PDF, DOCX, XLSX, PPTX, JPG, PNG hoặc
-        TXT.
+        {demo ? "Demo: nộp bài bằng ghi chú, không tải tệp lên." : "Tối đa 5 file, mỗi file 20 MiB. PDF, DOCX, XLSX, PPTX, JPG, PNG hoặc TXT."}
       </p>
       {old ? (
         <Link className="text-link" to={"/app/submissions/" + old.id}>
@@ -115,7 +117,7 @@ export function StudentSubmit({
               }
             }}
           >
-            <Field label="File bài làm">
+            {!demo ? <Field label="File bài làm">
               <input
                 aria-label="File bài làm"
                 type="file"
@@ -128,6 +130,7 @@ export function StudentSubmit({
                 }}
               />
             </Field>
+            : null}
             <ul className="file-selection">
               {files.map((file, i) => (
                 <li key={i}>
@@ -138,6 +141,8 @@ export function StudentSubmit({
             <Field label="Ghi chú cho giáo viên">
               <textarea
                 name="note"
+                required={demo}
+                minLength={demo ? 3 : undefined}
                 maxLength={2000}
                 rows={3}
                 disabled={locked}

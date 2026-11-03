@@ -13,6 +13,17 @@ const receipt = {
   revision: { id: "revision-1" } as Revision,
 };
 describe("SubmissionFlow", () => {
+  it("allows demo notes without uploads and preserves the retry key", async () => {
+    const upload = vi.fn();
+    const submit = vi.fn().mockRejectedValueOnce(Error("lost ACK")).mockResolvedValue(receipt);
+    const flow = new SubmissionFlow("c", "a", { upload, submit }, () => "demo-key", true);
+    await expect(flow.send([], "Demo note")).rejects.toThrow("lost ACK");
+    await expect(flow.send([], "Changed note")).resolves.toBe(receipt);
+    expect(upload).not.toHaveBeenCalled();
+    expect(submit.mock.calls[0]).toEqual(submit.mock.calls[1]);
+    const standard = new SubmissionFlow("c", "a", { upload, submit });
+    await expect(standard.send([], "Note")).rejects.toThrow("Chọn từ 1 đến 5 file.");
+  });
   it("reuses the immutable receipt key and uploaded files after a lost response", async () => {
     const upload = vi.fn().mockResolvedValue(stored);
     const submit = vi

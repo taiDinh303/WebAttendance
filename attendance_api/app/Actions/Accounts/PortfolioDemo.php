@@ -98,7 +98,11 @@ final class PortfolioDemo
     {
         $classes = DB::table('classes')->where('owner_id', $manifest['teacherId'])->pluck('id');
 
-        return DB::table('courses')->where('owner_id', $manifest['teacherId'])->count() > 20
+        return DB::table('attendance_audits')->whereIn('record_id', DB::table('attendance_records')->whereIn('session_id', DB::table('class_sessions')->whereIn('class_id', $classes)->select('id'))->select('id'))->count() > 1000
+            || DB::table('membership_events')->whereIn('membership_id', DB::table('class_memberships')->whereIn('class_id', $classes)->select('id'))->count() > 1000
+            || DB::table('grade_events')->whereIn('submission_id', DB::table('submissions')->whereIn('assignment_id', DB::table('assignments')->whereIn('class_id', $classes)->select('id'))->select('id'))->count() > 1000
+            || DB::table('announcement_comment_audits')->whereIn('comment_id', DB::table('announcement_comments')->whereIn('announcement_id', DB::table('announcements')->whereIn('class_id', $classes)->select('id'))->select('id'))->count() > 1000
+            || DB::table('courses')->where('owner_id', $manifest['teacherId'])->count() > 20
             || DB::table('semesters')->where('owner_id', $manifest['teacherId'])->count() > 10
             || DB::table('assignments')->whereIn('class_id', $classes)->count() > 60
             || DB::table('inbox_notifications')->whereIn('recipient_id', $manifest['userIds'])->count() > 1000

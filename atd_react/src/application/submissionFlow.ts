@@ -37,6 +37,7 @@ export class SubmissionFlow {
     private readonly assignmentId: string,
     private readonly gateway: SubmissionGateway,
     private readonly keyFactory: () => string = () => crypto.randomUUID(),
+    private readonly allowNoteOnly = false,
   ) {}
   get locked(): boolean {
     return this.pending !== null || this.active !== null;
@@ -63,7 +64,9 @@ export class SubmissionFlow {
     progress: SubmissionProgress,
   ): Promise<SubmissionReceipt> {
     if (!this.pending) {
-      if (files.length < 1 || files.length > MAX_FILES)
+      if (this.allowNoteOnly && (files.length > 0 || note.trim().length < 3))
+        throw Error("Bản demo chỉ nộp ghi chú từ 3 ký tự, không tải tệp lên.");
+      if ((!this.allowNoteOnly && files.length < 1) || files.length > MAX_FILES)
         throw Error("Chọn từ 1 đến 5 file.");
       for (const file of files)
         if (file.size > MAX_FILE_BYTES)

@@ -1,5 +1,6 @@
 export type Role = "admin" | "teacher" | "student";
 export interface User {
+  portfolioDemo?: boolean;
   studentCode?: string | null;
   id: string;
   displayName: string;

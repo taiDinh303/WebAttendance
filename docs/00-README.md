@@ -1,5 +1,7 @@
 # 00 — Bảng chỉ dẫn tài liệu
 
+> Cập nhật 2026-11-03: đã có bản live Vercel/Render/Aiven và bộ demo tuyển dụng riêng. Các ghi chú môi trường giai đoạn cũ bên dưới là lịch sử; xem [README hiện hành](../README.md) và [kiểm chứng portfolio](evidence/portfolio-validation.md).
+
 > 2026-10-27 | DOCS v0.4 | Chủ sản phẩm/người duyệt: Đinh Văn Tài (chủ dự án). Bộ docs do Codex soạn theo trao đổi và khảo sát source; chưa nghiệm thu ứng dụng.
 
 ## Trạng thái thật

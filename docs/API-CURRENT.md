@@ -1,5 +1,7 @@
 # API hiện có — bắt đầu đọc ở đây khi chạy backend
 
+> Cập nhật 2026-11-03: đã có bản live Vercel/Render/Aiven và bộ demo tuyển dụng riêng. Các ghi chú môi trường giai đoạn cũ bên dưới là lịch sử; xem [README hiện hành](../README.md) và [kiểm chứng portfolio](evidence/portfolio-validation.md).
+
 > 2026-10-27 | CURRENT — API phase3, verified local | Source ở `attendance_api`, frontend `atd_react` đã có React theo DEC-022/023; xem FRONTEND-IMPLEMENTATION. Đây không phải tuyên bố hoàn tất toàn sản phẩm.
 
 Phase2 đã có lịch giờ thực/lặp tuần, QR30s/TTL60s với snapshot roster, teacher sửa tay có reason/version/audit, chốt vắng và summary. Xem [contract lịch/điểm danh](SCHEDULE-ATTENDANCE.md) và [kiểm chứng phase2](evidence/schedule-attendance-validation.md). Q-011/023/024 đã trả lời; DEC-017 cho phép sửa tay thay giới hạn cũ.

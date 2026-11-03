@@ -7,6 +7,7 @@ use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 final class PortfolioDemoTest extends TestCase
@@ -26,6 +27,13 @@ final class PortfolioDemoTest extends TestCase
         $this->actingAs($teacher)->getJson('/api/v1/dashboard')->assertOk();
         $this->postJson('/api/v1/me/change-password', [])->assertForbidden()->assertJsonPath('code', 'DEMO_RESTRICTED');
         $this->postJson('/api/v1/classes/'.$first['classIds'][0].'/files', [])->assertForbidden();
+        $student = User::where('email', 'student@demo.attendance.test')->firstOrFail();
+        $assignment = DB::table('assignments')->where('class_id', $first['classIds'][0])->where('title', 'Kiểm thử và báo cáo')->first();
+        $path = '/api/v1/classes/'.$first['classIds'][0].'/assignments/'.$assignment->id.'/submissions';
+        $key = (string) Str::uuid();
+        $this->actingAs($student)->withHeader('Idempotency-Key', $key)->postJson($path, ['fileIds' => [], 'note' => 'Bài làm demo bằng ghi chú.'])->assertCreated();
+        $this->postJson($path, ['fileIds' => [], 'note' => 'Bài làm demo bằng ghi chú.'])->assertOk();
+        $this->postJson($path, ['fileIds' => [], 'note' => ''])->assertUnprocessable();
         $first['resetAt'] = now()->subDays(2)->toISOString();
         DB::table('demo_datasets')->where('name', PortfolioDemo::DATASET)->update(['manifest' => json_encode($first)]);
         $second = $demo->handle();
