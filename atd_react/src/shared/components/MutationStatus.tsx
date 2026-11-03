@@ -10,31 +10,23 @@ export function MutationStatus() {
     },
     mutationSnapshot,
   );
-  if (!current.length) return null;
+  const errors = current.filter((task) => task.state === "failed");
+  const uniqueErrors = [...new Map(errors.map((task) => [task.message || task.label, task])).values()];
+  if (!uniqueErrors.length) return null;
   return (
     <aside
       className="mutation-status"
-      aria-label="Tiến trình thao tác"
+      aria-label="Thông báo lỗi"
       aria-live="polite"
     >
-      {current.map((t) => (
-        <p key={t.id} className={t.state === "failed" ? "failed" : ""}>
-          {t.state === "pending"
-            ? "Đang xử lý"
-            : t.state === "done"
-              ? "Hoàn tất"
-              : "Chưa hoàn tất"}{" "}
-          · {t.label}
-          {t.message ? ": " + t.message : ""}
-        </p>
-      ))}
+      {uniqueErrors.map((task) => <p key={task.id} className="failed">{task.message || ("Không thể hoàn tất: " + task.label)}</p>)}
       <button
         className="button secondary small"
         onClick={() => {
           dismissMutationResults();
         }}
       >
-        Ẩn kết quả
+        Đóng thông báo
       </button>
     </aside>
   );
