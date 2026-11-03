@@ -54,6 +54,8 @@ export function ScheduleInput({ label, name, kind, defaultValue = "" }: {
           autoComplete="off" placeholder={part.hint} value={values[index]}
           style={{ width: part.length + 0.5 + "ch" }} required
           pattern={"[0-9]{" + part.length + "}"}
+          onInvalid={(event) => event.currentTarget.setCustomValidity("Vui lòng nhập đầy đủ " + part.label.toLowerCase() + " của " + label.toLowerCase() + ".")}
+          onInput={(event) => event.currentTarget.setCustomValidity("")}
           onFocus={(event) => event.currentTarget.select()}
           onBlur={() => {
             if (values[index] && Number(values[index]) >= part.min) setValues((previous) => previous.map((value, i) => i === index ? value.padStart(part.length, "0") : value));
@@ -65,6 +67,7 @@ export function ScheduleInput({ label, name, kind, defaultValue = "" }: {
           }}
           onPaste={(event) => {
             event.preventDefault();
+            refs.current.forEach((input) => input?.setCustomValidity(""));
             const pasted = event.clipboardData.getData("text").trim();
             if (!/^[0-9/ :]+$/.test(pasted)) return;
             const tokens = pasted.split(/[/ :]+/);
@@ -96,6 +99,7 @@ export function ScheduleInput({ label, name, kind, defaultValue = "" }: {
           value={pickerValue}
           onClick={(event) => { event.currentTarget.showPicker?.(); }}
           onChange={(event) => {
+            refs.current.forEach((input) => input?.setCustomValidity(""));
             const selected = event.target.value;
             if (!selected) return;
             if (kind === "time") setValues(selected.split(":"));

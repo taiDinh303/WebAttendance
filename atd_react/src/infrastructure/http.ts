@@ -85,10 +85,15 @@ async function performRequest<T>(
       429: "Bạn thao tác quá nhanh. Vui lòng chờ trước khi thử lại.",
       503: "Dịch vụ tạm thời chưa sẵn sàng.",
     };
+    const scheduleMessages: Record<string, string> = {
+      INVALID_SCHEDULE: "Giờ kết thúc phải sau giờ bắt đầu và một buổi học không được dài quá 24 giờ. Để tạo nhiều buổi, hãy chọn Lặp hằng tuần.",
+      EMPTY_SERIES: "Không có buổi học phù hợp. Hãy kiểm tra khoảng ngày và các thứ đã chọn.",
+      SCHEDULE_CONFLICT: "Lịch này trùng với một buổi học khác. Hãy đổi thời gian hoặc chọn Chấp nhận trùng để tiếp tục.",
+    };
     throw new ApiError(
       response.status,
       body?.code ?? "REQUEST_FAILED",
-      messages[response.status] ??
+      scheduleMessages[body?.code] ?? messages[response.status] ??
         body?.message ??
         "Không thể hoàn tất thao tác.",
       body?.errors ?? {},

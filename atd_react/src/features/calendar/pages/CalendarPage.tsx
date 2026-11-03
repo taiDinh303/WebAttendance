@@ -23,7 +23,7 @@ import { SessionEditor } from "../components/SessionEditor";
 import {
   parseScheduleDate,
   parseScheduleTime,
-  parseScheduleDateTime,
+  singleSessionTimes,
   sessionDisplayStatus,
 } from "../../../domain/schedule";
 import type { Session } from "../../../domain/models";
@@ -276,6 +276,8 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   weekdays: f.getAll("weekdays").map(Number),
                   allowConflicts: f.has("allowConflicts"),
                 };
+                if (payload.endDate < payload.startDate) throw Error("Đến ngày phải bằng hoặc sau Từ ngày.");
+                if (!payload.weekdays.length) throw Error("Chọn ít nhất một thứ trong tuần để tạo lịch lặp.");
                 const creating =
                   text(f, "intent") === "create" && preview !== null;
                 if (
@@ -298,8 +300,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 await classApi.saveSession(classId, {
                   title: text(f, "title"),
                   room: text(f, "room"),
-                  startsAt: parseScheduleDateTime(text(f, "startsAt")),
-                  endsAt: parseScheduleDateTime(text(f, "endsAt")),
+                  ...singleSessionTimes(text(f, "sessionDate"), text(f, "singleStartTime"), text(f, "singleEndTime")),
                   allowConflicts: f.has("allowConflicts"),
                 });
               await refresh();
@@ -323,8 +324,9 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   </>
                 ) : (
                   <>
-                    <ScheduleInput key="startsAt" label="Bắt đầu" name="startsAt" kind="datetime" />
-                    <ScheduleInput key="endsAt" label="Kết thúc" name="endsAt" kind="datetime" />
+                    <ScheduleInput key="sessionDate" label="Ngày học" name="sessionDate" kind="date" />
+                    <ScheduleInput key="singleStartTime" label="Giờ bắt đầu" name="singleStartTime" kind="time" />
+                    <ScheduleInput key="singleEndTime" label="Giờ kết thúc" name="singleEndTime" kind="time" />
                   </>
                 )}
               </div>

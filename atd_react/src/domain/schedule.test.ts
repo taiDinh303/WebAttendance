@@ -1,3 +1,4 @@
+import { singleSessionTimes } from "./schedule";
 import { parseScheduleDate, parseScheduleTime, parseScheduleDateTime } from "./schedule";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { localDateTimeInput, sessionDisplayStatus } from "./schedule";
@@ -67,3 +68,12 @@ describe("session display status", () => {
 });
 
 describe("manual schedule entry",()=>{it("normalizes typed dates and preserves seconds",()=>{expect(parseScheduleDate("03/11/2026")).toBe("2026-11-03");expect(parseScheduleTime("08:30:17")).toBe("08:30:17");expect(parseScheduleDateTime("03/11/2026 08:30:17")).toBe(new Date("2026-11-03T08:30:17").toISOString());});it("rejects impossible dates and invalid hours",()=>{expect(()=>parseScheduleDate("31/11/2026")).toThrow();expect(()=>parseScheduleTime("24:00")).toThrow();expect(()=>parseScheduleDateTime("not a date")).toThrow();});});
+
+describe("single day session", () => {
+  it("uses the same day for both instants", () => {
+    expect(singleSessionTimes("03/11/2026", "08:30", "17:00")).toEqual({ startsAt: new Date("2026-11-03T08:30:00").toISOString(), endsAt: new Date("2026-11-03T17:00:00").toISOString() });
+  });
+  it("explains equal or reversed hours in Vietnamese", () => {
+    for (const end of ["08:30", "07:00"]) expect(() => singleSessionTimes("03/11/2026", "08:30", end)).toThrow("Giờ kết thúc phải sau giờ bắt đầu");
+  });
+});

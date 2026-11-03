@@ -27,3 +27,12 @@ export function parseScheduleDate(value:string):string {
 }
 export function parseScheduleTime(value:string):string {const input=value.trim();if(!/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(input))throw Error("Nhập giờ từ 00:00 đến 23:59.");return input;}
 export function parseScheduleDateTime(value:string):string {const parts=value.trim().split(/[T ]+/);if(parts.length!==2)throw Error("Nhập ngày và giờ, ví dụ 03/11/2026 08:30.");return new Date(parseScheduleDate(parts[0])+"T"+parseScheduleTime(parts[1])).toISOString();}
+
+/** One session uses one local calendar day and a strictly increasing time range. */
+export function singleSessionTimes(day: string, start: string, end: string) {
+  const date = parseScheduleDate(day);
+  const startTime = parseScheduleTime(start);
+  const endTime = parseScheduleTime(end);
+  if (endTime <= startTime) throw Error("Giờ kết thúc phải sau giờ bắt đầu trong cùng ngày. Hãy kiểm tra lại hai ô giờ.");
+  return { startsAt: parseScheduleDateTime(date + "T" + startTime), endsAt: parseScheduleDateTime(date + "T" + endTime) };
+}
