@@ -10,7 +10,6 @@ import { CatalogFields } from "../components/CatalogFields";
 import {
   AsyncForm,
   Field,
-  PageHeader,
   Pagination,
   QueryState,
   Empty,
@@ -39,18 +38,7 @@ export default function ClassesPage() {
   );
   return (
     <>
-      <PageHeader
-        compact
-        eyebrow="KẾT NỐI & HỌC TẬP"
-        title="Lớp học của bạn"
-        description="Cùng nhau tạo nên những giờ học ý nghĩa."
-        action={
-          <button className="button" onClick={() => setOpen(!open)}>
-            <Plus size={18} />
-            {user?.role === "teacher" ? "Tạo lớp học" : "Tham gia lớp"}
-          </button>
-        }
-      />
+      <h1 className="sr-only">Lớp học của bạn</h1>
       {open ? (
         <Modal
           title={user?.role === "teacher" ? "Tạo lớp học" : "Tham gia lớp"}
@@ -127,7 +115,7 @@ export default function ClassesPage() {
           </AsyncForm>
         </Modal>
       ) : null}
-      <div className="filter-bar">
+      <div className="filter-bar classes-toolbar">
         <label className="search-box">
           <Search size={18} />
           <input
@@ -173,7 +161,12 @@ export default function ClassesPage() {
             ))}
           </select>
         ) : null}
-        <span className="muted">{classes.data?.totalItems ?? "—"} lớp học</span>
+        <div className="classes-toolbar-action">
+          <button className="button" onClick={() => setOpen(true)}>
+            <Plus size={18} />
+            {user?.role === "teacher" ? "Tạo lớp học" : "Tham gia lớp"}
+          </button>
+        </div>
       </div>
       <QueryState
         pending={semesters.isPending && user?.role === "teacher"}

@@ -186,3 +186,5 @@ IMPLEMENTED: teacher overview có list notification full-width phía trên thôn
 ### 2026-11-03 — Thao tác cùng hàng thanh mục lớp
 
 IMPLEMENTED: ClassToolbar context/portal đưa control tại panel đang mở vào slot cạnh tabs, không nhân bản state/form handlers. Assignment bỏ heading Bài tập của lớp, Members bỏ heading lặp; create assignment/announcement, calendar month+create, members segmented, teacher grades/attendance export cùng hàng nav khi đủ width. Flex wrap khi hẹp, mobile slot hàng riêng. Calendar ngoài class vẫn có fallback toolbar. Không đổi permission/API/form behavior. Lint/typecheck/build PASS; Edge fixtures6tab ×1920/390 kiểm alignment desktop, hàng riêng mobile, không overflow và không còn heading assignment PASS. Evidence work/check-class-toolbar.cjs ignored; chưa cloud verification.
+
+2026-11-03 — Trang danh sách lớp: Tạo lớp học/Tham gia lớp chuyển vào cùng filter-bar, phải hàng desktop, xuống hàng riêng mobile. Bỏ totalItems text và header action rỗng, giữ heading sr-only. Không đổi dashboard count. Lint/build PASS; browser fixture1920/390 align/wrap/create modal PASS. Chưa live verification.
