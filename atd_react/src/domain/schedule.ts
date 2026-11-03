@@ -18,3 +18,12 @@ export function sessionDisplayStatus(
   if (now >= Date.parse(session.startsAt)) return "ongoing";
   return "scheduled";
 }
+
+export function parseScheduleDate(value:string):string {
+ const input=value.trim();const match=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(input);
+ const normalized=match?match[3]+"-"+match[2]+"-"+match[1]:input;
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(normalized))throw Error("Nhập ngày theo dạng dd/mm/yyyy.");
+ const date=new Date(normalized+"T00:00:00Z");if(!Number.isFinite(date.getTime())||date.toISOString().slice(0,10)!==normalized)throw Error("Ngày không hợp lệ.");return normalized;
+}
+export function parseScheduleTime(value:string):string {const input=value.trim();if(!/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(input))throw Error("Nhập giờ từ 00:00 đến 23:59.");return input;}
+export function parseScheduleDateTime(value:string):string {const parts=value.trim().split(/[T ]+/);if(parts.length!==2)throw Error("Nhập ngày và giờ, ví dụ 03/11/2026 08:30.");return new Date(parseScheduleDate(parts[0])+"T"+parseScheduleTime(parts[1])).toISOString();}

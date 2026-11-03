@@ -17,9 +17,9 @@ import {
   Pagination,
   ActionButton,
 } from "../../../shared/ui";
-import { dateTime, text, iso } from "../../../domain/format";
+import { dateTime, text } from "../../../domain/format";
 import { SessionEditor } from "../components/SessionEditor";
-import { sessionDisplayStatus } from "../../../domain/schedule";
+import { parseScheduleDate, parseScheduleTime, parseScheduleDateTime, sessionDisplayStatus } from "../../../domain/schedule";
 import type { Session } from "../../../domain/models";
 export default function CalendarPage() {
   return (
@@ -99,54 +99,43 @@ export function CalendarContent({ classId }: { classId?: string }) {
       </ClassToolbar>
       {open && classId ? (
         <Modal title="Tạo lịch học" onClose={() => setOpen(false)}>
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={weekly}
-              onChange={(e) => {
-                setWeekly(e.target.checked);
-                setPreview(null);
-              }}
-            />
-            Lặp hằng tuần theo múi giờ lớp
-          </label>
           <AsyncForm
-            key={String(weekly)}
-            success="Lịch học đã được tạo."
             onSubmit={async (f) => {
               if (weekly) {
                 const payload = {
                   title: text(f, "title"),
                   room: text(f, "room"),
-                  startDate: text(f, "startDate"),
-                  endDate: text(f, "endDate"),
-                  startTime: text(f, "startTime"),
-                  endTime: text(f, "endTime"),
+                  startDate: parseScheduleDate(text(f, "startDate")),
+                  endDate: parseScheduleDate(text(f, "endDate")),
+                  startTime: parseScheduleTime(text(f, "startTime")),
+                  endTime: parseScheduleTime(text(f, "endTime")),
                   weekdays: f.getAll("weekdays").map(Number),
                   allowConflicts: f.has("allowConflicts"),
                 };
+                const creating=text(f,"intent")==="create" && preview !== null;
+                if(creating && !(await askDialog("Tạo "+preview+" buổi học theo lịch đã xem trước?"))) return;
                 const result = await classApi.series(
                   classId,
                   payload,
-                  text(f, "intent") === "preview",
+                  !creating,
                 );
-                if (text(f, "intent") === "preview") {
-                  setPreview(result.count ?? 0);
+                if (!creating) {
+                  setPreview(result.count ?? result.sessionCount ?? 0);
                   return;
                 }
               } else
                 await classApi.saveSession(classId, {
                   title: text(f, "title"),
                   room: text(f, "room"),
-                  startsAt: iso(f.get("startsAt")),
-                  endsAt: iso(f.get("endsAt")),
+                  startsAt: parseScheduleDateTime(text(f,"startsAt")),
+                  endsAt: parseScheduleDateTime(text(f,"endsAt")),
                   allowConflicts: f.has("allowConflicts"),
                 });
               await refresh();
               setOpen(false);
             }}
           >
-            <div className="form-grid">
+            <div onChange={() => setPreview(null)}><div className="form-grid">
               <Field label="Tên buổi học">
                 <input name="title" maxLength={200} />
               </Field>
@@ -156,25 +145,25 @@ export function CalendarContent({ classId }: { classId?: string }) {
               {weekly ? (
                 <>
                   <Field label="Từ ngày">
-                    <input name="startDate" type="date" required />
+                    <input name="startDate" type="text" placeholder="dd/mm/yyyy" required />
                   </Field>
                   <Field label="Đến ngày">
-                    <input name="endDate" type="date" required />
+                    <input name="endDate" type="text" placeholder="dd/mm/yyyy" required />
                   </Field>
-                  <Field label="Giờ bắt đầu (múi giờ lớp)">
-                    <input name="startTime" type="time" required />
+                  <Field label="Giờ bắt đầu">
+                    <input name="startTime" type="text" placeholder="08:30" required />
                   </Field>
                   <Field label="Giờ kết thúc">
-                    <input name="endTime" type="time" required />
+                    <input name="endTime" type="text" placeholder="10:00" required />
                   </Field>
                 </>
               ) : (
                 <>
                   <Field label="Bắt đầu">
-                    <input name="startsAt" type="datetime-local" required />
+                    <input name="startsAt" type="text" placeholder="03/11/2026 08:30" required />
                   </Field>
                   <Field label="Kết thúc">
-                    <input name="endsAt" type="datetime-local" required />
+                    <input name="endsAt" type="text" placeholder="03/11/2026 10:00" required />
                   </Field>
                 </>
               )}
@@ -189,17 +178,28 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 ))}
               </div>
             ) : null}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={weekly}
+              onChange={(e) => {
+                setWeekly(e.target.checked);
+                setPreview(null);
+              }}
+            />
+            Lặp hằng tuần
+          </label>
             <label className="check">
               <input type="checkbox" name="allowConflicts" />
-              Tôi chấp nhận nếu lịch bị trùng
+              Chấp nhận trùng
             </label>
-            <footer className="modal-actions">
+            </div><footer className="modal-actions">
               <button
                 type="button"
                 className="button secondary"
                 onClick={() => setOpen(false)}
               >
-                Đóng
+                Hủy
               </button>
               {weekly && preview === null ? (
                 <button
@@ -211,9 +211,9 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   Xem trước số buổi
                 </button>
               ) : (
-                <button className="button" type="submit">
+                <button className="button" type="submit" name="intent" value="create">
                   {weekly && preview !== null
-                    ? "Tạo lịch (hủy bỏ nếu trùng)"
+                    ? "Tạo lịch"
                     : "Tạo buổi học"}
                 </button>
               )}

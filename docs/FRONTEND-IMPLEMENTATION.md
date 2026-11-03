@@ -190,3 +190,7 @@ IMPLEMENTED: ClassToolbar context/portal đưa control tại panel đang mở v�
 2026-11-03 — Trang danh sách lớp: Tạo lớp học/Tham gia lớp chuyển vào cùng filter-bar, phải hàng desktop, xuống hàng riêng mobile. Bỏ totalItems text và header action rỗng, giữ heading sr-only. Không đổi dashboard count. Lint/build PASS; browser fixture1920/390 align/wrap/create modal PASS. Chưa live verification.
 
 2026-11-03 — Bỏ heading/description hiển thị của JoinRequestsPage và CheckInPage student theo ảnh; giữ h1 sr-only, không khoảng cách header cũ. Không đổi nội dung trạng thái và thao tác trong panel. Lint/typecheck/build PASS, chưa browser/live mới.
+
+### 2026-11-03 — Nhập lịch tay và tách preview/create
+
+IMPLEMENTED: form tạo/sửa dùng ô text cho ngày/giờ, parser chấp nhận dd/mm/yyyy hoặc ISO date, giờ24h và giây; từ chối ngày không tồn tại/giờ sai. Lặp hằng tuần chuyển xuống nhóm checkbox, nhãn Chấp nhận trùng; không remount cả form khi đổi recurrence (giữ tên/phòng). Preview chỉ endpoint preview khi intent chưa phải create hoặc chưa có preview; Tạo lịch cần intent explicit+preview+modal xác nhận. Hủy luôn có ở footer; sửa field làm preview mất hiệu lực. Không còn thông báo thành công giả sau preview hoặc nhãn tạo hủy nếu trùng mâu thuẫn allowConflicts. Lint/typecheck39unit/build PASS; browser fixture nhập tay/toggle giữ tên/preview không create/hủy confirm và hủy modal không ghi PASS. Chưa real cloud API/DB mới.

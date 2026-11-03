@@ -1,7 +1,7 @@
 import { Modal } from "../../../shared/components/Modal";
 import type { Session } from "../../../domain/models";
-import { localDateTimeInput } from "../../../domain/schedule";
-import { iso, text } from "../../../domain/format";
+import { localDateTimeInput, parseScheduleDateTime } from "../../../domain/schedule";
+import { text } from "../../../domain/format";
 import { classApi } from "../../../infrastructure/classApi";
 import { useRefresh } from "../../../application/queries";
 import { AsyncForm, Field } from "../../../shared/ui";
@@ -27,8 +27,8 @@ export function SessionEditor({
             {
               title: text(form, "title"),
               room: text(form, "room"),
-              startsAt: iso(form.get("startsAt")),
-              endsAt: iso(form.get("endsAt")),
+              startsAt: parseScheduleDateTime(text(form,"startsAt")),
+              endsAt: parseScheduleDateTime(text(form,"endsAt")),
               expectedVersion: session.version,
               allowConflicts: form.has("allowConflicts"),
             },
@@ -53,19 +53,19 @@ export function SessionEditor({
               defaultValue={session.room ?? ""}
             />
           </Field>
-          <Field label="Bắt đầu mới (giờ máy)">
+          <Field label="Bắt đầu mới">
             <input
               name="startsAt"
-              type="datetime-local"
+              type="text" placeholder="dd/mm/yyyy hh:mm"
               step={1}
               required
               defaultValue={localDateTimeInput(session.startsAt)}
             />
           </Field>
-          <Field label="Kết thúc mới (giờ máy)">
+          <Field label="Kết thúc mới">
             <input
               name="endsAt"
-              type="datetime-local"
+              type="text" placeholder="dd/mm/yyyy hh:mm"
               step={1}
               required
               defaultValue={localDateTimeInput(session.endsAt)}
@@ -74,7 +74,7 @@ export function SessionEditor({
         </div>
         <label className="check">
           <input name="allowConflicts" type="checkbox" />
-          Tôi chấp nhận nếu lịch bị trùng
+          Chấp nhận trùng
         </label>
         <footer className="modal-actions">
           <button type="button" className="button secondary" onClick={onClose}>
