@@ -382,3 +382,7 @@ React dùng private account/key cache, chờ GET trước lưu, chỉ cập nh�
 Chủ dự án muốn tránh thao tác nhầm tại overview, chốt nhãn ngắn Cài đặt. Thêm tab settings cho hai role, overview không render edit/archive/leave/invite controls; settings giữ chức năng theo role và xác nhận modal, thêm xác nhận tắt mã. Không thêm DELETE lớp. Kiểm lint/build local, chưa browser/cloud mới; thay đổi không đụng DB/API.
 
 Kiểm bổ sung Edge API fixture: overview không có nút Lưu trữ lớp, vào tab Cài đặt có, quay Tổng quan lại không có PASS; work/check-class-settings.cjs ignored. Lint/typecheck/build PASS; chưa cloud hoặc browser student mới.
+
+### 2026-11-03 — Student sidebar pin
+
+Theo yêu cầu: sidebar học sinh hiển thị lớp được duyệt và điều chỉnh ghim, lưu tài khoản. Dùng API classes scoped hiện có, teacher-only semester query disabled cho student, nhóm Đang theo học. Lint/build PASS, browser fixture pin/unpin/reopen context/restore/no semester403 PASS; không đổi API/DB. Evidence work/check-student-sidebar.cjs ignored. Chưa production verification.

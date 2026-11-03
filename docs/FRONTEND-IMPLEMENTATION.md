@@ -172,3 +172,7 @@ IMPLEMENTED: useAccountPreference dùng private actor/key React Query; chỉ đ�
 ### 2026-11-03 — Tab Cài đặt trong lớp
 
 IMPLEMENTED: tab settings nhãn Cài đặt theo yêu cầu ngắn gọn; overview chỉ thông tin read-only. Sửa thông tin, quản lý mã tham gia, lưu trữ lớp (teacher) và rời lớp (student) chuyển sang tab Cài đặt; giữ role/version/confirm modal, bổ sung confirm tắt mã. Không thêm xóa lớp vì chưa có nghiệp vụ/API xóa. Lint/typecheck/build kiểm local; chưa browser/cloud verification mới.
+
+### 2026-11-03 — Sidebar lớp học sinh
+
+IMPLEMENTED: học sinh cũng dùng SidebarClasses và Ghim theo account_preferences. API classes sẵn có scope active membership, lấy đủ pagination lớp active. Student gom nhóm Đang theo học, không gọi catalog semesters vốn chỉ teacher có quyền; giáo viên vẫn nhóm học kỳ như cũ. Không mở quyền xem pending/removed hoặc catalog giáo viên. Lint/typecheck/build PASS; Edge API fixture student hiển thị lớp, bỏ ghim, context mới vẫn ẩn, bật lại và không request teacher catalog PASS. Checkbox controlled đợi server ACK, QA dùng click+wait thay uncheck kiểm tức thời. Chưa cloud/student real API kiểm mới.

@@ -1,3 +1,5 @@
+import { useSession } from "../application/sessionContext";
+import type { Classroom } from "../domain/models";
 import { useAccountPreference } from "../application/accountPreference";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -13,6 +15,10 @@ export function SidebarClasses({
   onNavigate: () => void;
 }) {
   void actorId;
+  const { user } = useSession();
+  const teacher = user?.role === "teacher";
+  const groupId = (c: Classroom) =>
+    teacher ? (c.semesterId ?? "none") : "none";
   const preference = useAccountPreference<string[]>("sidebar-hidden", []);
   const hidden = preference.value;
   const [editing, setEditing] = useState(false);
@@ -29,16 +35,16 @@ export function SidebarClasses({
       page++;
     }
   });
-  const terms = useResource(["catalog-options", "semesters"], (signal) =>
-    classApi.catalogOptions("semesters", signal),
+  const terms = useResource(
+    ["catalog-options", "semesters"],
+    (signal) => classApi.catalogOptions("semesters", signal),
+    { enabled: teacher },
   );
   const toggle = (id: string) =>
     void preference.save((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-  const groups = [
-    ...new Set(classes.data?.map((c) => c.semesterId ?? "none") ?? []),
-  ];
+  const groups = [...new Set(classes.data?.map((c) => groupId(c)) ?? [])];
   return (
     <section className="sidebar-classes">
       <ErrorNotice error={preference.error} />
@@ -52,7 +58,7 @@ export function SidebarClasses({
         </button>
       </div>
       <QueryState
-        pending={classes.isPending || terms.isPending}
+        pending={classes.isPending || (teacher && terms.isPending)}
         error={classes.error || terms.error}
         retry={() => {
           void classes.refetch();
@@ -65,14 +71,15 @@ export function SidebarClasses({
           <details key={id} open>
             <summary>
               {terms.data?.find((t) => t.id === id)?.name ??
-                (id === "none" ? "Chưa gắn học kỳ" : "Học kỳ")}
+                (!teacher
+                  ? "Đang theo học"
+                  : id === "none"
+                    ? "Chưa gắn học kỳ"
+                    : "Học kỳ")}
             </summary>
             <nav>
               {classes.data
-                ?.filter(
-                  (c) =>
-                    (c.semesterId ?? "none") === id && !hidden.includes(c.id),
-                )
+                ?.filter((c) => groupId(c) === id && !hidden.includes(c.id))
                 .map((c) => (
                   <NavLink
                     key={c.id}
@@ -103,11 +110,15 @@ export function SidebarClasses({
                 />
                 <strong>
                   {terms.data?.find((t) => t.id === id)?.name ??
-                    (id === "none" ? "Chưa gắn học kỳ" : "Học kỳ")}
+                    (!teacher
+                      ? "Đang theo học"
+                      : id === "none"
+                        ? "Chưa gắn học kỳ"
+                        : "Học kỳ")}
                 </strong>
               </label>
               {classes.data
-                ?.filter((c) => (c.semesterId ?? "none") === id)
+                ?.filter((c) => groupId(c) === id)
                 .map((c) => (
                   <label className="check" key={c.id}>
                     <input

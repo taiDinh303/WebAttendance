@@ -169,7 +169,7 @@ export default function Shell() {
             </NavLink>
           ) : null}
         </nav>
-        {!admin && user.role === "teacher" ? <SidebarClasses key={user.id} actorId={user.id} onNavigate={()=>setMenu(false)}/> : null}
+        {!admin ? <SidebarClasses key={user.id} actorId={user.id} onNavigate={()=>setMenu(false)}/> : null}
         <nav className="sidebar-bottom">{!admin ? <NavLink to="/app/notifications" onClick={()=>setMenu(false)}><Bell size={19}/><span className="nav-label">Thông báo</span>{unread.data?.unreadCount ? <span className="nav-count">{unread.data.unreadCount}</span>:null}</NavLink>:null}<NavLink to="/app/settings" title="Cài đặt" aria-label="Cài đặt" onClick={()=>setMenu(false)}><Settings size={19}/><span className="nav-label">Cài đặt</span></NavLink></nav>
       </aside>
       <div className="workspace-body" inert={compact && menu}>
