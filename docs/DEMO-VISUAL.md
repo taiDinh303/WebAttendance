@@ -21,3 +21,6 @@ Sau seedLive: tắt VISUAL_DEMO_ENABLED, redeploy cùng source để runtime fla
 ## Bằng chứng
 
 VisualDemoTest kiểm shape/counts/idempotency/password/edit-preservation và guard opt-in trên MySQL test. Test không chứng minh cloud đã chạy; kết quả deploy và log seed actual ghi worklog/11-setup-cloud.
+
+## Bộ tuyển dụng riêng — DEC-048
+Bộ visual cũ ở trên được giữ nguyên. Bộ mới có marker recruiter-portfolio-v1, teacher@demo.attendance.test và student@demo.attendance.test, mật khẩu công khai AttendanceDemo!2026; chỉ dữ liệu giả lập. Chi tiết vận hành ở [PORTFOLIO-DEMO](PORTFOLIO-DEMO.md). Không dùng mật khẩu visual cũ trong README.

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Actions\Accounts\PortfolioDemo;
 use App\Actions\Accounts\RegisterAccount;
 use App\Exceptions\ApiException;
 use App\Http\Controllers\Controller;
@@ -36,6 +37,11 @@ final class AuthController extends Controller
         if (Hash::needsRehash($user->password)) {
             $user->password = $data['password'];
             $user->save();
+        }
+        $demo = app(PortfolioDemo::class);
+        if (config('demo.portfolio_enabled') && $demo->contains($user)) {
+            $demo->handle();
+            $user->refresh();
         }
         Auth::guard('web')->login($user, $data['rememberMe'] ?? false);
         $request->session()->regenerate();

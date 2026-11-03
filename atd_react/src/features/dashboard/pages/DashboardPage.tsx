@@ -5,8 +5,6 @@ import {
   CalendarDays,
   ClipboardCheck,
   Clock3,
-  Plus,
-  ScanLine,
   Users,
   CheckCircle2,
 } from "lucide-react";
@@ -66,15 +64,7 @@ export default function DashboardPage() {
           (user?.displayName.split(" ").at(-1) ?? "bạn") +
           ", hôm nay thế nào?"
         }
-        action={teacher ? undefined :
-          <Link
-            className="button"
-            to={teacher ? "/app/classes?create=1" : "/app/check-in"}
-          >
-            {teacher ? <Plus size={18} /> : <ScanLine size={18} />}
-            {teacher ? "Tạo lớp học" : "Điểm danh QR"}
-          </Link>
-        }
+
       />
       <QueryState
         pending={query.isPending}

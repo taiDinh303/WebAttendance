@@ -30,6 +30,9 @@ fi
 if [ "${VISUAL_DEMO_ENABLED:-false}" = true ]; then
     su -s /bin/sh www-data -c 'php artisan demo:visual --no-interaction'
 fi
+if [ "${PORTFOLIO_DEMO_ENABLED:-false}" = true ]; then
+    su -s /bin/sh www-data -c 'php artisan demo:portfolio --no-interaction'
+fi
 su -s /bin/sh www-data -c 'php artisan route:cache --no-interaction'
 
 http_port="${PORT:-10000}"

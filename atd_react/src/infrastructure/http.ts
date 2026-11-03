@@ -86,6 +86,8 @@ async function performRequest<T>(
       503: "Dịch vụ tạm thời chưa sẵn sàng.",
     };
     const scheduleMessages: Record<string, string> = {
+      DEMO_RESTRICTED: "Tài khoản demo giữ nguyên hồ sơ, mật khẩu và không tải tệp lên. Bạn có thể nộp bài bằng ghi chú.",
+      DEMO_LIMIT: "Bộ demo đạt giới hạn. Đăng xuất rồi đăng nhập lại để làm mới dữ liệu demo.",
       ALREADY_CHECKED_IN: "Bạn đã có kết quả điểm danh cho buổi này. Nếu cần điều chỉnh, hãy liên hệ giáo viên.",
       ATTENDANCE_APPROVED: "Bản ghi đã duyệt và khóa, không thể chỉnh sửa.",
       SESSION_HAS_ATTENDANCE: "Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn. Chỉ buổi chưa có dữ liệu hoặc có cửa sổ QR trống mới xóa được.",

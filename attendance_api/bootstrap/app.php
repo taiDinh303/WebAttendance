@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiException;
 use App\Http\Middleware\EnsureAccountActive;
+use App\Http\Middleware\ProtectPortfolioDemo;
 use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\RequireVerifiedEmail;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(null);
         $middleware->prepend(RequestContext::class);
         $middleware->alias([
+            'portfolio.demo' => ProtectPortfolioDemo::class,
             'account.active' => EnsureAccountActive::class,
             'email.verified' => RequireVerifiedEmail::class,
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Enrollment;
 
+use App\Actions\Accounts\PortfolioDemo;
 use App\Exceptions\ApiException;
 use App\Models\ClassInvite;
 use App\Models\ClassMembership;
@@ -25,6 +26,10 @@ final class ManageEnrollment
             }
             // Same parent-first lock order as rotate/archive/review operations.
             $class = Classroom::whereKey($candidate->class_id)->lockForUpdate()->firstOrFail();
+            $demo = app(PortfolioDemo::class);
+            if (config('demo.portfolio_enabled') && ($demo->contains($actor) !== ($class->owner_id === ($demo->manifest()['teacherId'] ?? null)))) {
+                throw new ApiException('DEMO_RESTRICTED', 'Tài khoản demo chỉ tham gia lớp demo.', 403);
+            }
             $invite = ClassInvite::where('class_id', $class->id)->where('code_hash', $hash)->first();
             if (! $invite || ! $invite->enabled || ($invite->expires_at && $invite->expires_at->isPast()) || $class->status !== 'active') {
                 throw new ApiException('INVALID_INVITE_CODE', 'This invite code is invalid or unavailable.', 422);

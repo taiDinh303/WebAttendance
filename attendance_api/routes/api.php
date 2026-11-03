@@ -30,7 +30,7 @@ Route::prefix('v1')->middleware('web')->group(function () {
     Route::post('auth/forgot-password', [PasswordController::class, 'forgot'])->middleware('throttle:recovery');
     Route::post('auth/reset-password', [PasswordController::class, 'reset'])->middleware('throttle:recovery');
 
-    Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
+    Route::middleware(['auth:sanctum', 'account.active', 'portfolio.demo'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('me/preferences/{key}', [PreferenceController::class, 'show']);
         Route::put('me/preferences/{key}', [PreferenceController::class, 'update'])->middleware('throttle:submit');
