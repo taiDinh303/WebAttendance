@@ -43,3 +43,22 @@ Web lớp học rõ ràng, nền sáng, sidebar nhỏ và nội dung rộng; das
 - Dialog focus trap/return focus, label thật, keyboard được, touch target44px đề xuất, reduced motion. Biểu đồ có bảng số liệu thay thế; status không chỉ màu.
 - Chat: ACK nhận từ server mới Sent; WS không nhận vẫn refetch được. Upload100% không đồng nghĩa đã submit; quiz đang gõ không đồng nghĩa đã saved.
 - Chỉ QR dùng camera cho đọc mã; không thu ảnh mặt/GPS. Nếu browser không hỗ trợ, hiển thị hướng dẫn mở URL QR hợp lệ, không mở manual attendance ngầm.
+
+## 2026-11-03 — Nút thao tác → modal theo DEC-041
+
+IMPLEMENTED cho React hiện có (không bao gồm quiz/chat chưa triển khai):
+
+| Màn hình/thao tác | Trạng thái xem | Form khi người dùng chọn nút |
+| --- | --- | --- |
+| Lịch sử bài nộp giáo viên | Điểm/nhận xét/trạng thái hiện hành | Chấm điểm/Sửa → lưu nháp; Công bố điểm → lý do và xác nhận |
+| Bài tập giáo viên | Hướng dẫn, chính sách, tài liệu | Sửa bài tập; Thêm tài liệu |
+| Bài tập học sinh | Trạng thái/bài đã nộp | Nộp bài/Nộp lại → file và ghi chú |
+| Settings Profile/Account | Hồ sơ, điện thoại, email, mật khẩu ẩn | Chỉnh sửa hồ sơ/điện thoại; Đổi mật khẩu |
+| QR giáo viên | Chưa mở hoặc cửa sổ/roster hiện hành | Mở điểm danh QR → mốc thời gian; Điều chỉnh học sinh → kết quả/lý do |
+| QR học sinh | Camera và trạng thái đã nhận mã | Dán/Sửa mã QR → Áp dụng; xác nhận điểm danh vẫn riêng |
+| Lớp/bài tập/bản tin mới | Danh sách hiện hành | Tạo lớp/Tham gia lớp/Giao bài/Viết bản tin |
+| Bản tin đang có | Bài viết và bình luận dưới bài | Sửa bản tin trong modal; bình luận vẫn nhập trực tiếp theo yêu cầu riêng |
+| Admin users | Tài khoản/trạng thái | Khóa/Mở khóa → lý do trong modal |
+| Catalog/lớp/buổi học | Đã có view/edit modal trước đợt này | Giữ và kiểm tương thích |
+
+Tìm kiếm, bộ lọc (kể cả tháng xem lịch), auth/register/reset giữ trực tiếp; bộ chọn môn/học kỳ chỉ là field bên trong modal. Các nút action không cần nhập (ghim, ẩn, duyệt, đóng) giữ action hiện có. Hủy buổi học đã dùng popup nhập lý do. Modal có focus trap/Escape/return focus; Escape không đóng khi AsyncForm đang lưu, nút trong fieldset disabled. Lỗi giữ form và draft; không tự retry request ghi. Footer wrap trên mobile để các nút không tràn ngang.

@@ -104,3 +104,11 @@ Chủ dự án trả lời: quiz theo lựa chọn giáo viên (Q-028/029/030 �
 ### 2026-11-02 — Phong cách NoteTatCa (CONFIRMED)
 
 Chủ dự án yêu cầu đồng bộ sidebar, nút ẩn/hiện bên trái header, logo, avatar/menu tài khoản và dark/light theo NoteTatCa local. DEC-039 thay phần dark mode để sau của Q-019; giữ nghiệp vụ và thương hiệu Attendance.
+
+### 2026-11-03 — Workspace gọn theo ảnh (CONFIRMED)
+
+Chủ dự án yêu cầu giãn tab môn/học kỳ và nút thêm cùng hàng; thông tin lớp xem trước, nút Sửa mở modal; bản tin giống bài viết Classroom với bình luận dưới mỗi bài; bỏ chữ/tiêu đề giải thích thừa và tối ưu chiều ngang responsive. DEC-040 ghi nhận; bộ lọc học kỳ giáo viên dùng contract semesterId sẵn có, không thêm quy tắc tự đóng lớp.
+
+### 2026-11-03 — Form nghiệp vụ mở trong modal (CONFIRMED)
+
+Chủ dự án giao rà toàn bộ input đang hiện sẵn, chuyển thao tác nhập/chỉnh sửa nghiệp vụ sang nút → modal/popup → lưu; ảnh minh họa là phần chấm điểm bài nộp. Xác nhận bổ sung: riêng bình luận giữ nhập trực tiếp như Classroom. Giao commit/push sau hoàn tất. DEC-041; inventory và giới hạn tại 09-ui-design/FRONTEND-IMPLEMENTATION, không cấp thao tác gửi mail/import dữ liệu.

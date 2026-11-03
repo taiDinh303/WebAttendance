@@ -70,3 +70,7 @@ TASK-024 nghiệm thu local: PHP101/838, Vitest29, browseradmin1scenario, HTTP30
 ## 2026-11-01 — TASK-015 Export Excel
 
 IMPLEMENTED LOCAL: XLSX điểm danh/bảng điểm đã công bố + mẫu trống, download owner-only, profile studentCode optional. Xem [EXPORTS](EXPORTS.md). Report sync có giới hạn kích thước, chưa background job. Không coi việc có nút Excel là đã VERIFIED cloud; kết quả kiểm ở worklog.
+
+2026-11-03 — TASK-017 / DEC-040: IMPLEMENTED UI gọn theo ảnh, catalog cùng hàng/spacing, thông tin lớp xem trước+sửa modal, teacher semester filter phía server, bài viết bản tin với inline comments, giảm heading/help thừa và responsive. Kiểm và giới hạn tại FRONTEND-IMPLEMENTATION/worklog; không đánh DONE toàn bộ TASK-017 hoặc sản phẩm.
+
+2026-11-03 — TASK-017 / DEC-041: rà form toàn React, mở form nghiệp vụ bằng nút→modal, giữ bình luận nhập trực tiếp; scope/inventory ở 09-ui-design. Grade save/publish, hồ sơ/mật khẩu, assignment/files/submission, QR/config/correction, create/join và admin status dùng modal. Không coi việc đổi UI là hoàn thành toàn bộ các module chưa có backend. Chủ dự án giao push sau khi kiểm.

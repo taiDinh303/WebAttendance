@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { RosterEntry } from "../components/RosterEntry";
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -20,7 +21,8 @@ import type { Window, Qr } from "../../../domain/models";
 export default function QrPage() {
   const { classId = "", sessionId = "" } = useParams();
   const { user } = useSession();
-  const [openedAt] = useState(() => Date.now());
+  const [openedAt, setOpenedAt] = useState(() => Date.now());
+  const [configuring, setConfiguring] = useState(false);
   const refresh = useRefresh();
   const query = useResource(
     ["attendance-window", sessionId],
@@ -53,42 +55,69 @@ export default function QrPage() {
       {query.isSuccess && !query.data ? (
         <div className="panel editor-panel narrow">
           <h2>Mở điểm danh QR</h2>
-          <AsyncForm
-            onSubmit={async (f) => {
-              await attendanceApi.open(classId, sessionId, {
-                opensAt: iso(f.get("opensAt")),
-                lateAfter: iso(f.get("lateAfter")),
-                closesAt: iso(f.get("closesAt")),
-              });
-              await refresh();
+          <p className="muted">Chưa mở điểm danh.</p>
+          <button
+            className="button"
+            onClick={() => {
+              setOpenedAt(Date.now());
+              setConfiguring(true);
             }}
           >
-            {[
-              ["opensAt", "Mở từ", -1],
-              ["lateAfter", "Tính muộn sau", 5],
-              ["closesAt", "Đóng lúc", 15],
-            ].map(([name, label, offset]) => (
-              <Field key={name} label={String(label)}>
-                <input
-                  name={String(name)}
-                  type="datetime-local"
-                  required
-                  defaultValue={new Date(
-                    openedAt +
-                      Number(offset) * 60000 -
-                      new Date().getTimezoneOffset() * 60000,
-                  )
-                    .toISOString()
-                    .slice(0, 16)}
-                />
-              </Field>
-            ))}
-            <p className="muted">
-              Các mốc được nhập theo giờ máy của bạn. Giờ mở cần bao gồm thời
-              điểm hiện tại.
-            </p>
-            <button className="button">Mở QR & chốt danh sách</button>
-          </AsyncForm>
+            Mở điểm danh QR
+          </button>
+          {configuring ? (
+            <Modal
+              title="Mở điểm danh QR"
+              onClose={() => setConfiguring(false)}
+            >
+              <AsyncForm
+                onSubmit={async (f) => {
+                  await attendanceApi.open(classId, sessionId, {
+                    opensAt: iso(f.get("opensAt")),
+                    lateAfter: iso(f.get("lateAfter")),
+                    closesAt: iso(f.get("closesAt")),
+                  });
+                  await refresh();
+                  setConfiguring(false);
+                }}
+              >
+                {[
+                  ["opensAt", "Mở từ", -1],
+                  ["lateAfter", "Tính muộn sau", 5],
+                  ["closesAt", "Đóng lúc", 15],
+                ].map(([name, label, offset]) => (
+                  <Field key={name} label={String(label)}>
+                    <input
+                      name={String(name)}
+                      type="datetime-local"
+                      required
+                      defaultValue={new Date(
+                        openedAt +
+                          Number(offset) * 60000 -
+                          new Date().getTimezoneOffset() * 60000,
+                      )
+                        .toISOString()
+                        .slice(0, 16)}
+                    />
+                  </Field>
+                ))}
+                <p className="muted">
+                  Các mốc được nhập theo giờ máy của bạn. Giờ mở cần bao gồm
+                  thời điểm hiện tại.
+                </p>
+                <footer className="modal-actions">
+                  <button
+                    type="button"
+                    className="button secondary"
+                    onClick={() => setConfiguring(false)}
+                  >
+                    Đóng
+                  </button>
+                  <button className="button">Mở QR & chốt danh sách</button>
+                </footer>
+              </AsyncForm>
+            </Modal>
+          ) : null}
         </div>
       ) : null}
       {query.data ? (

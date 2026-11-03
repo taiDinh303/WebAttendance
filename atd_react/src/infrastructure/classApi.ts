@@ -94,6 +94,19 @@ export const classApi = {
     request("/notifications/" + id + "/read", { method: "PUT" }),
   catalog: (kind: string, pageNumber: number, signal?: AbortSignal) =>
     request<Page<CatalogItem>>("/" + kind + params({ pageNumber }), { signal }),
+  catalogOptions: async (
+    kind: string,
+    signal?: AbortSignal,
+  ): Promise<CatalogItem[]> => {
+    const items: CatalogItem[] = [];
+    let pageNumber = 1;
+    while (true) {
+      const page = await classApi.catalog(kind, pageNumber, signal);
+      items.push(...page.items);
+      if (!page.hasNextPage) return items;
+      pageNumber++;
+    }
+  },
   catalogItem: (kind: string, id: string, signal?: AbortSignal) =>
     request<CatalogItem>("/" + kind + "/" + id, { signal }),
   saveCatalog: (kind: string, body: unknown, id?: string) =>
@@ -106,43 +119,69 @@ export const classApi = {
       method: "DELETE",
       body: { expectedVersion: item.version },
     }),
-  announcements: (
-    classId: string,
-    pageNumber: number,
-    signal?: AbortSignal,
-  ) =>
+  announcements: (classId: string, pageNumber: number, signal?: AbortSignal) =>
     request<Page<Announcement>>(
       "/classes/" + classId + "/announcements" + params({ pageNumber }),
       { signal },
     ),
-  announcement: (classId: string, id: string, signal?: AbortSignal, commentPage = 1) =>
+  announcement: (
+    classId: string,
+    id: string,
+    signal?: AbortSignal,
+    commentPage = 1,
+  ) =>
     request<{
       announcement: Announcement;
       comments: AnnouncementComment[];
       commentPagination: Page<AnnouncementComment>;
-    }>("/classes/" + classId + "/announcements/" + id + params({ commentPage }), { signal }),
+    }>(
+      "/classes/" + classId + "/announcements/" + id + params({ commentPage }),
+      { signal },
+    ),
   saveAnnouncement: (classId: string, body: unknown, id?: string) =>
-    request<Announcement>("/classes/" + classId + "/announcements" + (id ? "/" + id : ""), {
-      method: id ? "PATCH" : "POST",
-      body,
-    }),
+    request<Announcement>(
+      "/classes/" + classId + "/announcements" + (id ? "/" + id : ""),
+      {
+        method: id ? "PATCH" : "POST",
+        body,
+      },
+    ),
   publishAnnouncement: (classId: string, id: string, version: number) =>
-    request<Announcement>("/classes/" + classId + "/announcements/" + id + "/publish", {
-      method: "POST",
-      body: { expectedVersion: version },
-    }),
+    request<Announcement>(
+      "/classes/" + classId + "/announcements/" + id + "/publish",
+      {
+        method: "POST",
+        body: { expectedVersion: version },
+      },
+    ),
   archiveAnnouncement: (classId: string, id: string, version: number) =>
-    request<Announcement>("/classes/" + classId + "/announcements/" + id + "/archive", {
-      method: "POST",
-      body: { expectedVersion: version },
-    }),
-  addComment: (classId: string, announcementId: string, body: string, clientMessageId?: string) =>
-    request<AnnouncementComment>("/classes/" + classId + "/announcements/" + announcementId + "/comments", {
-      method: "POST",
-      body: { body, clientMessageId },
-    }),
+    request<Announcement>(
+      "/classes/" + classId + "/announcements/" + id + "/archive",
+      {
+        method: "POST",
+        body: { expectedVersion: version },
+      },
+    ),
+  addComment: (
+    classId: string,
+    announcementId: string,
+    body: string,
+    clientMessageId?: string,
+  ) =>
+    request<AnnouncementComment>(
+      "/classes/" + classId + "/announcements/" + announcementId + "/comments",
+      {
+        method: "POST",
+        body: { body, clientMessageId },
+      },
+    ),
   hideComment: (classId: string, commentId: string, hidden = true) =>
-    request("/classes/" + classId + "/comments/" + commentId + "/hide", { method: "POST", body: { hidden } }),
+    request("/classes/" + classId + "/comments/" + commentId + "/hide", {
+      method: "POST",
+      body: { hidden },
+    }),
   deleteComment: (classId: string, commentId: string) =>
-    request("/classes/" + classId + "/comments/" + commentId, { method: "DELETE" }),
+    request("/classes/" + classId + "/comments/" + commentId, {
+      method: "DELETE",
+    }),
 };

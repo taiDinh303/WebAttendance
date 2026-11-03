@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Plus, FileText, ArrowUpRight } from "lucide-react";
@@ -34,7 +35,7 @@ export function AssignmentsPanel({ classId }: { classId: string }) {
         ) : null}
       </div>
       {open ? (
-        <div className="panel editor-panel">
+        <Modal title="Giao bài tập" onClose={() => setOpen(false)}>
           <AsyncForm
             onSubmit={async (f) => {
               const a = await learningApi.save(classId, {
@@ -65,9 +66,18 @@ export function AssignmentsPanel({ classId }: { classId: string }) {
               <input type="checkbox" name="allowResubmit" defaultChecked />
               Cho phép nộp lại
             </label>
-            <button className="button">Tạo bản nháp</button>
+            <footer className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setOpen(false)}
+              >
+                Đóng
+              </button>
+              <button className="button">Tạo bản nháp</button>
+            </footer>
           </AsyncForm>
-        </div>
+        </Modal>
       ) : null}
       <QueryState
         pending={query.isPending}

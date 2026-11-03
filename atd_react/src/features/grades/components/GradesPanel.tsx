@@ -19,11 +19,10 @@ function TeacherGrades({ classId }: { classId: string }) {
   );
   return (
     <>
-      <h2>Bảng điểm lớp</h2><ExportButtons classId={classId} kind="grades"/>
-      <p className="muted">
-        Trung bình các điểm đã công bố, trọng số bằng nhau. Chưa có điểm hiển
-        thị “—”.
-      </p>
+      <div className="content-toolbar">
+        <h2 className="sr-only">Bảng điểm lớp</h2>
+        <ExportButtons classId={classId} kind="grades" />
+      </div>
       <QueryState
         pending={query.isPending}
         error={query.error}

@@ -15,12 +15,12 @@ export function AttendanceHistory({ classId }: { classId: string }) {
   );
   return (
     <>
-      <h2>Lịch sử điểm danh</h2>{user?.role==="teacher" ? <ExportButtons classId={classId} kind="attendance"/>:null}
-      <p className="muted">
-        {user?.role === "teacher"
-          ? "Mở buổi học trong tab Lịch học để xem roster và điều chỉnh có lý do."
-          : "Kết quả điểm danh của riêng bạn trong lớp."}
-      </p>
+      <div className="content-toolbar">
+        <h2 className="sr-only">Lịch sử điểm danh</h2>
+        {user?.role === "teacher" ? (
+          <ExportButtons classId={classId} kind="attendance" />
+        ) : null}
+      </div>
       <QueryState
         pending={query.isPending}
         error={query.error}
@@ -42,7 +42,7 @@ export function AttendanceHistory({ classId }: { classId: string }) {
               <p>
                 {r.checkedInAt
                   ? "Quét lúc " + dateTime(r.checkedInAt)
-                  : "Ghi nhận bởi giáo viên / hệ thống"}
+                  : "Ghi nhận thủ công"}
               </p>
               {user?.role === "teacher" ? (
                 <AttendanceAuditTimeline classId={classId} recordId={r.id} />

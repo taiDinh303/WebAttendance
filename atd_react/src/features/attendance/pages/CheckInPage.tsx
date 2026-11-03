@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useSearchParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { ScanLine, Camera, CheckCircle2 } from "lucide-react";
@@ -10,6 +11,8 @@ import { CameraScanner } from "../components/CameraScanner";
 export default function CheckInPage() {
   const [search, setSearch] = useSearchParams();
   const [token, setToken] = useState(search.get("token") ?? "");
+  const [editing, setEditing] = useState(false);
+  const [qrDraft, setQrDraft] = useState("");
   const [camera, setCamera] = useState(false);
   const [result, setResult] = useState<Attendance | null>(null);
   const { user } = useSession();
@@ -81,21 +84,57 @@ export default function CheckInPage() {
                 setSearch({}, { replace: true });
               }}
             >
-              <Field
-                label="Liên kết hoặc nội dung mã QR"
-                hint="Mã thay đổi mỗi 30 giây. Không nhập mã lớp vào ô này."
+              <p className="muted">
+                {token
+                  ? "Đã nhận mã QR. Bạn có thể xác nhận điểm danh."
+                  : "Quét QR hoặc dán liên kết điểm danh."}
+              </p>
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => {
+                  setQrDraft(token);
+                  setEditing(true);
+                }}
               >
-                <textarea
-                  name="qrToken"
-                  required
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  rows={4}
-                  placeholder="Quét QR hoặc dán liên kết điểm danh…"
-                />
-              </Field>
+                {token ? "Sửa mã QR" : "Dán mã QR"}
+              </button>
               <button className="button wide">Xác nhận điểm danh</button>
             </AsyncForm>
+            {editing ? (
+              <Modal title="Nhập mã QR" onClose={() => setEditing(false)}>
+                <AsyncForm
+                  onSubmit={async () => {
+                    setToken(qrDraft);
+                    setEditing(false);
+                  }}
+                >
+                  <Field
+                    label="Liên kết hoặc nội dung mã QR"
+                    hint="Mã thay đổi mỗi 30 giây. Không nhập mã lớp vào ô này."
+                  >
+                    <textarea
+                      name="qrToken"
+                      required
+                      value={qrDraft}
+                      onChange={(e) => setQrDraft(e.target.value)}
+                      rows={4}
+                      placeholder="Quét QR hoặc dán liên kết điểm danh…"
+                    />
+                  </Field>
+                  <footer className="modal-actions">
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => setEditing(false)}
+                    >
+                      Đóng
+                    </button>
+                    <button className="button">Áp dụng</button>
+                  </footer>
+                </AsyncForm>
+              </Modal>
+            ) : null}
           </>
         )}
       </section>

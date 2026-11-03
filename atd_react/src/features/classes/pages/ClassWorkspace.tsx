@@ -1,11 +1,6 @@
-import {
-  useLocation,
-  useParams,
-  NavLink,
-  useNavigate,
-} from "react-router-dom";
+import { useLocation, useParams, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { BookOpen, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { useResource, useRefresh } from "../../../application/queries";
 import { classApi } from "../../../infrastructure/classApi";
@@ -25,6 +20,7 @@ import { CalendarContent } from "../../calendar/pages/CalendarPage";
 import { AttendanceHistory } from "../../attendance/components/AttendanceHistory";
 import { CatalogFields } from "../components/CatalogFields";
 import { AnnouncementsPanel } from "../../announcements/components/AnnouncementsPanel";
+import { Modal } from "../../../shared/components/Modal";
 export default function ClassWorkspace() {
   const { classId } = useParams();
   return <ClassWorkspaceContent key={classId} />;
@@ -37,6 +33,7 @@ function ClassWorkspaceContent() {
   const [invite, setInvite] = useState<string>(
     (location.state as { inviteCode?: string } | null)?.inviteCode ?? "",
   );
+  const [editing, setEditing] = useState(false);
   const refresh = useRefresh();
   const query = useResource(["class", classId], (s) =>
     classApi.get(classId, s),
@@ -65,10 +62,8 @@ function ClassWorkspaceContent() {
       <PageHeader
         eyebrow="KHÔNG GIAN LỚP HỌC"
         title={c.name}
-        description={c.description || "Cùng học tập, cùng tiến bộ."}
         action={<Badge value={c.status} />}
       />
-      <p className="muted class-timezone">Múi giờ lớp · {c.timezone}</p>
       <nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
@@ -97,62 +92,98 @@ function ClassWorkspaceContent() {
       ) : (
         <div className="detail-grid">
           <section className="panel editor-panel">
-            <span className="stat-icon blue">
-              <BookOpen />
-            </span>
-            <h2>Thông tin lớp học</h2>
-            <p>{c.description || "Giáo viên chưa thêm mô tả."}</p>
-            <p className="muted">Múi giờ lớp: {c.timezone}</p>
-            {teacher ? (
-              <AsyncForm
-                key={c.id}
-                success="Thông tin lớp đã được cập nhật."
-                onSubmit={async (f) => {
-                  await classApi.update(classId, {
-                    name: text(f, "name"),
-                    description: text(f, "description"),
-                    expectedVersion: c.version,
-                    courseId: text(f, "courseId") || null,
-                    semesterId: text(f, "semesterId") || null,
-                  });
-                  await refresh();
-                }}
+            <div className="section-heading">
+              <h2>Thông tin lớp</h2>
+              {teacher ? (
+                <button
+                  className="button secondary small"
+                  onClick={() => setEditing(true)}
+                >
+                  Sửa
+                </button>
+              ) : null}
+            </div>
+            {c.description ? (
+              <p className="class-description">{c.description}</p>
+            ) : null}
+            <dl className="class-facts">
+              <div>
+                <dt>Múi giờ</dt>
+                <dd>{c.timezone}</dd>
+              </div>
+              {teacher ? (
+                <>
+                  <ClassCatalogFact
+                    kind="courses"
+                    id={c.courseId}
+                    label="Môn học"
+                  />
+                  <ClassCatalogFact
+                    kind="semesters"
+                    id={c.semesterId}
+                    label="Học kỳ"
+                  />
+                </>
+              ) : null}
+            </dl>
+            {teacher && editing ? (
+              <Modal
+                title="Sửa thông tin lớp"
+                onClose={() => setEditing(false)}
               >
-                <Field label="Tên lớp">
-                  <input
-                    name="name"
-                    defaultValue={c.name}
-                    required
-                    maxLength={200}
+                <AsyncForm
+                  key={c.id}
+                  success="Thông tin lớp đã được cập nhật."
+                  onSubmit={async (f) => {
+                    await classApi.update(classId, {
+                      name: text(f, "name"),
+                      description: text(f, "description"),
+                      expectedVersion: c.version,
+                      courseId: text(f, "courseId") || null,
+                      semesterId: text(f, "semesterId") || null,
+                    });
+                    await refresh();
+                    setEditing(false);
+                  }}
+                >
+                  <Field label="Tên lớp">
+                    <input
+                      name="name"
+                      defaultValue={c.name}
+                      required
+                      maxLength={200}
+                    />
+                  </Field>
+                  <Field label="Mô tả">
+                    <textarea
+                      name="description"
+                      defaultValue={c.description ?? ""}
+                      rows={4}
+                    />
+                  </Field>
+                  <CatalogFields
+                    key={c.id + ":" + c.courseId + ":" + c.semesterId}
+                    courseId={c.courseId}
+                    semesterId={c.semesterId}
                   />
-                </Field>
-                <Field label="Mô tả">
-                  <textarea
-                    name="description"
-                    defaultValue={c.description ?? ""}
-                    rows={4}
-                  />
-                </Field>
-                <CatalogFields
-                  key={c.id + ":" + c.courseId + ":" + c.semesterId}
-                  courseId={c.courseId}
-                  semesterId={c.semesterId}
-                />
-                <button className="button secondary">Lưu thay đổi</button>
-              </AsyncForm>
-            ) : (
-              <p className="info">
-                Bạn chỉ xem được lớp khi yêu cầu tham gia đã được duyệt.
-              </p>
-            )}
+                  <footer className="modal-actions">
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => setEditing(false)}
+                    >
+                      Đóng
+                    </button>
+                    <button className="button">Lưu</button>
+                  </footer>
+                </AsyncForm>
+              </Modal>
+            ) : null}
           </section>
           {teacher ? (
             <aside className="panel editor-panel">
-              <span className="eyebrow">KẾT NỐI VỚI HỌC SINH</span>
               <h2>Mã tham gia lớp</h2>
-              <p className="muted">
-                Chia sẻ mã với học sinh. Mọi yêu cầu vẫn cần bạn phê duyệt.
-              </p>
+              <p className="muted">Học sinh nhập mã và chờ duyệt.</p>
               {invite ? (
                 <div className="invite-code">
                   <code>{invite}</code>
@@ -165,10 +196,7 @@ function ClassWorkspaceContent() {
                   </ActionButton>
                 </div>
               ) : (
-                <p className="info">
-                  Mã chỉ hiển thị khi tạo hoặc đổi mã. Tạo mã mới nếu không còn
-                  giữ mã hiện tại.
-                </p>
+                <p className="info">Tạo mã mới nếu bạn không còn giữ mã cũ.</p>
               )}
               <ActionButton
                 className="button secondary"
@@ -186,46 +214,42 @@ function ClassWorkspaceContent() {
               >
                 Tạo mã mới
               </ActionButton>
-              <hr />
-              <ActionButton
-                className="button secondary"
-                action={async () => {
-                  await classApi.action(classId, "invite-code/disable", {
-                    expectedVersion: c.version,
-                  });
-                  setInvite("");
-                  await refresh();
-                }}
-              >
-                Tắt mã tham gia
-              </ActionButton>
-              {c.status === "active" ? (
+              <div className="inline-actions class-controls">
                 <ActionButton
-                  className="button danger"
+                  className="button secondary"
                   action={async () => {
-                    if (
-                      !window.confirm(
-                        "Lưu trữ lớp sẽ dừng các thao tác học tập mới. Tiếp tục?",
-                      )
-                    )
-                      return;
-                    await classApi.action(classId, "archive", {
+                    await classApi.action(classId, "invite-code/disable", {
                       expectedVersion: c.version,
                     });
+                    setInvite("");
                     await refresh();
                   }}
                 >
-                  Lưu trữ lớp
+                  Tắt mã tham gia
                 </ActionButton>
-              ) : null}
+                {c.status === "active" ? (
+                  <ActionButton
+                    className="button danger"
+                    action={async () => {
+                      if (
+                        !window.confirm(
+                          "Lưu trữ lớp sẽ dừng các thao tác học tập mới. Tiếp tục?",
+                        )
+                      )
+                        return;
+                      await classApi.action(classId, "archive", {
+                        expectedVersion: c.version,
+                      });
+                      await refresh();
+                    }}
+                  >
+                    Lưu trữ lớp
+                  </ActionButton>
+                ) : null}
+              </div>
             </aside>
           ) : (
             <aside className="tip-card">
-              <h2>Mọi thứ, ngay tại đây.</h2>
-              <p>
-                Mở tab Bài tập để xem và nộp bài. Theo dõi lịch học, điểm danh
-                và điểm số trong các tab tương ứng.
-              </p>
               {c.membershipVersion !== undefined ? (
                 <ActionButton
                   className="button danger"
@@ -249,5 +273,27 @@ function ClassWorkspaceContent() {
         </div>
       )}
     </>
+  );
+}
+
+function ClassCatalogFact({
+  kind,
+  id,
+  label,
+}: {
+  kind: "courses" | "semesters";
+  id: string | null;
+  label: string;
+}) {
+  const query = useResource(
+    ["catalog", kind, id],
+    (signal) => classApi.catalogItem(kind, id!, signal),
+    { enabled: !!id },
+  );
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{id ? (query.data?.name ?? "—") : "Chưa chọn"}</dd>
+    </div>
   );
 }

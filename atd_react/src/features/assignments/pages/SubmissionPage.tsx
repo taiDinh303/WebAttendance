@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { usePage, useResource, useRefresh } from "../../../application/queries";
@@ -85,6 +86,7 @@ export default function SubmissionPage() {
   );
 }
 function GradeEditor({ revisionId }: { revisionId: string }) {
+  const [mode, setMode] = useState<"edit" | "publish" | null>(null);
   const refresh = useRefresh();
   const grade = useResource(["grade", revisionId], async (s) => {
     try {
@@ -105,51 +107,99 @@ function GradeEditor({ revisionId }: { revisionId: string }) {
   const g = grade.data;
   return (
     <section className="panel editor-panel">
-      <h2>Chấm điểm</h2>
-      <p className="muted">
-        Lưu nháp trước khi công bố. Chỉ lần nộp mới nhất có thể được chấm.
-      </p>
-      <AsyncForm
-        success="Đã lưu điểm nháp. Học sinh chưa thấy điểm mới này."
-        onSubmit={async (f) => {
-          await learningApi.saveGrade(revisionId, {
-            score: Number(f.get("score")),
-            feedback: text(f, "feedback"),
-            expectedVersion: g?.version ?? 0,
-          });
-          await refresh();
-        }}
-      >
-        <Field label="Điểm / 10">
-          <input
-            name="score"
-            type="number"
-            min="0"
-            max="10"
-            step="0.01"
-            required
-            defaultValue={g?.score}
-          />
-        </Field>
-        <Field label="Nhận xét">
-          <textarea
-            name="feedback"
-            rows={4}
-            maxLength={10000}
-            defaultValue={g?.feedback ?? ""}
-          />
-        </Field>
-        <button className="button secondary">Lưu điểm nháp</button>
-      </AsyncForm>
+      <div className="section-heading">
+        <h2>Điểm & nhận xét</h2>
+        <button
+          className="button secondary small"
+          onClick={() => setMode("edit")}
+        >
+          {g ? "Sửa" : "Chấm điểm"}
+        </button>
+      </div>
       {g ? (
         <>
-          <hr />
           <Badge value={g.state} />
+          <dl className="profile-facts">
+            <div>
+              <dt>Điểm / 10</dt>
+              <dd>
+                <strong className="score">{g.score}</strong>
+              </dd>
+            </div>
+            <div>
+              <dt>Nhận xét</dt>
+              <dd className="pre-wrap">{g.feedback || "Chưa có nhận xét"}</dd>
+            </div>
+          </dl>
+          <button
+            className="button"
+            disabled={g.state === "published"}
+            onClick={() => setMode("publish")}
+          >
+            Công bố điểm
+          </button>
+        </>
+      ) : (
+        <p className="muted">Chưa chấm điểm.</p>
+      )}
+      {mode === "edit" ? (
+        <Modal
+          title={g ? "Sửa điểm & nhận xét" : "Chấm điểm"}
+          onClose={() => setMode(null)}
+        >
+          <AsyncForm
+            success="Đã lưu điểm nháp. Học sinh chưa thấy điểm mới này."
+            onSubmit={async (f) => {
+              await learningApi.saveGrade(revisionId, {
+                score: Number(f.get("score")),
+                feedback: text(f, "feedback"),
+                expectedVersion: g?.version ?? 0,
+              });
+              await refresh();
+              setMode(null);
+            }}
+          >
+            <Field label="Điểm / 10">
+              <input
+                name="score"
+                type="number"
+                min="0"
+                max="10"
+                step="0.01"
+                required
+                defaultValue={g?.score}
+              />
+            </Field>
+            <Field label="Nhận xét">
+              <textarea
+                name="feedback"
+                rows={4}
+                maxLength={10000}
+                defaultValue={g?.feedback ?? ""}
+              />
+            </Field>
+            <footer className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setMode(null)}
+              >
+                Đóng
+              </button>
+              <button className="button">Lưu điểm nháp</button>
+            </footer>
+          </AsyncForm>
+        </Modal>
+      ) : null}
+      {g && mode === "publish" ? (
+        <Modal title="Công bố điểm" onClose={() => setMode(null)}>
+          <p>Điểm {g.score} / 10 sẽ hiển thị cho học sinh.</p>
           <AsyncForm
             success="Điểm đã được công bố."
             onSubmit={async (f) => {
               await learningApi.publishGrade(g, text(f, "reason"));
               await refresh();
+              setMode(null);
             }}
           >
             <Field
@@ -158,11 +208,20 @@ function GradeEditor({ revisionId }: { revisionId: string }) {
             >
               <textarea name="reason" rows={2} maxLength={500} />
             </Field>
-            <button className="button" disabled={g.state === "published"}>
-              Công bố điểm
-            </button>
+            <footer className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setMode(null)}
+              >
+                Đóng
+              </button>
+              <button className="button" disabled={g.state === "published"}>
+                Công bố điểm
+              </button>
+            </footer>
           </AsyncForm>
-        </>
+        </Modal>
       ) : null}
     </section>
   );

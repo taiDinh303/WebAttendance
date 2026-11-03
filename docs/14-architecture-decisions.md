@@ -141,3 +141,11 @@ Chủ dự án giao xuất Excel điểm danh/điểm và hỏi các cột ngoà
 ### DEC-039 — Shell và dark/light theo NoteTatCa (CONFIRMED 2026-11-02)
 
 Nguồn: yêu cầu trực tiếp chủ dự án. Header xuyên suốt chứa nút sidebar + logo trái, theme và menu avatar phải; bỏ tài khoản trùng cuối sidebar. Sidebar ẩn hoàn toàn trên desktop, drawer trên mobile; Settings cuối navigation. Theme theo thiết bị khi chưa chọn, lưu lựa chọn riêng trên trình duyệt. Học bố cục/palette từ NoteTatCa, không sao chép dữ liệu hoặc auth. IMPLEMENTED; kiểm chứng local tại06-testing.
+
+### DEC-040 — Workspace xem trước, bố cục gọn và bản tin dạng bài viết (CONFIRMED 2026-11-03)
+
+Nguồn: yêu cầu trực tiếp chủ dự án kèm ảnh. Tab Môn học/Học kỳ có khoảng cách, nút thêm cùng hàng; thông tin lớp chỉ đọc, giáo viên chọn Sửa để mở modal. Bản tin giáo viên/học sinh dạng bài viết với bình luận bên dưới theo DEC-035. Bỏ tiêu đề/giải thích thừa, giãn chữ/nút, tận dụng chiều ngang và responsive. Bộ lọc học kỳ ở danh sách lớp giáo viên sử dụng API đã có theo DEC-010; học kỳ là phân nhóm tùy chọn, không tự đóng/lưu trữ lớp theo ngày. Không đổi quyền hoặc quy tắc điểm danh/chấm điểm. Chi tiết triển khai và giới hạn kiểm chứng xem FRONTEND-IMPLEMENTATION/worklog.
+
+### DEC-041 — Form chỉnh sửa mở qua nút và modal (CONFIRMED 2026-11-03)
+
+Nguồn: chủ dự án yêu cầu rà toàn bộ project, chuyển input nhập/chỉnh sửa đang bày sẵn thành Button → modal/popup → edit; sau đó xác nhận riêng bình luận vẫn nhập trực tiếp như Classroom và giao push sau khi hoàn tất. Áp dụng các form nghiệp vụ hiện hành: chấm/công bố điểm, sửa bài tập/tài liệu, hồ sơ/mật khẩu, sửa điểm danh, tạo lớp/tham gia/giao bài/bản tin, nộp bài và cấu hình/nhập QR. Giữ input tìm kiếm/bộ lọc/đăng nhập-đăng ký-khôi phục mật khẩu ở luồng trực tiếp; bình luận dưới bài là ngoại lệ CONFIRMED. Không đổi quyền, validation, thang điểm, audit, version hoặc idempotency. Chi tiết inventory và kiểm chứng tại [UI design](09-ui-design.md), [frontend](FRONTEND-IMPLEMENTATION.md) và worklog.

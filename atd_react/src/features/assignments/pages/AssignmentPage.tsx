@@ -1,3 +1,5 @@
+import { Modal } from "../../../shared/components/Modal";
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSession } from "../../../application/sessionContext";
 import { useResource, useRefresh } from "../../../application/queries";
@@ -17,6 +19,7 @@ import { StudentSubmit } from "../components/StudentSubmit";
 export default function AssignmentPage() {
   const { classId = "", assignmentId = "" } = useParams();
   const { user } = useSession();
+  const [mode, setMode] = useState<"edit" | "files" | null>(null);
   const refresh = useRefresh();
   const query = useResource(["assignment", assignmentId], (s) =>
     learningApi.get(classId, assignmentId, s),
@@ -80,6 +83,7 @@ export default function AssignmentPage() {
                   action={async () => {
                     await learningApi.transition(classId, a, "publish");
                     await refresh();
+                    setMode(null);
                   }}
                 >
                   Công bố bài tập
@@ -92,6 +96,7 @@ export default function AssignmentPage() {
                       return;
                     await learningApi.transition(classId, a, "close");
                     await refresh();
+                    setMode(null);
                   }}
                 >
                   Đóng bài tập
@@ -100,126 +105,171 @@ export default function AssignmentPage() {
             </div>
             {a.state !== "closed" ? (
               <>
-                <AsyncForm
-                  key={a.id}
-                  success="Đã cập nhật bài tập."
-                  onSubmit={async (f) => {
-                    await learningApi.save(
-                      classId,
-                      {
-                        title: text(f, "title"),
-                        instructions: text(f, "instructions"),
-                        dueAt: iso(f.get("dueAt")),
-                        allowLate: f.has("allowLate"),
-                        allowResubmit: f.has("allowResubmit"),
-                        expectedVersion: a.version,
-                      },
-                      a.id,
-                    );
-                    await refresh();
-                  }}
-                >
-                  <Field label="Tiêu đề">
-                    <input
-                      name="title"
-                      required
-                      maxLength={200}
-                      defaultValue={a.title}
-                    />
-                  </Field>
-                  <Field label="Hướng dẫn">
-                    <textarea
-                      name="instructions"
-                      rows={4}
-                      defaultValue={a.instructions ?? ""}
-                    />
-                  </Field>
-                  <Field label="Hạn nộp (giờ máy của bạn)">
-                    <input
-                      type="datetime-local"
-                      name="dueAt"
-                      defaultValue={
-                        a.dueAt
-                          ? new Date(
-                              new Date(a.dueAt).getTime() -
-                                new Date(a.dueAt).getTimezoneOffset() * 60000,
-                            )
-                              .toISOString()
-                              .slice(0, 16)
-                          : ""
-                      }
-                    />
-                  </Field>
-                  <label className="check">
-                    <input
-                      name="allowLate"
-                      type="checkbox"
-                      defaultChecked={a.allowLate}
-                    />
-                    Nhận nộp muộn
-                  </label>
-                  <label className="check">
-                    <input
-                      name="allowResubmit"
-                      type="checkbox"
-                      defaultChecked={a.allowResubmit}
-                    />
-                    Cho nộp lại
-                  </label>
-                  <button className="button secondary">Lưu thay đổi</button>
-                </AsyncForm>
-                <hr />
-                <AsyncForm
-                  success="Đã gắn tài liệu vào bài tập."
-                  onSubmit={async (f) => {
-                    const files = f
-                      .getAll("files")
-                      .filter(
-                        (v): v is File => v instanceof File && v.size > 0,
-                      );
-                    if (!files.length || files.length + data.files.length > 5)
-                      throw Error("Tổng tài liệu đính kèm tối đa 5 file.");
-                    const ids = data.files.map((file) => file.id);
-                    for (const file of files) {
-                      if (file.size > 20 * 1024 * 1024)
-                        throw Error("Mỗi file tối đa 20 MiB.");
-                      ids.push(
-                        (
-                          await learningApi.upload(
-                            classId,
-                            a.id,
-                            "assignment_material",
-                            file,
-                          )
-                        ).id,
-                      );
-                    }
-                    await learningApi.save(
-                      classId,
-                      {
-                        title: a.title,
-                        allowLate: a.allowLate,
-                        allowResubmit: a.allowResubmit,
-                        fileIds: ids,
-                        expectedVersion: a.version,
-                      },
-                      a.id,
-                    );
-                    await refresh();
-                  }}
-                >
-                  <Field label="Thêm tài liệu">
-                    <input
-                      name="files"
-                      type="file"
-                      multiple
-                      accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.txt"
-                    />
-                  </Field>
-                  <button className="button secondary">
-                    Tải lên & gắn tài liệu
+                <div className="inline-actions">
+                  <button
+                    className="button secondary"
+                    onClick={() => setMode("edit")}
+                  >
+                    Sửa bài tập
                   </button>
-                </AsyncForm>
+                  <button
+                    className="button secondary"
+                    onClick={() => setMode("files")}
+                  >
+                    Thêm tài liệu
+                  </button>
+                </div>
+                {mode === "edit" ? (
+                  <Modal title="Sửa bài tập" onClose={() => setMode(null)}>
+                    <AsyncForm
+                      key={a.id}
+                      success="Đã cập nhật bài tập."
+                      onSubmit={async (f) => {
+                        await learningApi.save(
+                          classId,
+                          {
+                            title: text(f, "title"),
+                            instructions: text(f, "instructions"),
+                            dueAt: iso(f.get("dueAt")),
+                            allowLate: f.has("allowLate"),
+                            allowResubmit: f.has("allowResubmit"),
+                            expectedVersion: a.version,
+                          },
+                          a.id,
+                        );
+                        await refresh();
+                        setMode(null);
+                      }}
+                    >
+                      <Field label="Tiêu đề">
+                        <input
+                          name="title"
+                          required
+                          maxLength={200}
+                          defaultValue={a.title}
+                        />
+                      </Field>
+                      <Field label="Hướng dẫn">
+                        <textarea
+                          name="instructions"
+                          rows={4}
+                          defaultValue={a.instructions ?? ""}
+                        />
+                      </Field>
+                      <Field label="Hạn nộp (giờ máy của bạn)">
+                        <input
+                          type="datetime-local"
+                          name="dueAt"
+                          defaultValue={
+                            a.dueAt
+                              ? new Date(
+                                  new Date(a.dueAt).getTime() -
+                                    new Date(a.dueAt).getTimezoneOffset() *
+                                      60000,
+                                )
+                                  .toISOString()
+                                  .slice(0, 16)
+                              : ""
+                          }
+                        />
+                      </Field>
+                      <label className="check">
+                        <input
+                          name="allowLate"
+                          type="checkbox"
+                          defaultChecked={a.allowLate}
+                        />
+                        Nhận nộp muộn
+                      </label>
+                      <label className="check">
+                        <input
+                          name="allowResubmit"
+                          type="checkbox"
+                          defaultChecked={a.allowResubmit}
+                        />
+                        Cho nộp lại
+                      </label>
+                      <footer className="modal-actions">
+                        <button
+                          type="button"
+                          className="button secondary"
+                          onClick={() => setMode(null)}
+                        >
+                          Đóng
+                        </button>
+                        <button className="button">Lưu thay đổi</button>
+                      </footer>
+                    </AsyncForm>
+                  </Modal>
+                ) : null}
+                {mode === "files" ? (
+                  <Modal title="Thêm tài liệu" onClose={() => setMode(null)}>
+                    <AsyncForm
+                      success="Đã gắn tài liệu vào bài tập."
+                      onSubmit={async (f) => {
+                        const files = f
+                          .getAll("files")
+                          .filter(
+                            (v): v is File => v instanceof File && v.size > 0,
+                          );
+                        if (
+                          !files.length ||
+                          files.length + data.files.length > 5
+                        )
+                          throw Error("Tổng tài liệu đính kèm tối đa 5 file.");
+                        const ids = data.files.map((file) => file.id);
+                        for (const file of files) {
+                          if (file.size > 20 * 1024 * 1024)
+                            throw Error("Mỗi file tối đa 20 MiB.");
+                          ids.push(
+                            (
+                              await learningApi.upload(
+                                classId,
+                                a.id,
+                                "assignment_material",
+                                file,
+                              )
+                            ).id,
+                          );
+                        }
+                        await learningApi.save(
+                          classId,
+                          {
+                            title: a.title,
+                            allowLate: a.allowLate,
+                            allowResubmit: a.allowResubmit,
+                            fileIds: ids,
+                            expectedVersion: a.version,
+                          },
+                          a.id,
+                        );
+                        await refresh();
+                        setMode(null);
+                      }}
+                    >
+                      <Field label="Thêm tài liệu">
+                        <input
+                          name="files"
+                          type="file"
+                          multiple
+                          accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.txt"
+                        />
+                      </Field>
+                      <footer className="modal-actions">
+                        <button
+                          type="button"
+                          className="button secondary"
+                          onClick={() => setMode(null)}
+                        >
+                          Đóng
+                        </button>
+                        <button className="button">
+                          Tải lên & gắn tài liệu
+                        </button>
+                      </footer>
+                    </AsyncForm>
+                  </Modal>
+                ) : null}
               </>
             ) : null}
           </section>

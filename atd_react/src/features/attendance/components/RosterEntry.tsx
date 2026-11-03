@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import type { RosterRow } from "../../../domain/models";
 import { attendanceApi } from "../../../infrastructure/attendanceApi";
@@ -43,7 +44,10 @@ export function RosterEntry({
         </button>
       </div>
       {draft ? (
-        <div className="correction-form">
+        <Modal
+          title={"Sửa điểm danh · " + row.studentName}
+          onClose={() => setDraft(null)}
+        >
           <AsyncForm
             onSubmit={async (f) => {
               await attendanceApi.correct(
@@ -77,7 +81,7 @@ export function RosterEntry({
               Thay đổi được lưu vào lịch sử. Nếu kết quả đã được sửa bởi người
               khác, hãy xem lại trước khi lưu.
             </p>
-            <div className="inline-actions">
+            <footer className="modal-actions">
               <button className="button small">Lưu điều chỉnh</button>
               <button
                 type="button"
@@ -86,9 +90,9 @@ export function RosterEntry({
               >
                 Hủy chỉnh sửa
               </button>
-            </div>
+            </footer>
           </AsyncForm>
-        </div>
+        </Modal>
       ) : null}
     </article>
   );

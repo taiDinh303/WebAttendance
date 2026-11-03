@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShieldCheck } from "lucide-react";
@@ -69,14 +70,14 @@ export default function AdminUsersPage() {
         <span className="muted">{query.data?.totalItems ?? "—"} tài khoản</span>
       </div>
       {selected ? (
-        <section
-          className="panel editor-panel admin-moderation"
-          aria-label="Thay đổi trạng thái tài khoản"
+        <Modal
+          title={
+            (selected.accountStatus === "active" ? "Khóa" : "Mở khóa") +
+            " · " +
+            selected.displayName
+          }
+          onClose={() => setSelected(null)}
         >
-          <h2>
-            {selected.accountStatus === "active" ? "Khóa" : "Mở khóa"} ·{" "}
-            {selected.displayName}
-          </h2>
           <p className="muted">
             {selected.email} · Phiên bản {selected.version}. Phiên đăng nhập cũ
             sẽ bị thu hồi.
@@ -103,7 +104,7 @@ export default function AdminUsersPage() {
                 placeholder="Nêu rõ lý do để lưu trong nhật ký quản trị."
               />
             </Field>
-            <div className="inline-actions">
+            <footer className="modal-actions">
               <button
                 className={
                   "button " +
@@ -120,9 +121,9 @@ export default function AdminUsersPage() {
               >
                 Hủy thao tác
               </button>
-            </div>
+            </footer>
           </AsyncForm>
-        </section>
+        </Modal>
       ) : null}
       <QueryState
         pending={query.isPending}

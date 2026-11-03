@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Upload, CheckCircle2 } from "lucide-react";
@@ -14,6 +15,8 @@ export function StudentSubmit({
   classId: string;
   assignment: Assignment;
 }) {
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [step, setStep] = useState("");
   const [locked, setLocked] = useState(false);
@@ -67,72 +70,107 @@ export function StudentSubmit({
         Tối đa 5 file, mỗi file 20 MiB. PDF, DOCX, XLSX, PPTX, JPG, PNG hoặc
         TXT.
       </p>
-      <AsyncForm
-        onSubmit={async (form) => {
-          try {
-            const result = await flow.send(
-              files,
-              text(form, "note"),
-              (stage, current, total) =>
+      {old ? (
+        <Link className="text-link" to={"/app/submissions/" + old.id}>
+          Xem bài đã nộp
+        </Link>
+      ) : null}
+      <button className="button" onClick={() => setOpen(true)}>
+        {old ? "Nộp lại bài" : "Nộp bài"}
+      </button>
+      {open ? (
+        <Modal
+          title={old ? "Nộp lại bài" : "Nộp bài"}
+          onClose={() => setOpen(false)}
+        >
+          <AsyncForm
+            onSubmit={async (form) => {
+              try {
+                const result = await flow.send(
+                  files,
+                  text(form, "note"),
+                  (stage, current, total) =>
+                    setStep(
+                      stage === "upload"
+                        ? "Đang tải và kiểm tra file " +
+                            current +
+                            "/" +
+                            total +
+                            "…"
+                        : "Đang chờ máy chủ xác nhận bài nộp…",
+                    ),
+                );
+                setReceipt(result.submission);
+                await refresh();
+                setStep("");
+              } catch (error) {
                 setStep(
-                  stage === "upload"
-                    ? "Đang tải và kiểm tra file " + current + "/" + total + "…"
-                    : "Đang chờ máy chủ xác nhận bài nộp…",
-                ),
-            );
-            setReceipt(result.submission);
-            await refresh();
-            setStep("");
-          } catch (error) {
-            setStep(
-              flow.locked
-                ? "Chưa nhận được xác nhận. Có thể thử lại cùng lần nộp."
-                : "Lần gửi chưa hoàn tất. Kiểm tra lỗi bên dưới.",
-            );
-            throw error;
-          } finally {
-            setLocked(flow.locked);
-          }
-        }}
-      >
-        <Field label="File bài làm">
-          <input
-            aria-label="File bài làm"
-            type="file"
-            multiple
-            disabled={locked}
-            accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.txt"
-            onChange={(e) => {
-              setFiles(Array.from(e.target.files ?? []));
-              flow.resetFiles();
+                  flow.locked
+                    ? "Chưa nhận được xác nhận. Có thể thử lại cùng lần nộp."
+                    : "Lần gửi chưa hoàn tất. Kiểm tra lỗi bên dưới.",
+                );
+                throw error;
+              } finally {
+                setLocked(flow.locked);
+              }
             }}
-          />
-        </Field>
-        <ul className="file-selection">
-          {files.map((file, i) => (
-            <li key={i}>
-              {file.name} · {(file.size / 1024 / 1024).toFixed(2)} MiB
-            </li>
-          ))}
-        </ul>
-        <Field label="Ghi chú cho giáo viên">
-          <textarea name="note" maxLength={2000} rows={3} disabled={locked} />
-        </Field>
-        {locked ? (
-          <p className="info">
-            Nếu chưa nhận xác nhận, bấm lại để kiểm tra cùng lần nộp. Nội dung
-            được khóa để tránh nộp trùng. Tải lại trang thì kiểm tra lịch sử
-            trước khi gửi bài mới.
-          </p>
-        ) : null}
-        <p className="muted" role="status">
-          {step}
-        </p>
-        <button className="button">
-          <Upload size={17} />
-          {locked ? "Xác nhận lại lần nộp" : "Nộp bài"}
-        </button>
-      </AsyncForm>
+          >
+            <Field label="File bài làm">
+              <input
+                aria-label="File bài làm"
+                type="file"
+                multiple
+                disabled={locked}
+                accept=".pdf,.docx,.xlsx,.pptx,.jpg,.jpeg,.png,.txt"
+                onChange={(e) => {
+                  setFiles(Array.from(e.target.files ?? []));
+                  flow.resetFiles();
+                }}
+              />
+            </Field>
+            <ul className="file-selection">
+              {files.map((file, i) => (
+                <li key={i}>
+                  {file.name} · {(file.size / 1024 / 1024).toFixed(2)} MiB
+                </li>
+              ))}
+            </ul>
+            <Field label="Ghi chú cho giáo viên">
+              <textarea
+                name="note"
+                maxLength={2000}
+                rows={3}
+                disabled={locked}
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+              />
+            </Field>
+            {locked ? (
+              <p className="info">
+                Nếu chưa nhận xác nhận, bấm lại để kiểm tra cùng lần nộp. Nội
+                dung được khóa để tránh nộp trùng. Tải lại trang thì kiểm tra
+                lịch sử trước khi gửi bài mới.
+              </p>
+            ) : null}
+            <p className="muted" role="status">
+              {step}
+            </p>
+            <footer className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setOpen(false)}
+              >
+                Đóng
+              </button>
+              <button className="button">
+                <Upload size={17} />
+                {locked ? "Xác nhận lại lần nộp" : "Nộp bài"}
+              </button>
+            </footer>
+          </AsyncForm>
+        </Modal>
+      ) : null}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Search, ArrowRight } from "lucide-react";
@@ -23,13 +24,23 @@ export default function ClassesPage() {
   const navigate = useNavigate();
   const refresh = useRefresh();
   const q = search.get("q") ?? "",
-    status = search.get("status") ?? "active";
-  const classes = useResource(["classes", page, q, status], (s) =>
-    classApi.list({ pageNumber: page, q, status }, s),
+    status = search.get("status") ?? "active",
+    semesterId = search.get("semesterId") ?? "";
+  const semesters = useResource(
+    ["catalog-options", "semesters"],
+    (signal) => classApi.catalogOptions("semesters", signal),
+    { enabled: user?.role === "teacher" },
+  );
+  const classes = useResource(["classes", page, q, status, semesterId], (s) =>
+    classApi.list(
+      { pageNumber: page, q, status, ...(semesterId ? { semesterId } : {}) },
+      s,
+    ),
   );
   return (
     <>
-      <PageHeader compact
+      <PageHeader
+        compact
         eyebrow="KẾT NỐI & HỌC TẬP"
         title="Lớp học của bạn"
         description="Cùng nhau tạo nên những giờ học ý nghĩa."
@@ -41,12 +52,10 @@ export default function ClassesPage() {
         }
       />
       {open ? (
-        <section className="panel editor-panel">
-          <h2>
-            {user?.role === "teacher"
-              ? "Tạo không gian học tập mới"
-              : "Tham gia bằng mã lớp"}
-          </h2>
+        <Modal
+          title={user?.role === "teacher" ? "Tạo lớp học" : "Tham gia lớp"}
+          onClose={() => setOpen(false)}
+        >
           <AsyncForm
             onSubmit={async (f) => {
               if (user?.role === "teacher") {
@@ -102,12 +111,21 @@ export default function ClassesPage() {
                 />
               </Field>
             )}
-            <button className="button">
-              {user?.role === "teacher" ? "Tạo lớp" : "Gửi yêu cầu"}
-              <ArrowRight size={16} />
-            </button>
+            <footer className="modal-actions">
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setOpen(false)}
+              >
+                Đóng
+              </button>
+              <button className="button">
+                {user?.role === "teacher" ? "Tạo lớp" : "Gửi yêu cầu"}
+                <ArrowRight size={16} />
+              </button>
+            </footer>
           </AsyncForm>
-        </section>
+        </Modal>
       ) : null}
       <div className="filter-bar">
         <label className="search-box">
@@ -119,7 +137,7 @@ export default function ClassesPage() {
             value={q}
             onChange={(e) =>
               setSearch(
-                { q: e.target.value, status, page: "1" },
+                { q: e.target.value, status, semesterId, page: "1" },
                 { replace: true },
               )
             }
@@ -128,13 +146,40 @@ export default function ClassesPage() {
         <select
           aria-label="Trạng thái lớp"
           value={status}
-          onChange={(e) => setSearch({ q, status: e.target.value, page: "1" })}
+          onChange={(e) =>
+            setSearch({ q, status: e.target.value, semesterId, page: "1" })
+          }
         >
           <option value="active">Đang hoạt động</option>
           <option value="archived">Đã lưu trữ</option>
         </select>
+        {user?.role === "teacher" ? (
+          <select
+            aria-label="Lọc học kỳ"
+            value={semesterId}
+            onChange={(e) =>
+              setSearch({ q, status, semesterId: e.target.value, page: "1" })
+            }
+          >
+            <option value="">Tất cả học kỳ</option>
+            {semesterId &&
+            !semesters.data?.some((item) => item.id === semesterId) ? (
+              <option value={semesterId}>Học kỳ đang chọn</option>
+            ) : null}
+            {semesters.data?.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        ) : null}
         <span className="muted">{classes.data?.totalItems ?? "—"} lớp học</span>
       </div>
+      <QueryState
+        pending={semesters.isPending && user?.role === "teacher"}
+        error={semesters.error}
+        retry={semesters.refetch}
+      />
       <QueryState
         pending={classes.isPending}
         error={classes.error}
