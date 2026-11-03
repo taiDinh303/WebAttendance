@@ -1,3 +1,4 @@
+import { ClassToolbarProvider, ClassToolbarSlot } from "../../../shared/components/ClassToolbar";
 import { ClassBanner } from "../components/ClassBanner";
 import { askDialog } from "../../../shared/components/askDialog";
 import {
@@ -68,7 +69,7 @@ function ClassWorkspaceContent() {
       />
     );
   return (
-    <>
+    <ClassToolbarProvider>
       <ClassBanner
         id={c.id}
         name={c.name}
@@ -76,7 +77,7 @@ function ClassWorkspaceContent() {
         editable={teacher}
         actorId={user?.id ?? ""}
       />
-      <nav className="tabs">
+      <div className="class-navigation"><nav className="tabs">
         {tabs.map(([key, label]) => (
           <NavLink
             key={key}
@@ -88,7 +89,7 @@ function ClassWorkspaceContent() {
             {label}
           </NavLink>
         ))}
-      </nav>
+      </nav><ClassToolbarSlot/></div>
       {tab === "announcements" ? (
         <AnnouncementsPanel classId={classId} />
       ) : tab === "assignments" ? (
@@ -321,7 +322,7 @@ function ClassWorkspaceContent() {
         </>
       ) : null}
 
-    </>
+    </ClassToolbarProvider>
   );
 }
 

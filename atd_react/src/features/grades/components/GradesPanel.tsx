@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { ExportButtons } from "../../exports/components/ExportButtons";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource } from "../../../application/queries";
@@ -19,10 +20,10 @@ function TeacherGrades({ classId }: { classId: string }) {
   );
   return (
     <>
-      <div className="content-toolbar">
+      <ClassToolbar>
         <h2 className="sr-only">Bảng điểm lớp</h2>
         <ExportButtons classId={classId} kind="grades" />
-      </div>
+      </ClassToolbar>
       <QueryState
         pending={query.isPending}
         error={query.error}

@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { Modal } from "../../../shared/components/Modal";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -25,15 +26,15 @@ export function AssignmentsPanel({ classId }: { classId: string }) {
   );
   return (
     <>
-      <div className="section-heading">
-        <h2>Bài tập của lớp</h2>
+      <ClassToolbar>
+        
         {user?.role === "teacher" ? (
           <button className="button small" onClick={() => setOpen(!open)}>
             <Plus size={16} />
             Giao bài tập
           </button>
         ) : null}
-      </div>
+      </ClassToolbar>
       {open ? (
         <Modal title="Giao bài tập" onClose={() => setOpen(false)}>
           <AsyncForm

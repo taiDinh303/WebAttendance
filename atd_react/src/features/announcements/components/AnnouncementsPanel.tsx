@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useRef, useState } from "react";
@@ -39,7 +40,7 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
 
   return (
     <>
-      <div className="content-toolbar">
+      <ClassToolbar>
         <h2 className="sr-only">Bản tin lớp</h2>
         {teacher ? (
           <button className="button small" onClick={() => setOpen(!open)}>
@@ -47,7 +48,7 @@ export function AnnouncementsPanel({ classId }: { classId: string }) {
             Viết bản tin
           </button>
         ) : null}
-      </div>
+      </ClassToolbar>
       {savedDraft ? (
         <p role="status">
           Đã lưu bản nháp. Nếu công bố lỗi, bạn có thể công bố từ danh sách.

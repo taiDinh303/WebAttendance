@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { ExportButtons } from "../../exports/components/ExportButtons";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource } from "../../../application/queries";
@@ -15,12 +16,12 @@ export function AttendanceHistory({ classId }: { classId: string }) {
   );
   return (
     <>
-      <div className="content-toolbar">
+      <ClassToolbar>
         <h2 className="sr-only">Lịch sử điểm danh</h2>
         {user?.role === "teacher" ? (
           <ExportButtons classId={classId} kind="attendance" />
         ) : null}
-      </div>
+      </ClassToolbar>
       <QueryState
         pending={query.isPending}
         error={query.error}

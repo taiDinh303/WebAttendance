@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { useState } from "react";
 import { usePage, useResource, useRefresh } from "../../../application/queries";
@@ -21,8 +22,8 @@ export function MembersPanel({ classId }: { classId: string }) {
   );
   return (
     <>
-      <div className="section-heading">
-        <h2>Thành viên lớp</h2>
+      <ClassToolbar>
+        
         <div className="segmented">
           <button
             className={kind === "members" ? "selected" : ""}
@@ -43,7 +44,7 @@ export function MembersPanel({ classId }: { classId: string }) {
             Yêu cầu vào lớp
           </button>
         </div>
-      </div>
+      </ClassToolbar>
       <QueryState
         pending={query.isPending}
         error={query.error}

@@ -1,3 +1,4 @@
+import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useEffect, useState } from "react";
@@ -74,7 +75,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
   );
   return (
     <>
-      <div className="section-heading">
+      <ClassToolbar>
         <div className="inline-actions">
           <input
             aria-label="Tháng xem lịch"
@@ -95,7 +96,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
             </button>
           ) : null}
         </div>
-      </div>
+      </ClassToolbar>
       {open && classId ? (
         <Modal title="Tạo lịch học" onClose={() => setOpen(false)}>
           <label className="check">

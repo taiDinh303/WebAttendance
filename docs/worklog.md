@@ -392,3 +392,7 @@ Theo yêu cầu: sidebar học sinh hiển thị lớp được duyệt và đi�
 Theo yêu cầu đặt một dòng rộng100% ở Tổng quan, thêm teacher-only thông báo Có n yêu cầu vào lớp đang chờ duyệt và Xem yêu cầu. API totalItems, enabled theo role/class/tab, cập nhật30s;0ẩn. Giữ quyền server, không thêm popup hoặc badge sidebar ngoài yêu cầu. Lint/build và browser fixture fullwidth/count/deeplink PASS; chưa cloud mới.
 
 2026-11-03 — Điều chỉnh vị trí nhắc yêu cầu: đặt dưới Thông tin lớp theo yêu cầu mới, giữ full-width và logic cũ. Build/typecheck PASS.
+
+### 2026-11-03 — Gộp hàng tab và toolbar lớp
+
+Theo yêu cầu chủ dự án: xóa Bài tập của lớp, nút/filter cùng hàng tabs trên desktop, xuống riêng khi thiếu width/mobile. Dùng ClassToolbar provider/portal dùng chung cho assignments/announcements/calendar/members/attendance/grades; giữ handler/state tại panel, global calendar fallback. Lint/build PASS; browser fixture12lượt (6tab ×1920/390) alignment/wrap/nooverflow PASS. Không backend/DB hoặc production checks mới.
