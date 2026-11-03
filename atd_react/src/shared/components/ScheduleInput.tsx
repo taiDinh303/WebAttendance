@@ -1,3 +1,4 @@
+import { CalendarDays, Clock } from "lucide-react";
 import { Fragment, useRef, useState } from "react";
 
 type Part = { hint: string; label: string; length: number; min: number; max: number; separator: string };
@@ -39,6 +40,10 @@ export function ScheduleInput({ label, name, kind, defaultValue = "" }: {
     }
   }
   const normalized = values.map((value, index) => value ? value.padStart(parts[index].length, "0") : "").map((value, index) => value + (index < parts.length - 1 ? parts[index].separator : "")).join("") + seconds;
+  const complete = values.every((value, index) => value.length === parts[index].length);
+  const dateValue = kind !== "time" ? [values[2], values[1], values[0]].join("-") : "";
+  const timeValue = kind !== "date" ? values.slice(kind === "time" ? 0 : 3).join(":") : "";
+  const pickerValue = complete ? (kind === "date" ? dateValue : kind === "time" ? timeValue : dateValue + "T" + timeValue) : "";
   return <fieldset className="schedule-field">
     <legend>{label}</legend>
     <input type="hidden" name={name} value={normalized} />
@@ -84,6 +89,23 @@ export function ScheduleInput({ label, name, kind, defaultValue = "" }: {
           }} />
         {index < parts.length - 1 && <span aria-hidden="true">{part.separator}</span>}
       </Fragment>)}
+      <span className="schedule-picker">
+        {kind === "time" ? <Clock size={18} aria-hidden="true" /> : <CalendarDays size={18} aria-hidden="true" />}
+        <input type={kind === "datetime" ? "datetime-local" : kind}
+          aria-label={label + (kind === "time" ? " — Chọn giờ" : " — Chọn lịch")}
+          value={pickerValue}
+          onClick={(event) => { event.currentTarget.showPicker?.(); }}
+          onChange={(event) => {
+            const selected = event.target.value;
+            if (!selected) return;
+            if (kind === "time") setValues(selected.split(":"));
+            else {
+              const [date, time] = selected.split("T");
+              const [year, month, day] = date.split("-");
+              setValues([day, month, year, ...(kind === "datetime" ? time.split(":") : [])]);
+            }
+          }} />
+      </span>
     </div>
   </fieldset>;
 }
