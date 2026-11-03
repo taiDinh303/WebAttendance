@@ -36,6 +36,10 @@ export interface Classroom {
   membershipVersion?: number;
 }
 export interface Membership {
+  studentCode?: string | null;
+  gender?: string | null;
+  birthday?: string | null;
+  joinedAt?: string | null;
   id: string;
   classId: string;
   studentId: string;

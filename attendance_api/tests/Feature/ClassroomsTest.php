@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\ClassMembership;
 use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,5 +91,17 @@ final class ClassroomsTest extends TestCase
         $this->deleteJson('/api/v1/courses/'.$course, ['expectedVersion' => 1])->assertConflict();
         $this->postJson('/api/v1/classes', ['name' => 'Used', 'courseId' => $course])->assertCreated();
         $this->deleteJson('/api/v1/courses/'.$course, ['expectedVersion' => 2])->assertConflict()->assertJsonPath('code', 'RESOURCE_IN_USE');
+    }
+
+    public function test_owner_member_list_includes_basic_profile_and_is_not_visible_to_other_members(): void
+    {
+        $teacher = User::factory()->create(['role' => 'teacher']);
+        $student = User::factory()->create(['student_code' => '00123', 'gender' => 'female', 'birthday' => '2005-02-03']);
+        $classId = $this->actingAs($teacher)->postJson('/api/v1/classes', ['name' => 'Profile list'])->assertCreated()->json('data.class.id');
+        ClassMembership::create(['class_id' => $classId, 'student_id' => $student->id, 'status' => 'active', 'requested_at' => now(), 'joined_at' => now()]);
+        $url = '/api/v1/classes/'.$classId.'/members';
+        $this->getJson($url)->assertOk()->assertJsonPath('data.items.0.studentCode', '00123')->assertJsonPath('data.items.0.gender', 'female')->assertJsonPath('data.items.0.birthday', '2005-02-03');
+        $this->actingAs($student)->getJson($url)->assertNotFound();
+        $this->actingAs(User::factory()->create(['role' => 'teacher']))->getJson($url)->assertNotFound();
     }
 }

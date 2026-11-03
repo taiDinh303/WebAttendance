@@ -12,6 +12,9 @@ final class MembershipResource extends JsonResource
     public function toArray(Request $request): array
     {
         return ['id' => $this->id, 'classId' => $this->class_id, 'studentId' => $this->student_id,
+            'studentCode' => $this->whenLoaded('student', fn () => $this->student->student_code),
+            'gender' => $this->whenLoaded('student', fn () => $this->student->gender),
+            'birthday' => $this->whenLoaded('student', fn () => $this->student->birthday ? substr((string) $this->student->birthday, 0, 10) : null),
             'studentName' => $this->whenLoaded('student', fn () => $this->student->display_name),
             'className' => $this->whenLoaded('classroom', fn () => $this->classroom->name),
             'status' => $this->status, 'requestedAt' => $this->requested_at?->toISOString(),

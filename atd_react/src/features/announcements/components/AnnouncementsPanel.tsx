@@ -1,15 +1,9 @@
+import { ActionMenu } from "../../../shared/components/ActionMenu";
 import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useRef, useState } from "react";
-import {
-  Plus,
-  Megaphone,
-  MessageSquare,
-  Pin,
-  EyeOff,
-  Trash2,
-} from "lucide-react";
+import { Plus, Megaphone, MessageSquare, Pin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useRefresh, useResource } from "../../../application/queries";
@@ -203,6 +197,94 @@ function AnnouncementRow({
               : ""}
           </small>
         </div>
+        {teacher && ["draft", "published"].includes(announcement.state) ? (
+          <ActionMenu label={"Thao tác bản tin · " + announcement.title}>
+            {" "}
+            {teacher && announcement.state !== "archived" ? (
+              <>
+                <button
+                  className="button small secondary"
+                  onClick={() => setEditing((v) => !v)}
+                >
+                  Sửa
+                </button>
+                <ActionButton
+                  errorPlacement="popup"
+                  className="button small secondary"
+                  action={async () => {
+                    await classApi.saveAnnouncement(
+                      classId,
+                      {
+                        pinned: !announcement.pinned,
+                        expectedVersion: announcement.version,
+                      },
+                      announcement.id,
+                    );
+                    await refresh();
+                  }}
+                >
+                  {announcement.pinned ? "Bỏ ghim" : "Ghim"}
+                </ActionButton>
+                <ActionButton
+                  errorPlacement="popup"
+                  className="button small secondary"
+                  action={async () => {
+                    await classApi.saveAnnouncement(
+                      classId,
+                      {
+                        hidden: !announcement.hidden,
+                        expectedVersion: announcement.version,
+                      },
+                      announcement.id,
+                    );
+                    await refresh();
+                  }}
+                >
+                  {announcement.hidden ? "Hiện bản tin" : "Ẩn bản tin"}
+                </ActionButton>
+              </>
+            ) : null}
+            {teacher && announcement.state === "draft" ? (
+              <ActionButton
+                errorPlacement="popup"
+                className="button small"
+                action={async () => {
+                  await classApi.publishAnnouncement(
+                    classId,
+                    announcement.id,
+                    announcement.version,
+                  );
+                  await refresh();
+                }}
+              >
+                Công bố
+              </ActionButton>
+            ) : null}
+            {teacher && announcement.state === "published" ? (
+              <ActionButton
+                errorPlacement="popup"
+                className="button ghost small"
+                title="Lưu trữ bản tin"
+                action={async () => {
+                  if (
+                    !(await askDialog(
+                      "Lưu trữ bản tin? Nó sẽ khỏi danh sách công khai.",
+                    ))
+                  )
+                    return;
+                  await classApi.archiveAnnouncement(
+                    classId,
+                    announcement.id,
+                    announcement.version,
+                  );
+                  await refresh();
+                }}
+              >
+                Lưu trữ bản tin
+              </ActionButton>
+            ) : null}
+          </ActionMenu>
+        ) : null}
       </header>
       {announcement.body ? (
         <p className="post-body">{announcement.body}</p>
@@ -214,63 +296,6 @@ function AnnouncementRow({
         new Date(announcement.expiresAt).getTime() <= checkedAt ? (
           <small>Đã hết hạn</small>
         ) : null}
-        {teacher && announcement.state !== "archived" ? (
-          <>
-            <button
-              className="button small secondary"
-              onClick={() => setEditing((v) => !v)}
-            >
-              Sửa
-            </button>
-            <ActionButton
-              className="button small secondary"
-              action={async () => {
-                await classApi.saveAnnouncement(
-                  classId,
-                  {
-                    pinned: !announcement.pinned,
-                    expectedVersion: announcement.version,
-                  },
-                  announcement.id,
-                );
-                await refresh();
-              }}
-            >
-              {announcement.pinned ? "Bỏ ghim" : "Ghim"}
-            </ActionButton>
-            <ActionButton
-              className="button small secondary"
-              action={async () => {
-                await classApi.saveAnnouncement(
-                  classId,
-                  {
-                    hidden: !announcement.hidden,
-                    expectedVersion: announcement.version,
-                  },
-                  announcement.id,
-                );
-                await refresh();
-              }}
-            >
-              {announcement.hidden ? "Hiện bản tin" : "Ẩn bản tin"}
-            </ActionButton>
-          </>
-        ) : null}
-        {teacher && announcement.state === "draft" ? (
-          <ActionButton
-            className="button small"
-            action={async () => {
-              await classApi.publishAnnouncement(
-                classId,
-                announcement.id,
-                announcement.version,
-              );
-              await refresh();
-            }}
-          >
-            Công bố
-          </ActionButton>
-        ) : null}
         <button
           className="button ghost small"
           aria-expanded={expanded}
@@ -281,28 +306,6 @@ function AnnouncementRow({
           Bình luận
           {detail.data ? ` (${detail.data.commentPagination.totalItems})` : ""}
         </button>
-        {teacher && announcement.state === "published" ? (
-          <ActionButton
-            className="button ghost small"
-            title="Lưu trữ bản tin"
-            action={async () => {
-              if (
-                !await askDialog(
-                  "Lưu trữ bản tin? Nó sẽ khỏi danh sách công khai.",
-                )
-              )
-                return;
-              await classApi.archiveAnnouncement(
-                classId,
-                announcement.id,
-                announcement.version,
-              );
-              await refresh();
-            }}
-          >
-            <EyeOff size={16} />
-          </ActionButton>
-        ) : null}
       </div>
       {editing ? (
         <Modal title="Sửa bản tin" onClose={() => setEditing(false)}>
@@ -387,9 +390,10 @@ function AnnouncementRow({
                 {c.hidden ? <Badge value="hidden" /> : null}
               </div>
               {teacher && !c.deletedAt ? (
-                <div className="inline-actions">
+                <ActionMenu label="Thao tác bình luận">
                   {!c.deletedAt ? (
                     <ActionButton
+                      errorPlacement="popup"
                       className="button ghost small"
                       title={c.hidden ? "Hiện lại bình luận" : "Ẩn bình luận"}
                       action={async () => {
@@ -397,21 +401,22 @@ function AnnouncementRow({
                         await detail.refetch();
                       }}
                     >
-                      <EyeOff size={14} />
+                      {c.hidden ? "Hiện lại bình luận" : "Ẩn bình luận"}
                     </ActionButton>
                   ) : null}
                   <ActionButton
+                    errorPlacement="popup"
                     className="button ghost small danger"
                     title="Xóa bình luận"
                     action={async () => {
-                      if (!await askDialog("Xóa bình luận này?")) return;
+                      if (!(await askDialog("Xóa bình luận này?"))) return;
                       await classApi.deleteComment(classId, c.id);
                       await detail.refetch();
                     }}
                   >
-                    <Trash2 size={14} />
+                    Xóa bình luận
                   </ActionButton>
-                </div>
+                </ActionMenu>
               ) : null}
             </div>
           ))}
@@ -480,20 +485,36 @@ function CommentComposer({
   };
 
   return (
-    <Field label="Bình luận">
-      <textarea
-        rows={2}
-        maxLength={20000}
-        placeholder="Thêm bình luận…"
-        value={draft}
-        disabled={sending || error !== null}
-        onChange={(e) => setDraft(e.target.value)}
-        onKeyDown={(e) => {
-          if ((e.ctrlKey || e.metaKey) && e.key === "Enter" && draft.trim()) {
-            void submit();
-          }
-        }}
-      />
+    <div className="comment-composer">
+      <div className="comment-input-row">
+        <Field label="Bình luận">
+          <textarea
+            rows={2}
+            maxLength={20000}
+            placeholder="Thêm bình luận…"
+            value={draft}
+            disabled={sending || error !== null}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => {
+              if (
+                (e.ctrlKey || e.metaKey) &&
+                e.key === "Enter" &&
+                draft.trim()
+              ) {
+                void submit();
+              }
+            }}
+          />
+        </Field>
+        <button
+          type="button"
+          className="button small"
+          onClick={() => void submit()}
+          disabled={sending || !draft.trim()}
+        >
+          Gửi
+        </button>
+      </div>
       {error ? (
         <button
           type="button"
@@ -507,15 +528,6 @@ function CommentComposer({
         </button>
       ) : null}
       <ErrorNotice error={error} />
-      <div className="inline-actions">
-        <button
-          className="button small"
-          onClick={() => void submit()}
-          disabled={sending || !draft.trim()}
-        >
-          Gửi
-        </button>
-      </div>
-    </Field>
+    </div>
   );
 }

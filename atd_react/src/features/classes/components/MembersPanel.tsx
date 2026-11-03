@@ -23,7 +23,6 @@ export function MembersPanel({ classId }: { classId: string }) {
   return (
     <>
       <ClassToolbar>
-        
         <div className="segmented">
           <button
             className={kind === "members" ? "selected" : ""}
@@ -52,12 +51,39 @@ export function MembersPanel({ classId }: { classId: string }) {
       />
       <div className="panel">
         {query.data?.items.map((m) => (
-          <div className="list-row" key={m.id}>
+          <div className="list-row member-row" key={m.id}>
             <div className="person">
               <span className="avatar">{initials(m.studentName ?? "HS")}</span>
               <div>
                 <h3>{m.studentName ?? m.studentId}</h3>
                 <Badge value={m.status} />
+                <dl className="member-basics">
+                  <div>
+                    <dt>Mã sinh viên</dt>
+                    <dd>{m.studentCode || "Chưa cập nhật"}</dd>
+                  </div>
+                  <div>
+                    <dt>Giới tính</dt>
+                    <dd>
+                      {{
+                        male: "Nam",
+                        female: "Nữ",
+                        other: "Khác",
+                        undisclosed: "Không chia sẻ",
+                      }[m.gender ?? ""] || "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Ngày sinh</dt>
+                    <dd>
+                      {m.birthday
+                        ? new Date(m.birthday + "T00:00:00").toLocaleDateString(
+                            "vi-VN",
+                          )
+                        : "Chưa cập nhật"}
+                    </dd>
+                  </div>
+                </dl>
               </div>
             </div>
             <div className="inline-actions">
@@ -77,9 +103,9 @@ export function MembersPanel({ classId }: { classId: string }) {
                   action={async () => {
                     if (
                       action === "remove" &&
-                      !await askDialog(
+                      !(await askDialog(
                         "Loại học sinh khỏi lớp? Quyền truy cập sẽ dừng ngay.",
-                      )
+                      ))
                     )
                       return;
                     await classApi.membership(classId, m, action);
@@ -104,7 +130,7 @@ export function MembersPanel({ classId }: { classId: string }) {
             title={
               kind === "members" ? "Chưa có thành viên" : "Chưa có yêu cầu"
             }
-            description="Mời học sinh tham gia bằng mã lớp trong tab Tổng quan."
+            description="Mời học sinh tham gia bằng mã lớp trong tab Cài đặt."
           />
         ) : null}
       </div>
