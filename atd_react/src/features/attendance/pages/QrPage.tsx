@@ -1,8 +1,7 @@
 import { validateAttendanceTimes } from "../../../domain/schedule";
 import { askDialog } from "../../../shared/components/askDialog";
-import { Modal } from "../../../shared/components/Modal";
 import { RosterEntry } from "../components/RosterEntry";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { useSession } from "../../../application/sessionContext";
@@ -10,7 +9,6 @@ import { useResource, usePage, useRefresh } from "../../../application/queries";
 import { attendanceApi } from "../../../infrastructure/attendanceApi";
 import { ApiError } from "../../../infrastructure/http";
 import {
-  PageHeader,
   AsyncForm,
   Field,
   QueryState,
@@ -21,10 +19,12 @@ import {
 import { dateTime, iso } from "../../../domain/format";
 import type { Window, Qr } from "../../../domain/models";
 export default function QrPage() {
-  const { classId = "", sessionId = "" } = useParams();
+  const { classId = "" } = useParams();
+  return <Navigate to={"/app/classes/" + classId + "/schedule"} replace />;
+}
+export function QrContent({ classId, sessionId, onClose }: { classId: string; sessionId: string; onClose: () => void }) {
   const { user } = useSession();
-  const [openedAt, setOpenedAt] = useState(() => Date.now());
-  const [configuring, setConfiguring] = useState(false);
+  const [openedAt] = useState(() => Date.now());
   const refresh = useRefresh();
   const query = useResource(
     ["attendance-window", sessionId],
@@ -36,49 +36,18 @@ export default function QrPage() {
         throw e;
       }
     },
-    { enabled: user?.role === "teacher", refetchInterval: 15000 },
+    { enabled: user?.role === "teacher", refetchInterval: 15000, refetchOnMount: "always" },
   );
-  if (user?.role !== "teacher")
-    return <p className="info">Chỉ giáo viên sở hữu lớp được mở mã QR.</p>;
-  return (
-    <>
-      <Link className="back-link" to={"/app/classes/" + classId + "/schedule"}>
-        ← Lịch học của lớp
-      </Link>
-      <PageHeader
-        title="Điểm danh buổi học"
-        description="Danh sách học sinh được chốt khi bạn mở cửa sổ điểm danh."
-      />
-      <QueryState
-        pending={query.isPending}
-        error={query.error}
-        retry={query.refetch}
-      />
-      {query.isSuccess && !query.data ? (
-        <div className="panel editor-panel narrow">
-          <h2>Mở điểm danh QR</h2>
-          <p className="muted">Chưa mở điểm danh.</p>
-          <button
-            className="button"
-            onClick={() => {
-              setOpenedAt(Date.now());
-              setConfiguring(true);
-            }}
-          >
-            Mở điểm danh QR
-          </button>
-          {configuring ? (
-            <Modal
-              title="Mở điểm danh QR"
-              onClose={() => setConfiguring(false)}
-            >
-              <AsyncForm
+  if (user?.role !== "teacher") return <p className="info">Chỉ giáo viên sở hữu lớp được mở mã QR.</p>;
+  return <>
+    <QueryState pending={query.isPending} error={query.error} retry={query.refetch} />
+    {query.isSuccess && !query.data ? (              <AsyncForm
                 onSubmit={async (f) => {
                   const times = { opensAt: iso(f.get("opensAt")), lateAfter: iso(f.get("lateAfter")), closesAt: iso(f.get("closesAt")) };
                   validateAttendanceTimes(times.opensAt, times.lateAfter, times.closesAt);
                   await attendanceApi.open(classId, sessionId, times);
                   await refresh();
-                  setConfiguring(false);
+
                 }}
               >
                 {[
@@ -108,26 +77,15 @@ export default function QrPage() {
                   <button
                     type="button"
                     className="button secondary"
-                    onClick={() => setConfiguring(false)}
+                    onClick={onClose}
                   >
                     Đóng
                   </button>
                   <button className="button">Mở QR & chốt danh sách</button>
                 </footer>
-              </AsyncForm>
-            </Modal>
-          ) : null}
-        </div>
-      ) : null}
-      {query.data ? (
-        <ActiveWindow
-          classId={classId}
-          sessionId={sessionId}
-          window={query.data}
-        />
-      ) : null}
-    </>
-  );
+              </AsyncForm>) : null}
+    {query.data ? <><ActiveWindow classId={classId} sessionId={sessionId} window={query.data} /><footer className="modal-actions"><button className="button secondary" onClick={onClose}>Đóng</button></footer></> : null}
+  </>;
 }
 function ActiveWindow({
   classId,

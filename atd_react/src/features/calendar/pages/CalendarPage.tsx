@@ -1,9 +1,9 @@
+import { QrContent } from "../../attendance/pages/QrPage";
 import { ScheduleInput } from "../../../shared/components/ScheduleInput";
 import { ClassToolbar } from "../../../shared/components/ClassToolbar";
 import { askDialog } from "../../../shared/components/askDialog";
 import { Modal } from "../../../shared/components/Modal";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { Plus, MapPin, ScanLine } from "lucide-react";
 import { useSession } from "../../../application/sessionContext";
 import { usePage, useResource, useRefresh } from "../../../application/queries";
@@ -64,6 +64,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
   const [bulkResult, setBulkResult] = useState("");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Session | null>(null);
+  const [qrSession, setQrSession] = useState<Session | null>(null);
   const [viewing, setViewing] = useState<Session | null>(null);
   const [weekly, setWeekly] = useState(false);
   const [preview, setPreview] = useState<number | null>(null);
@@ -432,6 +433,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
         error={query.error}
         retry={query.refetch}
       />
+      {qrSession ? <Modal title="Điểm danh QR" onClose={() => setQrSession(null)}><QrContent classId={qrSession.classId} sessionId={qrSession.id} onClose={() => setQrSession(null)} /></Modal> : null}
       <div className="panel">
         {editing ? (
           <SessionEditor
@@ -491,13 +493,14 @@ export function CalendarContent({ classId }: { classId?: string }) {
                 >
                   Xem
                 </button>
-                <Link
+                <button
+                  type="button"
                   className="button secondary small"
-                  to={"/app/classes/" + s.classId + "/sessions/" + s.id + "/qr"}
+                  onClick={() => setQrSession(s)}
                 >
                   <ScanLine size={16} />
                   Điểm danh QR
-                </Link>
+                </button>
                 <ActionButton
                   className="button ghost small"
                   action={async () => {

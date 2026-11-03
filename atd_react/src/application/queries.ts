@@ -4,7 +4,7 @@ import { useSession } from "./sessionContext";
 export function useResource<T>(
   key: readonly unknown[],
   load: (signal: AbortSignal) => Promise<T>,
-  options: { enabled?: boolean; refetchInterval?: number | false } = {},
+  options: { enabled?: boolean; refetchInterval?: number | false; refetchOnMount?: boolean | "always" } = {},
 ) {
   const { user } = useSession();
   return useQuery({
