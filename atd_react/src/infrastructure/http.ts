@@ -86,6 +86,11 @@ async function performRequest<T>(
       503: "Dịch vụ tạm thời chưa sẵn sàng.",
     };
     const scheduleMessages: Record<string, string> = {
+      NOT_IN_ATTENDANCE_ROSTER: "Bạn đã ở trong lớp nhưng chưa có trong danh sách điểm danh được chốt khi mở QR lần đầu. Hãy báo giáo viên; mở lại QR không tự thêm học sinh vào danh sách cũ.",
+      QR_EXPIRED: "Mã QR đã hết hạn hoặc đã được thay mới. Hãy quét hoặc lấy liên kết QR hiện tại từ giáo viên.",
+      WINDOW_CLOSED: "Điểm danh đã đóng hoặc chưa đến giờ mở. Hãy nhờ giáo viên kiểm tra và mở lại QR.",
+      INVALID_QR_TOKEN: "Mã QR không hợp lệ. Hãy quét lại mã hoặc sao chép liên kết mới từ giáo viên.",
+      INVALID_WINDOW: "Khoảng mở điểm danh phải bao gồm thời điểm hiện tại, không dài quá 24 giờ và chứa mốc tính muộn.",
       INVALID_SCHEDULE: "Giờ kết thúc phải sau giờ bắt đầu và một buổi học không được dài quá 24 giờ. Để tạo nhiều buổi, hãy chọn Lặp hằng tuần.",
       EMPTY_SERIES: "Không có buổi học phù hợp. Hãy kiểm tra khoảng ngày và các thứ đã chọn.",
       SCHEDULE_CONFLICT: "Lịch này trùng với một buổi học khác. Hãy đổi thời gian hoặc chọn Chấp nhận trùng để tiếp tục.",

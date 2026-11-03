@@ -55,6 +55,7 @@ export function ErrorNotice({ error }: { error: unknown }) {
         {e.message}
         {e instanceof ApiError ? (
           <>
+            {e.code === "NOT_IN_ATTENDANCE_ROSTER" ? <small>Mã lỗi: {e.code}</small> : null}
             <ul>
               {Object.entries(e.fields).map(([field, values]) => (
                 <li key={field}>

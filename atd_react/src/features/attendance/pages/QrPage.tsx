@@ -151,6 +151,7 @@ function ActiveWindow({
           error={roster.error}
           retry={roster.refetch}
         />
+        {roster.data && roster.data.totalItems === 0 ? <p className="info">Danh sách điểm danh đang trống. Học sinh phải được duyệt vào lớp trước lần mở QR đầu tiên. Mở lại QR không bổ sung danh sách cũ; hãy tạo buổi học mới sau khi duyệt học sinh.</p> : null}
         {roster.data?.items.map((row) => (
           <RosterEntry
             key={row.studentId}
