@@ -24,7 +24,8 @@ export default function QrPage() {
 }
 export function QrContent({ classId, sessionId, onClose }: { classId: string; sessionId: string; onClose: () => void }) {
   const { user } = useSession();
-  const [openedAt] = useState(() => Date.now());
+  const [openedAt, setOpenedAt] = useState(() => Date.now());
+  const [reopening, setReopening] = useState(false);
   const refresh = useRefresh();
   const query = useResource(
     ["attendance-window", sessionId],
@@ -41,11 +42,12 @@ export function QrContent({ classId, sessionId, onClose }: { classId: string; se
   if (user?.role !== "teacher") return <p className="info">Chỉ giáo viên sở hữu lớp được mở mã QR.</p>;
   return <>
     <QueryState pending={query.isPending} error={query.error} retry={query.refetch} />
-    {query.isSuccess && !query.data ? (              <AsyncForm
+    {query.isSuccess && (!query.data || reopening) ? (              <AsyncForm
                 onSubmit={async (f) => {
                   const times = { opensAt: iso(f.get("opensAt")), lateAfter: iso(f.get("lateAfter")), closesAt: iso(f.get("closesAt")) };
                   validateAttendanceTimes(times.opensAt, times.lateAfter, times.closesAt);
-                  await attendanceApi.open(classId, sessionId, times);
+                  await attendanceApi.open(classId, sessionId, { ...times, ...(reopening && query.data ? { expectedVersion: query.data.version } : {}) });
+                  setReopening(false);
                   await refresh();
 
                 }}
@@ -77,14 +79,14 @@ export function QrContent({ classId, sessionId, onClose }: { classId: string; se
                   <button
                     type="button"
                     className="button secondary"
-                    onClick={onClose}
+                    onClick={() => { if (reopening) setReopening(false); else onClose(); }}
                   >
                     Đóng
                   </button>
-                  <button className="button">Mở QR & chốt danh sách</button>
+                  <button className="button">{reopening ? "Mở lại QR" : "Mở QR & chốt danh sách"}</button>
                 </footer>
               </AsyncForm>) : null}
-    {query.data ? <><ActiveWindow classId={classId} sessionId={sessionId} window={query.data} /><footer className="modal-actions"><button className="button secondary" onClick={onClose}>Đóng</button></footer></> : null}
+    {query.data && !reopening ? <>{["closed", "expired"].includes(query.data.state) ? <button className="button" onClick={() => { setOpenedAt(Date.now()); setReopening(true); }}>Mở lại QR</button> : null}<ActiveWindow classId={classId} sessionId={sessionId} window={query.data} /><footer className="modal-actions"><button className="button secondary" onClick={onClose}>Đóng</button></footer></> : null}
   </>;
 }
 function ActiveWindow({

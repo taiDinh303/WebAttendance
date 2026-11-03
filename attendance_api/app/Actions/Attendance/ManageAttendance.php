@@ -35,7 +35,16 @@ final class ManageAttendance
                 if ($existing->state === 'open' && $existing->opens_at->eq($opens) && $existing->closes_at->eq($closes) && $existing->late_after?->toISOString() === $late?->toISOString()) {
                     return $existing;
                 }
-                throw new ApiException('STATE_CONFLICT', 'A window already exists. Use manual correction after it closes.');
+                if (! in_array($existing->state, ['closed', 'expired'], true)) {
+                    throw new ApiException('STATE_CONFLICT', 'Điểm danh đang mở. Hãy đóng trước khi mở lại.');
+                }
+                if (($data['expectedVersion'] ?? null) !== $existing->version) {
+                    throw new ApiException('VERSION_CONFLICT', 'Điểm danh đã thay đổi. Hãy tải lại trước khi mở lại.');
+                }
+                $existing->forceFill(['state' => 'open', 'opened_by' => $actor->id, 'opens_at' => $opens, 'late_after' => $late, 'closes_at' => $closes,
+                    'token_version' => $existing->token_version + 1, 'version' => $existing->version + 1])->save();
+
+                return $existing;
             }
             $window = AttendanceWindow::create(['session_id' => $session->id, 'opened_by' => $actor->id, 'opens_at' => $opens, 'late_after' => $late, 'closes_at' => $closes]);
             $students = ClassMembership::where('class_id', $class->id)->where('status', 'active')
@@ -87,6 +96,15 @@ final class ManageAttendance
             }
             $existing = AttendanceRecord::where('session_id', $lockedSession->id)->where('student_id', $actor->id)->first();
             if ($existing) {
+                if ($existing->status === 'absent' && $existing->recorded_source === 'close_finalize') {
+                    $before = $this->snapshot($existing);
+                    $existing->forceFill(['status' => $locked->late_after && now()->gte($locked->late_after) ? 'late' : 'present',
+                        'checked_in_at' => now()->startOfSecond(), 'recorded_source' => 'qr', 'version' => $existing->version + 1])->save();
+                    $this->audit($existing, $actor->id, 'qr_check_in', 'Quét QR sau khi giáo viên mở lại điểm danh.', $before);
+
+                    return [$existing, false];
+                }
+
                 return [$existing, false];
             }
             $record = AttendanceRecord::create(['session_id' => $lockedSession->id, 'student_id' => $actor->id, 'window_id' => $locked->id,

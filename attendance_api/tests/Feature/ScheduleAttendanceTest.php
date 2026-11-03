@@ -292,4 +292,26 @@ final class ScheduleAttendanceTest extends TestCase
         $this->deleteJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId, ['expectedVersion' => 1])->assertOk();
         $this->assertDatabaseMissing('class_sessions', ['id' => $sessionId]);
     }
+
+    public function test_reopen_preserves_roster_invalidates_old_qr_and_updates_only_auto_absence(): void
+    {
+        [$teacher, $student, $other, $classId, $sessionId] = $this->workspace();
+        $window = $this->open($classId, $sessionId);
+        $old = $this->qr($teacher, $window);
+        $this->postJson('/api/v1/attendance-windows/'.$window.'/close', ['expectedVersion' => 1])->assertOk();
+        $url = '/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance-windows';
+        $body = ['opensAt' => now()->toISOString(), 'lateAfter' => now()->addMinutes(5)->toISOString(), 'closesAt' => now()->addMinutes(15)->toISOString(), 'expectedVersion' => 2];
+        $this->actingAs(User::factory()->create(['role' => 'teacher']))->postJson($url, $body)->assertNotFound();
+        $this->actingAs($teacher)->postJson($url, [...$body, 'expectedVersion' => 1])->assertConflict();
+        $this->postJson($url, $body)->assertCreated()->assertJsonPath('data.id', $window)->assertJsonPath('data.version', 3)->assertJsonPath('data.state', 'open');
+        $this->assertDatabaseCount('attendance_rosters', 2);
+        $this->putJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance/'.$other->id, ['status' => 'absent', 'expectedVersion' => 1, 'reason' => 'Teacher decision'])->assertOk();
+        $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $old])->assertStatus(410);
+        $fresh = $this->qr($teacher, $window);
+        $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.status', 'present')->assertJsonPath('data.version', 2);
+        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.version', 2);
+        $this->actingAs($other)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.status', 'absent');
+        $this->assertDatabaseCount('attendance_records', 2);
+        $this->assertDatabaseHas('attendance_audits', ['action' => 'qr_check_in', 'reason' => 'Quét QR sau khi giáo viên mở lại điểm danh.']);
+    }
 }
