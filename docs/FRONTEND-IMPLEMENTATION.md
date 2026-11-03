@@ -156,3 +156,7 @@ IMPLEMENTED: API status=scheduled là trạng thái lịch chưa hủy, không c
 ### 2026-11-03 — Header không dịch ngang khi scrollbar xuất hiện/ẩn
 
 IMPLEMENTED: root html dùng scrollbar-gutter:stable để giữ bề rộng viewport/layout giữa trang ngắn/dài và body scroll lock lúc mở modal. Fallback trình duyệt chưa hỗ trợ dùng html overflow-y:scroll. Không dùng width100vw hoặc bù padding cứng theo scrollbar hệ điều hành. Giữ nguyên header fixed và Modal lock/restore scroll. Kiểm chứng browser đo bounding boxes tại worklog.
+
+### 2026-11-03 — Sidebar lớp và ghim linh hoạt
+
+IMPLEMENTED: teacher sidebar lấy đủ các trang lớp active theo API actor-scoped, nhóm theo semesterId/chưa gắn; nhóm thu/mở và link vào lớp. Nút Ghim mở modal bật/tắt từng lớp hoặc cả nhóm học kỳ. Đây là ẩn shortcut, không archive lớp hoặc ngưng học kỳ. Lưu preference ID riêng theo actor trên trình duyệt, không lưu tên/nội dung lớp; không đồng bộ thiết bị. Thông báo chuyển ngay trên Cài đặt. Lint/typecheck/build PASS; chưa browser hoặc cloud verification lượt này.

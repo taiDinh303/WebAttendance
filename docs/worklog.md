@@ -362,3 +362,7 @@ VERIFIED LOCAL: lint/Vitest37tests/typecheck+build PASS;8case mới kiểm trư�
 Yêu cầu ảnh: trang dashboard dài có scrollbar, trang lớp ngắn không có làm nhóm header bên phải dịch ngang. Thêm scrollbar-gutter:stable ở html trong global.css, fallback overflow-y:scroll khi không hỗ trợ. Vùng scrollbar giữ ổn định cả body overflow:hidden của Modal, không sửa logic auth/API hoặc bù pixel cố định.
 
 VERIFIED LOCAL browser Edge fixtures1440/390: ép classic scrollbar17px (không để overlay0px che lỗi), đo x/width header/brand/header-controls/main qua5trạng thái trang ngắn → dài2000px → modal mở → đóng → ngắn. Tất cả độ lệch≤0.5px, có xác nhận fixture thật sự chuyển từ không scroll sang scroll, không tràn ngang. Evidence ignored work/check-scrollbar.cjs, work/scrollbar-verification.json. Chỉ CSS thay đổi nên không thêm unit test phản chiếu CSS. Build production được kiểm trước commit/push theo quyền trong phiên; không deploy thủ công hoặc kiểm cloud auth mới.
+
+### 2026-11-03 — Lớp sidebar và tùy chọn ghim
+
+Chọn cách ghim/bỏ ghim theo yêu cầu linh hoạt giống taskbar: teacher thấy lớp active nhóm học kỳ; modal Ghim ẩn/hiện lớp/nhóm, vẫn truy cập tại Lớp học. Không thêm nghiệp vụ đóng học kỳ/archive lớp từ thao tác ẩn. Preference local actor ID, tải đủ pagination API có scope. Thông báo sát trên Settings. Lint/build gồm typecheck PASS; chưa browser runtime/cloud kiểm mới. Giới hạn: lựa chọn chỉ trên trình duyệt hiện tại, học sinh chưa có nhóm lớp sidebar.

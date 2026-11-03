@@ -171,3 +171,4 @@ select option{background:var(--ui-surface);color:var(--ui-text)}
 .badge-ongoing {background:#e9f6f0;color:#278063}
 .badge-ended {background:var(--ui-raised);color:var(--ui-muted)}
 :root[data-theme="dark"] .badge-ongoing {background:#243f38;color:#a2d9c4}
+.sidebar-classes{padding:18px 4px;min-width:0}.sidebar-class-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;font-size:12px}.sidebar-classes summary{cursor:pointer;padding:10px 6px;font-size:12px;color:var(--ui-muted);overflow-wrap:anywhere}.workspace-notelike .sidebar-classes nav>a{display:block;overflow:hidden;text-overflow:ellipsis;padding-left:18px}.sidebar-classes details{margin-bottom:6px}.sidebar-bottom{margin-top:auto;padding-top:16px}

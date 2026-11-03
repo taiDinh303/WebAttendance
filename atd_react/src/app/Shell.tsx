@@ -1,3 +1,4 @@
+import { SidebarClasses } from "./SidebarClasses";
 import { NavLink, Outlet } from "react-router-dom";
 import {
   BookOpen,
@@ -92,7 +93,7 @@ export default function Shell() {
         { to: "/app/classes", icon: BookOpen, label: "Lớp học" },
         { to: "/app/calendar", icon: CalendarDays, label: "Lịch học" },
         { to: "/app/check-in", icon: ScanLine, label: "Quét điểm danh" },
-        { to: "/app/notifications", icon: Bell, label: "Thông báo" },
+        
         { to: "/app/settings", icon: Settings, label: "Cài đặt" },
       ];
   return (
@@ -165,7 +166,8 @@ export default function Shell() {
             </NavLink>
           ) : null}
         </nav>
-        <nav className="sidebar-bottom"><NavLink to="/app/settings" title="Cài đặt" aria-label="Cài đặt" onClick={()=>setMenu(false)}><Settings size={19}/><span className="nav-label">Cài đặt</span></NavLink></nav>
+        {!admin && user.role === "teacher" ? <SidebarClasses key={user.id} actorId={user.id} onNavigate={()=>setMenu(false)}/> : null}
+        <nav className="sidebar-bottom">{!admin ? <NavLink to="/app/notifications" onClick={()=>setMenu(false)}><Bell size={19}/><span className="nav-label">Thông báo</span>{unread.data?.unreadCount ? <span className="nav-count">{unread.data.unreadCount}</span>:null}</NavLink>:null}<NavLink to="/app/settings" title="Cài đặt" aria-label="Cài đặt" onClick={()=>setMenu(false)}><Settings size={19}/><span className="nav-label">Cài đặt</span></NavLink></nav>
       </aside>
       <div className="workspace-body" inert={compact && menu}>
 
