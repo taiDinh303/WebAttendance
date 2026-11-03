@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\GradeController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\PasswordController;
+use App\Http\Controllers\Api\V1\PreferenceController;
 use App\Http\Controllers\Api\V1\ScheduleController;
 use App\Http\Controllers\Api\V1\SemesterController;
 use App\Http\Controllers\Api\V1\SubmissionController;
@@ -31,6 +32,8 @@ Route::prefix('v1')->middleware('web')->group(function () {
 
     Route::middleware(['auth:sanctum', 'account.active'])->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
+        Route::get('me/preferences/{key}', [PreferenceController::class, 'show']);
+        Route::put('me/preferences/{key}', [PreferenceController::class, 'update'])->middleware('throttle:submit');
         Route::get('me', [MeController::class, 'show']);
         Route::patch('me/profile', [MeController::class, 'update']);
         Route::post('me/change-password', [PasswordController::class, 'change'])->middleware('throttle:recovery');

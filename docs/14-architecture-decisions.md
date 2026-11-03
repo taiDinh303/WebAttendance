@@ -149,3 +149,7 @@ Nguồn: yêu cầu trực tiếp chủ dự án kèm ảnh. Tab Môn học/Họ
 ### DEC-041 — Form chỉnh sửa mở qua nút và modal (CONFIRMED 2026-11-03)
 
 Nguồn: chủ dự án yêu cầu rà toàn bộ project, chuyển input nhập/chỉnh sửa đang bày sẵn thành Button → modal/popup → edit; sau đó xác nhận riêng bình luận vẫn nhập trực tiếp như Classroom và giao push sau khi hoàn tất. Áp dụng các form nghiệp vụ hiện hành: chấm/công bố điểm, sửa bài tập/tài liệu, hồ sơ/mật khẩu, sửa điểm danh, tạo lớp/tham gia/giao bài/bản tin, nộp bài và cấu hình/nhập QR. Giữ input tìm kiếm/bộ lọc/đăng nhập-đăng ký-khôi phục mật khẩu ở luồng trực tiếp; bình luận dưới bài là ngoại lệ CONFIRMED. Không đổi quyền, validation, thang điểm, audit, version hoặc idempotency. Chi tiết inventory và kiểm chứng tại [UI design](09-ui-design.md), [frontend](FRONTEND-IMPLEMENTATION.md) và worklog.
+
+### DEC-042 — Giao diện lưu theo tài khoản (CONFIRMED 2026-11-03)
+
+Chủ dự án yêu cầu banner/giao diện đi theo tài khoản để đăng nhập thiết bị khác giữ thiết lập. Thay giới hạn local-only trước đó: banner riêng theo tài khoản+lớp, sáng/tối, sidebar ẩn/mở và lớp/học kỳ ghim lưu server. Không hiểu đây là banner dùng chung mọi thành viên lớp; tài khoản khác có thiết lập riêng. Không tự lấy dữ liệu local chưa xác minh ghi đè thiết lập server. Source implementation không đồng nghĩa cloud đã migrate/deploy.

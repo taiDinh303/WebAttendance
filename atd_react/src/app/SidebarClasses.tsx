@@ -1,9 +1,10 @@
+import { useAccountPreference } from "../application/accountPreference";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useResource } from "../application/queries";
 import { classApi } from "../infrastructure/classApi";
 import { Modal } from "../shared/components/Modal";
-import { QueryState } from "../shared/ui";
+import { ErrorNotice, QueryState } from "../shared/ui";
 export function SidebarClasses({
   actorId,
   onNavigate,
@@ -11,15 +12,9 @@ export function SidebarClasses({
   actorId: string;
   onNavigate: () => void;
 }) {
-  const key = "attendance.sidebar.hidden." + actorId;
-  const [hidden, setHidden] = useState<string[]>(() => {
-    try {
-      const v = JSON.parse(localStorage.getItem(key) ?? "[]");
-      return Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
-    } catch {
-      return [];
-    }
-  });
+  void actorId;
+  const preference = useAccountPreference<string[]>("sidebar-hidden", []);
+  const hidden = preference.value;
   const [editing, setEditing] = useState(false);
   const classes = useResource(["sidebar-classes"], async (signal) => {
     const items = [];
@@ -38,22 +33,15 @@ export function SidebarClasses({
     classApi.catalogOptions("semesters", signal),
   );
   const toggle = (id: string) =>
-    setHidden((prev) => {
-      const next = prev.includes(id)
-        ? prev.filter((x) => x !== id)
-        : [...prev, id];
-      try {
-        localStorage.setItem(key, JSON.stringify(next));
-      } catch {
-        /* Optional preference. */
-      }
-      return next;
-    });
+    void preference.save((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
   const groups = [
     ...new Set(classes.data?.map((c) => c.semesterId ?? "none") ?? []),
   ];
   return (
     <section className="sidebar-classes">
+      <ErrorNotice error={preference.error} />
       <div className="sidebar-class-heading">
         <strong>Lớp của bạn</strong>
         <button
@@ -102,13 +90,14 @@ export function SidebarClasses({
         <Modal title="Ghim lớp trên sidebar" onClose={() => setEditing(false)}>
           <p className="muted">
             Bỏ chọn để ẩn khỏi sidebar. Lớp vẫn hoạt động bình thường. Lựa chọn
-            lưu trên trình duyệt này.
+            lưu theo tài khoản trên các thiết bị.
           </p>
           {groups.map((id) => (
             <section key={id}>
               <label className="check">
                 <input
                   type="checkbox"
+                  disabled={!preference.ready || preference.saving}
                   checked={!hidden.includes("term:" + id)}
                   onChange={() => toggle("term:" + id)}
                 />
@@ -123,7 +112,11 @@ export function SidebarClasses({
                   <label className="check" key={c.id}>
                     <input
                       type="checkbox"
-                      disabled={hidden.includes("term:" + id)}
+                      disabled={
+                        !preference.ready ||
+                        preference.saving ||
+                        hidden.includes("term:" + id)
+                      }
                       checked={!hidden.includes(c.id)}
                       onChange={() => toggle(c.id)}
                     />

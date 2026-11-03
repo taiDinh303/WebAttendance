@@ -164,3 +164,7 @@ IMPLEMENTED: teacher sidebar lấy đủ các trang lớp active theo API actor-
 ### 2026-11-03 — Banner lớp và dialog ứng dụng
 
 IMPLEMENTED frontend: banner lớp với hình nền hình học có sẵn,6màu và chọn ảnh JPG/PNG/WebP≤2MiB, preview/Hủy/Lưu. Preference local theo actor+class, ảnh dataURL chỉ lưu trình duyệt; CHƯA có upload server/chia sẻ banner cho học sinh/thiết bị khác. Không coi là hoàn thành tính năng banner dùng chung. Bỏ timezone khỏi overview/card và cụm giờ máy của bạn; không đổi chuyển đổi thời gian. Tất cả confirm/prompt trong src/features thay askDialog async dùng Modal (hủy không gọi action). Không override API browser. Lint37unit/build PASS; chưa browser kiểm các dialog/banner mới hoặc cloud.
+
+### 2026-11-03 — Giao diện theo tài khoản, DEC-042
+
+IMPLEMENTED: useAccountPreference dùng private actor/key React Query; chỉ đổi sau ACK, lỗi được hiển thị, chặn lưu trước GET thành công, expectedVersion khi PUT. ClassBanner chuyển từ localStorage sang server (màu/ảnh), AccountThemeToggle cho shell authenticated lưu sáng/tối, Shell lưu collapsed, SidebarClasses lưu hidden trên server. Guest theme vẫn theo trình duyệt/hệ điều hành. Không tự import các key localStorage trước đó hoặc ghi đè server. Preferences actor-specific; ảnh không chia sẻ với tài khoản khác. Refresh/relogin trên thiết bị mới tải server. Backend migration bắt buộc, không coi push là đã hoạt động cloud. Browser fixture hai context cùng account giữ màu banner, account khác default PASS. Backend evidence xem worklog.

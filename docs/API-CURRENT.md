@@ -104,3 +104,9 @@ PATCH /api/v1/me/profile thêm optional nullable gender (male/female/other/undis
 ## Excel — 2026-11-01
 
 GET /classes/{classroom}/{attendance|grades}/export, template=1 optional. Owner-only attachment .xlsx, no-store. PATCH /me/profile thêm studentCode optional nullable≤40ký tự (chữ/số/._-), chỉ student tự sửa và expectedVersion; UserResource trả studentCode. Migration mới cần chạy trước cập nhật API. Contract và giới hạn xem [EXPORTS](EXPORTS.md).
+
+### 2026-11-03 — Account preferences (DEC-042)
+
+IMPLEMENTED: GET/PUT /api/v1/me/preferences/{key} sau auth+account.active, lấy actor từ session, không nhận userId. Keys theme, sidebar-collapsed, sidebar-hidden, banner-{classULID}; banner kiểm Classroom view mỗi request. PUT expectedVersion0 cho chưa có, lock user row + version riêng từng key,409 khi stale. Migration2026_11_03_031704 tạo account_preferences PK(user_id,key), cascade khi xóa user. Banner JSON có màu hex6 và ảnh raster base64≤2MiB; server kiểm base64/getimagesize/MIME, không nhận URL/SVG. Ảnh lưu DB trong value text (chưa object storage/CDN); tải theo key, không nhúng ảnh vào /me. Đây là preference cá nhân, không phải ảnh lớp chung. Cần migration trước frontend mới; chưa migrate cloud.
+
+Backend regression: AccountsTest14tests/99assertionsPASS, bao gồm preference persistence/isolation/version/invalid image. Pint/syntaxPASS. Chạy trên schema MySQL test đã migrate, chưa cloud. Migration thêm bảng riêng theo yêu cầu nâng cấp, không nhét preference vào các bảng nghiệp vụ.

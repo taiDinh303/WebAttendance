@@ -112,3 +112,5 @@ Chủ dự án yêu cầu giãn tab môn/học kỳ và nút thêm cùng hàng; 
 ### 2026-11-03 — Form nghiệp vụ mở trong modal (CONFIRMED)
 
 Chủ dự án giao rà toàn bộ input đang hiện sẵn, chuyển thao tác nhập/chỉnh sửa nghiệp vụ sang nút → modal/popup → lưu; ảnh minh họa là phần chấm điểm bài nộp. Xác nhận bổ sung: riêng bình luận giữ nhập trực tiếp như Classroom. Giao commit/push sau hoàn tất. DEC-041; inventory và giới hạn tại 09-ui-design/FRONTEND-IMPLEMENTATION, không cấp thao tác gửi mail/import dữ liệu.
+
+2026-11-03 — CONFIRMED DEC-042: banner/giao diện phải lưu theo tài khoản để dùng lại trên thiết bị khác, thay local-only. Thiết lập riêng từng tài khoản, không đổi quyền truy cập lớp.

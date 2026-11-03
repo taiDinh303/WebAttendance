@@ -144,4 +144,23 @@ final class AccountsTest extends TestCase
         }
         $this->postJson('/api/v1/auth/login', ['email' => 'rate@example.test', 'password' => 'wrong'])->assertStatus(429)->assertHeader('Retry-After')->assertJsonPath('code', 'RATE_LIMITED');
     }
+
+    public function test_account_preferences_persist_privately_with_versions_and_validation(): void
+    {
+        $a = User::factory()->create(['role' => 'teacher']);
+        $b = User::factory()->create();
+        $this->actingAs($a)->getJson('/api/v1/me/preferences/theme')->assertOk()->assertJsonPath('data.version', 0);
+        $this->putJson('/api/v1/me/preferences/theme', ['value' => 'dark', 'expectedVersion' => 0])->assertOk()->assertJsonPath('data.version', 1);
+        $this->getJson('/api/v1/me/preferences/theme')->assertOk()->assertJsonPath('data.value', 'dark');
+        $this->putJson('/api/v1/me/preferences/theme', ['value' => 'light', 'expectedVersion' => 0])->assertConflict();
+        $this->putJson('/api/v1/me/preferences/theme', ['value' => 'invalid', 'expectedVersion' => 1])->assertUnprocessable();
+        $this->actingAs($b)->getJson('/api/v1/me/preferences/theme')->assertOk()->assertJsonPath('data.value', null);
+        $this->putJson('/api/v1/me/preferences/sidebar-hidden', ['value' => [], 'expectedVersion' => 0])->assertOk();
+        $this->putJson('/api/v1/me/preferences/sidebar-collapsed', ['value' => false, 'expectedVersion' => 0])->assertOk();
+        $class = $this->actingAs($a)->postJson('/api/v1/classes', ['name' => 'Preference fixture'])->assertCreated()->json('data.class.id');
+        $url = '/api/v1/me/preferences/banner-'.$class;
+        $this->putJson($url, ['value' => ['color' => '#356875', 'image' => ''], 'expectedVersion' => 0])->assertOk()->assertJsonPath('data.value.image', '');
+        $this->putJson($url, ['value' => ['color' => '#356875', 'image' => 'data:image/png;base64,AAAA'], 'expectedVersion' => 1])->assertUnprocessable();
+        $this->actingAs($b)->getJson($url)->assertNotFound();
+    }
 }

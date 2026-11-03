@@ -74,3 +74,5 @@ IMPLEMENTED LOCAL: XLSX điểm danh/bảng điểm đã công bố + mẫu tr�
 2026-11-03 — TASK-017 / DEC-040: IMPLEMENTED UI gọn theo ảnh, catalog cùng hàng/spacing, thông tin lớp xem trước+sửa modal, teacher semester filter phía server, bài viết bản tin với inline comments, giảm heading/help thừa và responsive. Kiểm và giới hạn tại FRONTEND-IMPLEMENTATION/worklog; không đánh DONE toàn bộ TASK-017 hoặc sản phẩm.
 
 2026-11-03 — TASK-017 / DEC-041: rà form toàn React, mở form nghiệp vụ bằng nút→modal, giữ bình luận nhập trực tiếp; scope/inventory ở 09-ui-design. Grade save/publish, hồ sơ/mật khẩu, assignment/files/submission, QR/config/correction, create/join và admin status dùng modal. Không coi việc đổi UI là hoàn thành toàn bộ các module chưa có backend. Chủ dự án giao push sau khi kiểm.
+
+2026-11-03 — TASK-017 / DEC-042: account preference API + frontend IMPLEMENTED, AccountsTest14/99 và React37/lint/build PASS; browser cross-context fixture PASS. Cần cập nhật backend/migration trước dùng production; chưa cloud verified.

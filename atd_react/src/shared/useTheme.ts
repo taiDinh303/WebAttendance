@@ -27,3 +27,5 @@ function toggleTheme() {
   window.dispatchEvent(new Event(eventName));
 }
 export function useTheme() { return {theme:useSyncExternalStore(subscribe,snapshot),toggleTheme}; }
+
+export function applyAccountTheme(theme: "light"|"dark") {apply(theme);window.dispatchEvent(new Event(eventName));}

@@ -1,3 +1,5 @@
+import { ErrorNotice } from "../shared/ui";
+import { useAccountPreference } from "../application/accountPreference";
 import { SidebarClasses } from "./SidebarClasses";
 import { NavLink, Outlet } from "react-router-dom";
 import {
@@ -21,11 +23,12 @@ import { useResource } from "../application/queries";
 import { classApi } from "../infrastructure/classApi";
 import { roleLabel } from "../domain/access";
 import { Brand } from "../shared/components/Brand";
-import { ThemeToggle } from "../shared/components/ThemeToggle";
+import { AccountThemeToggle as ThemeToggle } from "./AccountThemeToggle";
 import { AccountMenu } from "./AccountMenu";
 export default function Shell() {
   const { user } = useSession();
-  const [collapsed, setCollapsed] = useState(()=>{try{return localStorage.getItem("attendance.sidebar.collapsed")==="true"}catch{return false}});
+  const collapsePreference=useAccountPreference("sidebar-collapsed",false);
+  const collapsed=collapsePreference.value;
   const [menu, setMenu] = useState(false);
   const [compact, setCompact] = useState(
     () => window.matchMedia("(max-width: 760px)").matches,
@@ -103,7 +106,7 @@ export default function Shell() {
       </a>
       <header className="topbar" inert={compact && menu}>
         <div className="topbar-brand">
-          <button type="button" className="icon-button navigation-toggle" aria-label={compact ? (menu ? "Đóng menu" : "Mở menu") : (collapsed ? "Hiện sidebar" : "Ẩn sidebar")} aria-expanded={compact ? menu : !collapsed} aria-controls="workspace-navigation" onClick={()=>{if(compact)setMenu(v=>!v);else setCollapsed(v=>{try{localStorage.setItem("attendance.sidebar.collapsed",String(!v))}catch{/* Preference is optional. */}return !v})}}><Menu size={21}/></button>
+          <button type="button" className="icon-button navigation-toggle" aria-label={compact ? (menu ? "Đóng menu" : "Mở menu") : (collapsed ? "Hiện sidebar" : "Ẩn sidebar")} aria-expanded={compact ? menu : !collapsed} aria-controls="workspace-navigation" onClick={()=>{if(compact)setMenu(v=>!v);else void collapsePreference.save(!collapsed)}}><Menu size={21}/></button>
           <Brand/>
         </div>
         <span className="workspace-context"><ShieldCheck size={14}/>{roleLabel(user.role)}</span>
@@ -172,7 +175,7 @@ export default function Shell() {
       <div className="workspace-body" inert={compact && menu}>
 
         <main id="main" className="main-content">
-          <Outlet />
+          <ErrorNotice error={collapsePreference.error}/><Outlet />
         </main>
 
       </div>
