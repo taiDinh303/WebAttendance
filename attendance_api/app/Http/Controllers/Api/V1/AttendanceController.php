@@ -58,10 +58,19 @@ final class AttendanceController extends Controller
             $query->where('u.display_name', 'like', '%'.addcslashes($data['q'], '%_\\').'%');
         }
 
-        return ApiResponse::page($query->orderBy('r.student_id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($row) => [
+        $checkedInCount = (clone $query)->whereIn('a.status', ['present', 'late'])->count();
+        if ($request->boolean('checkedOnly')) {
+            $query->whereIn('a.status', ['present', 'late']);
+        }
+        $response = ApiResponse::page($query->orderBy('r.student_id')->paginate($data['pageSize'] ?? 20, ['*'], 'pageNumber', $data['pageNumber'] ?? 1), fn ($row) => [
             'studentId' => $row->student_id, 'studentName' => $row->display_name, 'windowId' => $window->id,
             'recordId' => $row->record_id, 'status' => $row->status ?? 'unmarked', 'recordVersion' => (int) ($row->version ?? 0),
         ]);
+        $payload = $response->getData(true);
+        $payload['data']['checkedInCount'] = $checkedInCount;
+        $response->setData($payload);
+
+        return $response;
     }
 
     public function qr(Request $request, string $windowId, ManageAttendance $action, QrTokens $tokens): JsonResponse
@@ -79,6 +88,11 @@ final class AttendanceController extends Controller
         [$record, $created] = $action->checkIn($request->user(), $request->validated('qrToken'), $tokens);
 
         return ApiResponse::success(new AttendanceRecordResource($record), $created ? 201 : 200);
+    }
+
+    public function approve(VersionRequest $request, Classroom $classroom, string $recordId, ManageAttendance $action): JsonResponse
+    {
+        return ApiResponse::success(new AttendanceRecordResource($action->approve($request->user(), $classroom, $recordId, $request->integer('expectedVersion'))));
     }
 
     public function correct(AttendanceCorrectionRequest $request, Classroom $classroom, string $sessionId, string $studentId, ManageAttendance $action): JsonResponse
@@ -124,7 +138,7 @@ final class AttendanceController extends Controller
         if (isset($data['status'])) {
             throw new ApiException('UNSUPPORTED_FILTER', 'Status filtering is not supported for attendance totals.', 422);
         }
-        $query = DB::table('attendance_records as r')
+        $query = DB::table('attendance_records as r')->whereNotNull('r.approved_at')
             ->join('class_sessions as s', 's.id', '=', 'r.session_id')
             ->join('attendance_windows as w', 'w.id', '=', 'r.window_id')
             ->where('s.class_id', $classroom->id)->where('s.status', '!=', 'cancelled')

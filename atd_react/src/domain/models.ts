@@ -170,6 +170,9 @@ export interface RosterRow {
   recordVersion: number;
 }
 export interface Attendance {
+  approvedAt?: string | null;
+  approvedBy?: string | null;
+  studentCode?: string | null;
   id: string;
   studentId: string;
   sessionId: string;

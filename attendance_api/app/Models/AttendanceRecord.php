@@ -16,7 +16,7 @@ final class AttendanceRecord extends Model
 
     protected function casts(): array
     {
-        return ['checked_in_at' => 'immutable_datetime', 'version' => 'integer'];
+        return ['approved_at' => 'immutable_datetime', 'checked_in_at' => 'immutable_datetime', 'version' => 'integer'];
     }
 
     public function session(): BelongsTo

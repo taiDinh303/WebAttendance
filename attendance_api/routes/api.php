@@ -95,6 +95,7 @@ Route::prefix('v1')->middleware('web')->group(function () {
             Route::get('classes/{classroom}/attendance', [AttendanceController::class, 'index']);
             Route::get('classes/{classroom}/{kind}/export', [ClassExportController::class, 'download'])->where('kind', 'attendance|grades')->middleware('throttle:submit');
             Route::get('classes/{classroom}/attendance-summary', [AttendanceController::class, 'summary']);
+            Route::post('classes/{classroom}/attendance/{recordId}/approve', [AttendanceController::class, 'approve']);
             Route::get('classes/{classroom}/attendance/{recordId}/audit', [AttendanceController::class, 'audit']);
             Route::put('classes/{classroom}/sessions/{sessionId}/attendance/{studentId}', [AttendanceController::class, 'correct']);
             Route::get('me/attendance', [AttendanceController::class, 'mine']);

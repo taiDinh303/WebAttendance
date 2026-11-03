@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 export function Modal({
+  wide = false,
   title,
   onClose,
   children,
 }: {
+  wide?: boolean;
   title: string;
   onClose: () => void;
   children: ReactNode;
@@ -26,7 +28,7 @@ export function Modal({
   return createPortal(
     <dialog
       ref={ref}
-      className="app-modal"
+      className={"app-modal" + (wide ? " modal-wide" : "")}
       aria-labelledby={titleId}
       onCancel={(e) => {
         e.preventDefault();

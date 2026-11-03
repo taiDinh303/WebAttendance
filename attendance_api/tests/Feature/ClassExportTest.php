@@ -23,14 +23,14 @@ final class ClassExportTest extends TestCase
         $student = User::factory()->create();
         $class = Classroom::forceCreate(['owner_id' => $teacher->id, 'name' => 'Synthetic totals']);
         ClassMembership::forceCreate(['class_id' => $class->id, 'student_id' => $student->id, 'status' => 'active', 'requested_at' => now()]);
-        foreach (['present', 'late', 'absent', 'open'] as $status) {
+        foreach (['present', 'late', 'absent', 'pending', 'open'] as $status) {
             $session = (string) Str::ulid();
             $window = (string) Str::ulid();
             DB::table('class_sessions')->insert(['id' => $session, 'class_id' => $class->id, 'starts_at' => now()->subDay(), 'ends_at' => now()->addHour(), 'status' => 'scheduled']);
             DB::table('attendance_windows')->insert(['id' => $window, 'session_id' => $session, 'opened_by' => $teacher->id, 'opens_at' => now()->subHour(), 'closes_at' => $status === 'open' ? now()->addHour() : now()->subMinute(), 'state' => $status === 'open' ? 'open' : 'closed']);
             DB::table('attendance_rosters')->insert(['id' => (string) Str::ulid(), 'window_id' => $window, 'student_id' => $student->id]);
             if ($status !== 'open') {
-                DB::table('attendance_records')->insert(['id' => (string) Str::ulid(), 'session_id' => $session, 'student_id' => $student->id, 'window_id' => $window, 'status' => $status, 'recorded_source' => 'manual']);
+                DB::table('attendance_records')->insert(['id' => (string) Str::ulid(), 'session_id' => $session, 'student_id' => $student->id, 'window_id' => $window, 'status' => $status === 'pending' ? 'present' : $status, 'recorded_source' => 'manual', 'approved_at' => $status === 'pending' ? null : now(), 'approved_by' => $status === 'pending' ? null : $teacher->id]);
             }
         }
         $report = app(ExportClassReport::class)->build($teacher, $class, 'attendance');

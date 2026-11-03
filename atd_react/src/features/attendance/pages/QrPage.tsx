@@ -1,6 +1,5 @@
 import { validateAttendanceTimes } from "../../../domain/schedule";
 import { askDialog } from "../../../shared/components/askDialog";
-import { RosterEntry } from "../components/RosterEntry";
 import { useParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
@@ -22,7 +21,15 @@ export default function QrPage() {
   const { classId = "" } = useParams();
   return <Navigate to={"/app/classes/" + classId + "/schedule"} replace />;
 }
-export function QrContent({ classId, sessionId, onClose }: { classId: string; sessionId: string; onClose: () => void }) {
+export function QrContent({
+  classId,
+  sessionId,
+  onClose,
+}: {
+  classId: string;
+  sessionId: string;
+  onClose: () => void;
+}) {
   const { user } = useSession();
   const [openedAt, setOpenedAt] = useState(() => Date.now());
   const [reopening, setReopening] = useState(false);
@@ -37,67 +44,110 @@ export function QrContent({ classId, sessionId, onClose }: { classId: string; se
         throw e;
       }
     },
-    { enabled: user?.role === "teacher", refetchInterval: 15000, refetchOnMount: "always" },
+    {
+      enabled: user?.role === "teacher",
+      refetchInterval: 15000,
+      refetchOnMount: "always",
+    },
   );
-  if (user?.role !== "teacher") return <p className="info">Chỉ giáo viên sở hữu lớp được mở mã QR.</p>;
-  return <>
-    <QueryState pending={query.isPending} error={query.error} retry={query.refetch} />
-    {query.isSuccess && (!query.data || reopening) ? (              <AsyncForm
-                onSubmit={async (f) => {
-                  const times = { opensAt: iso(f.get("opensAt")), lateAfter: iso(f.get("lateAfter")), closesAt: iso(f.get("closesAt")) };
-                  validateAttendanceTimes(times.opensAt, times.lateAfter, times.closesAt);
-                  await attendanceApi.open(classId, sessionId, { ...times, ...(reopening && query.data ? { expectedVersion: query.data.version } : {}) });
-                  setReopening(false);
-                  await refresh();
-
-                }}
-              >
-                {[
-                  ["opensAt", "Mở từ", -1],
-                  ["lateAfter", "Tính muộn sau", 5],
-                  ["closesAt", "Đóng lúc", 15],
-                ].map(([name, label, offset]) => (
-                  <Field key={name} label={String(label)}>
-                    <input
-                      name={String(name)}
-                      type="datetime-local"
-                      required
-                      defaultValue={new Date(
-                        openedAt +
-                          Number(offset) * 60000 -
-                          new Date().getTimezoneOffset() * 60000,
-                      )
-                        .toISOString()
-                        .slice(0, 16)}
-                    />
-                  </Field>
-                ))}
-                <p className="muted">
-                  Để mở QR ngay: giờ mở không sau hiện tại, giờ đóng phải sau hiện tại. Mốc tính muộn nằm trong khoảng mở–đóng.
-                </p>
-                <footer className="modal-actions">
-                  <button
-                    type="button"
-                    className="button secondary"
-                    onClick={() => { if (reopening) setReopening(false); else onClose(); }}
-                  >
-                    Đóng
-                  </button>
-                  <button className="button">{reopening ? "Mở lại QR" : "Mở QR"}</button>
-                </footer>
-              </AsyncForm>) : null}
-    {query.data && !reopening ? <>{["closed", "expired"].includes(query.data.state) ? <button className="button" onClick={() => { setOpenedAt(Date.now()); setReopening(true); }}>Mở lại QR</button> : null}<ActiveWindow classId={classId} sessionId={sessionId} window={query.data} /><footer className="modal-actions"><button className="button secondary" onClick={onClose}>Đóng</button></footer></> : null}
-  </>;
+  if (user?.role !== "teacher")
+    return <p className="info">Chỉ giáo viên sở hữu lớp được mở mã QR.</p>;
+  return (
+    <>
+      <QueryState
+        pending={query.isPending}
+        error={query.error}
+        retry={query.refetch}
+      />
+      {query.isSuccess && (!query.data || reopening) ? (
+        <AsyncForm
+          onSubmit={async (f) => {
+            const times = {
+              opensAt: iso(f.get("opensAt")),
+              lateAfter: iso(f.get("lateAfter")),
+              closesAt: iso(f.get("closesAt")),
+            };
+            validateAttendanceTimes(
+              times.opensAt,
+              times.lateAfter,
+              times.closesAt,
+            );
+            await attendanceApi.open(classId, sessionId, {
+              ...times,
+              ...(reopening && query.data
+                ? { expectedVersion: query.data.version }
+                : {}),
+            });
+            setReopening(false);
+            await refresh();
+          }}
+        >
+          {[
+            ["opensAt", "Mở từ", -1],
+            ["lateAfter", "Tính muộn sau", 5],
+            ["closesAt", "Đóng lúc", 15],
+          ].map(([name, label, offset]) => (
+            <Field key={name} label={String(label)}>
+              <input
+                name={String(name)}
+                type="datetime-local"
+                required
+                defaultValue={new Date(
+                  openedAt +
+                    Number(offset) * 60000 -
+                    new Date().getTimezoneOffset() * 60000,
+                )
+                  .toISOString()
+                  .slice(0, 16)}
+              />
+            </Field>
+          ))}
+          <p className="muted">
+            Để mở QR ngay: giờ mở không sau hiện tại, giờ đóng phải sau hiện
+            tại. Mốc tính muộn nằm trong khoảng mở–đóng.
+          </p>
+          <footer className="modal-actions">
+            <button
+              type="button"
+              className="button secondary"
+              onClick={() => {
+                if (reopening) setReopening(false);
+                else onClose();
+              }}
+            >
+              Đóng
+            </button>
+            <button className="button">
+              {reopening ? "Mở lại QR" : "Mở QR"}
+            </button>
+          </footer>
+        </AsyncForm>
+      ) : null}
+      {query.data && !reopening ? (
+        <>
+          {["closed", "expired"].includes(query.data.state) ? (
+            <button
+              className="button"
+              onClick={() => {
+                setOpenedAt(Date.now());
+                setReopening(true);
+              }}
+            >
+              Mở lại QR
+            </button>
+          ) : null}
+          <ActiveWindow window={query.data} />
+          <footer className="modal-actions">
+            <button className="button secondary" onClick={onClose}>
+              Đóng
+            </button>
+          </footer>
+        </>
+      ) : null}
+    </>
+  );
 }
-function ActiveWindow({
-  classId,
-  sessionId,
-  window: w,
-}: {
-  classId: string;
-  sessionId: string;
-  window: Window;
-}) {
+function ActiveWindow({ window: w }: { window: Window }) {
   const { page, setPage } = usePage();
   const refresh = useRefresh();
   const qr = useResource(["qr", w.id], (s) => attendanceApi.qr(w.id, s), {
@@ -106,11 +156,11 @@ function ActiveWindow({
   });
   const roster = useResource(
     ["roster", w.id, page],
-    (s) => attendanceApi.roster(w.id, page, s),
+    (s) => attendanceApi.roster(w.id, page, s, true),
     { refetchInterval: 10000 },
   );
   return (
-    <div className="detail-grid">
+    <div className="qr-attendance-grid">
       <section className="panel qr-panel">
         <Badge value={w.state} />
         <h2>Quét để bắt đầu buổi học</h2>
@@ -127,7 +177,7 @@ function ActiveWindow({
               action={async () => {
                 const message =
                   "Đóng điểm danh? Học sinh chưa quét QR sẽ tự động được đánh dấu là vắng (absent). Sau đó bạn vẫn có thể sửa tay từng trường hợp với lý do (DEC-017).";
-                if (!await askDialog(message)) return;
+                if (!(await askDialog(message))) return;
                 await attendanceApi.close(w);
                 await refresh();
               }}
@@ -151,16 +201,19 @@ function ActiveWindow({
           error={roster.error}
           retry={roster.refetch}
         />
-        {roster.data && roster.data.totalItems === 0 ? <p className="info">Chưa có học sinh trong danh sách. Học sinh được duyệt vào lớp có thể quét khi QR đang mở; danh sách sẽ tự cập nhật.</p> : null}
-        {roster.data?.items.map((row) => (
-          <RosterEntry
-            key={row.studentId}
-            classId={classId}
-            sessionId={sessionId}
-            row={row}
-            refreshing={roster.isFetching}
-          />
-        ))}
+        <p className="attendance-count">
+          Đã điểm danh:{" "}
+          <strong>
+            {roster.data?.checkedInCount ?? roster.data?.totalItems ?? 0}
+          </strong>
+        </p>
+        <ul className="qr-attendee-list">
+          {roster.data?.items.map((row) => (
+            <li key={row.studentId} title={row.studentName}>
+              {row.studentName}
+            </li>
+          ))}
+        </ul>
         <Pagination data={roster.data} onPage={setPage} />
       </section>
     </div>
@@ -214,14 +267,24 @@ function QrImage({ data }: { data: Qr }) {
       ) : (
         <p className="info">Đang lấy mã QR mới…</p>
       )}
-      <ActionButton className="button secondary small" disabled={seconds <= 0} action={async () => {
-        const url = new URL("/app/check-in", location.origin);
-        url.searchParams.set("token", data.qrToken);
-        try { await navigator.clipboard.writeText(url.toString()); }
-        catch { throw Error("Không sao chép được. Hãy cho phép truy cập bộ nhớ tạm và thử lại."); }
-      }}>Sao chép liên kết</ActionButton>
+      <ActionButton
+        className="button secondary small"
+        disabled={seconds <= 0}
+        action={async () => {
+          const url = new URL("/app/check-in", location.origin);
+          url.searchParams.set("token", data.qrToken);
+          try {
+            await navigator.clipboard.writeText(url.toString());
+          } catch {
+            throw Error(
+              "Không sao chép được. Hãy cho phép truy cập bộ nhớ tạm và thử lại.",
+            );
+          }
+        }}
+      >
+        Sao chép liên kết
+      </ActionButton>
       <p className="qr-countdown">Mã hiện tại còn {seconds} giây</p>
     </>
   );
 }
-

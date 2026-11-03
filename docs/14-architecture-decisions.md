@@ -167,3 +167,7 @@ Chủ dự án yêu cầu mở lại QR đã đóng. Giữ snapshot roster và m
 ### DEC-045 — Điểm danh theo thành viên đã duyệt (CONFIRMED 2026-11-03)
 
 Chủ dự án chốt HS đã duyệt/active được điểm danh; chỉ yêu cầu pending chưa được. Thay snapshot cố định DEC-016 và phần không thêm roster DEC-044. HS active có thể dùng QR đang mở dù được duyệt sau khi tạo lịch/mở QR; bổ sung danh sách tích lũy, không xóa lịch sử. Pending/removed/left không được check-in; server giữ QR30s/TTL60s và cửa sổ giờ. Buổi closed không tự thêm vắng cho HS tham gia sau giờ đóng; mở lại cho phép thêm active hiện tại. Chi tiết SCHEDULE-ATTENDANCE.
+
+### DEC-046 — Duyệt và khóa điểm danh (CONFIRMED 2026-11-03)
+
+Chủ dự án yêu cầu modal QR chỉ hiện tên/tổng đã điểm danh, HS chỉ quét một lần; bảng điểm danh có mã HS/họ tên, teacher thêm/sửa manual và Duyệt, thêm checkbox duyệt hàng loạt. Bản ghi sau duyệt không được sửa, gồm QR; thay phần cho sửa không giới hạn sau chốt của DEC-017 và bảo toàn quyền thành viên DEC-045. Đóng QR tạo kết quả chờ duyệt; teacher duyệt record mới khóa, summary/Excel chỉ tính record đã duyệt khi window đóng/hết hạn. Existing records default pending, không suy đoán tự duyệt. QR trùng từ chối rõ ràng; hệ thống chốt vắng chưa duyệt có thể ghi nhận lần quét đầu khi QR mở lại, record từng quét/manual không cho HS thay đổi. M-ChamCong chỉ tham khảo UX/luồng, không lấy dữ liệu hoặc kiến trúc .NET. Cột approved_at/approved_by thuộc attendance_records, audit giữ trước/sau, version/owner checks cho từng request bulk. Không có mở khóa bản ghi đã duyệt trong phạm vi này.

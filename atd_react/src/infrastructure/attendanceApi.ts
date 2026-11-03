@@ -34,9 +34,17 @@ export const attendanceApi = {
     ),
   qr: (w: string, signal?: AbortSignal) =>
     request<Qr>("/attendance-windows/" + w + "/qr", { signal }),
-  roster: (w: string, pageNumber: number, signal?: AbortSignal) =>
-    request<Page<RosterRow>>(
-      "/attendance-windows/" + w + "/roster" + params({ pageNumber }),
+  roster: (
+    w: string,
+    pageNumber: number,
+    signal?: AbortSignal,
+    checkedOnly = false,
+  ) =>
+    request<Page<RosterRow> & { checkedInCount?: number }>(
+      "/attendance-windows/" +
+        w +
+        "/roster" +
+        params({ pageNumber, checkedOnly: checkedOnly ? 1 : 0 }),
       { signal },
     ),
   close: (w: Window) =>
@@ -63,6 +71,11 @@ export const attendanceApi = {
       method: "POST",
       body: { qrToken },
     }),
+  approve: (classId: string, record: Attendance) =>
+    request<Attendance>(
+      "/classes/" + classId + "/attendance/" + record.id + "/approve",
+      { method: "POST", body: { expectedVersion: record.version } },
+    ),
   records: (c: string, pageNumber: number, signal?: AbortSignal) =>
     request<Page<Attendance>>(
       "/classes/" + c + "/attendance" + params({ pageNumber }),

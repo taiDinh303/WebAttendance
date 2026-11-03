@@ -86,6 +86,8 @@ async function performRequest<T>(
       503: "Dịch vụ tạm thời chưa sẵn sàng.",
     };
     const scheduleMessages: Record<string, string> = {
+      ALREADY_CHECKED_IN: "Bạn đã có kết quả điểm danh cho buổi này. Nếu cần điều chỉnh, hãy liên hệ giáo viên.",
+      ATTENDANCE_APPROVED: "Bản ghi đã duyệt và khóa, không thể chỉnh sửa.",
       SESSION_HAS_ATTENDANCE: "Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn. Chỉ buổi chưa có dữ liệu hoặc có cửa sổ QR trống mới xóa được.",
       NOT_IN_ATTENDANCE_ROSTER: "Máy chủ chưa cập nhật quy tắc điểm danh theo thành viên hiện tại. Hãy báo giáo viên cập nhật backend rồi thử lại.",
       QR_EXPIRED: "Mã QR đã hết hạn hoặc đã được thay mới. Hãy quét hoặc lấy liên kết QR hiện tại từ giáo viên.",

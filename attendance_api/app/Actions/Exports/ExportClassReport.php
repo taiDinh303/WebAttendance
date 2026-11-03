@@ -32,7 +32,7 @@ final class ExportClassReport
                 $headers = $columns->map(fn ($s) => CarbonImmutable::parse($s->starts_at, 'UTC')->setTimezone($class->timezone)->format('d/m/Y H:i').' · '.($s->title ?: 'Buổi học'))->all();
                 $headers = [...$base, ...($template ? ['Buổi học (ngày/giờ)'] : $headers), 'Có mặt', 'Đi muộn', 'Vắng', 'Buổi đã chốt', 'Tỷ lệ tham dự (%)'];
                 $roster = $template ? collect() : DB::table('attendance_rosters as r')->join('attendance_windows as w', 'w.id', '=', 'r.window_id')->whereIn('w.session_id', $columns->pluck('id'))->select('r.student_id', 'w.session_id')->get()->keyBy(fn ($r) => $r->student_id.':'.$r->session_id);
-                $metadata[] = ['Ký hiệu', 'P: có mặt; L: muộn; A: vắng; ?: chưa chốt; —: không thuộc roster/chưa mở. Chỉ buổi đã chốt tính tổng.'];
+                $metadata[] = ['Ký hiệu', 'P: có mặt; L: muộn; A: vắng; ?: chưa duyệt/chưa đóng; —: không thuộc roster/chưa mở. Chỉ bản ghi đã duyệt và buổi đã chốt tính tổng.'];
             } else {
                 $columns = $template ? collect() : DB::table('assignments')->where('class_id', $class->id)->where('state', '!=', 'draft')->orderBy('created_at')->orderBy('id')->limit(501)->get();
                 abort_if($columns->count() > 500 || $members->count() * ($columns->count() + 11) > 100000, 422, 'Report exceeds export limits.');
@@ -54,7 +54,7 @@ final class ExportClassReport
                 foreach ($columns as $column) {
                     $value = $values->get($member->id.':'.$column->id);
                     if ($kind === 'attendance') {
-                        $final = $value && ($value->window_state !== 'open' || CarbonImmutable::parse($value->closes_at, 'UTC')->lte(now()));
+                        $final = $value && $value->approved_at && ($value->window_state !== 'open' || CarbonImmutable::parse($value->closes_at, 'UTC')->lte(now()));
                         $row[] = ! $value ? ($roster->has($member->id.':'.$column->id) ? '?' : '—') : (! $final ? '?' : (['present' => 'P', 'late' => 'L', 'absent' => 'A'][$value->status] ?? '?'));
                         if ($final) {
                             $present += $value->status === 'present' ? 1 : 0;

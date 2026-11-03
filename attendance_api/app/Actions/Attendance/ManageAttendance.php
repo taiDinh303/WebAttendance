@@ -96,7 +96,7 @@ final class ManageAttendance
             AttendanceRoster::firstOrCreate(['window_id' => $locked->id, 'student_id' => $actor->id]);
             $existing = AttendanceRecord::where('session_id', $lockedSession->id)->where('student_id', $actor->id)->first();
             if ($existing) {
-                if ($existing->status === 'absent' && $existing->recorded_source === 'close_finalize') {
+                if (! $existing->approved_at && $existing->status === 'absent' && $existing->recorded_source === 'close_finalize') {
                     $before = $this->snapshot($existing);
                     $existing->forceFill(['status' => $locked->late_after && now()->gte($locked->late_after) ? 'late' : 'present',
                         'checked_in_at' => now()->startOfSecond(), 'recorded_source' => 'qr', 'version' => $existing->version + 1])->save();
@@ -105,7 +105,7 @@ final class ManageAttendance
                     return [$existing, false];
                 }
 
-                return [$existing, false];
+                throw new ApiException('ALREADY_CHECKED_IN', 'Bạn đã có kết quả điểm danh cho buổi này. Nếu cần điều chỉnh, hãy liên hệ giáo viên.');
             }
             $record = AttendanceRecord::create(['session_id' => $lockedSession->id, 'student_id' => $actor->id, 'window_id' => $locked->id,
                 'status' => $locked->late_after && now()->gte($locked->late_after) ? 'late' : 'present',
@@ -143,13 +143,18 @@ final class ManageAttendance
             [$class, $session] = $this->lockSession($classroom->id, $sessionId);
             Gate::forUser($actor)->authorize('update', $class);
             $this->requireWritable($class, $session);
-            $window = AttendanceWindow::where('session_id', $session->id)->lockForUpdate()->firstOrFail();
-            if (! AttendanceRoster::where('window_id', $window->id)->where('student_id', $studentId)->exists()) {
-                abort(404);
-            }
+            $member = ClassMembership::where('class_id', $class->id)->where('student_id', $studentId)->where('status', 'active')->exists();
+            $window = AttendanceWindow::where('session_id', $session->id)->lockForUpdate()->first();
+            $inRoster = $window && AttendanceRoster::where('window_id', $window->id)->where('student_id', $studentId)->exists();
+            abort_unless($member || $inRoster, 404);
+            $window ??= AttendanceWindow::create(['session_id' => $session->id, 'opened_by' => $actor->id, 'opens_at' => $session->starts_at, 'closes_at' => $session->ends_at, 'state' => 'closed']);
+            AttendanceRoster::firstOrCreate(['window_id' => $window->id, 'student_id' => $studentId]);
             $record = AttendanceRecord::where('session_id', $session->id)->where('student_id', $studentId)->lockForUpdate()->first();
             if (($record?->version ?? 0) !== (int) $data['expectedVersion']) {
                 throw new ApiException('VERSION_CONFLICT', 'Attendance changed. Reload before saving.');
+            }
+            if ($record?->approved_at) {
+                throw new ApiException('ATTENDANCE_APPROVED', 'Điểm danh đã duyệt, không thể chỉnh sửa.');
             }
             $before = $record ? $this->snapshot($record) : null;
             $record ??= new AttendanceRecord(['session_id' => $session->id, 'student_id' => $studentId, 'window_id' => $window->id]);
@@ -160,6 +165,29 @@ final class ManageAttendance
             $record->recorded_source = 'manual';
             $record->save();
             $this->audit($record, $actor->id, 'manual_correction', $data['reason'], $before);
+
+            return $record;
+        });
+    }
+
+    public function approve(User $actor, Classroom $classroom, string $recordId, int $version): AttendanceRecord
+    {
+        $candidate = AttendanceRecord::whereKey($recordId)->whereHas('session', fn ($q) => $q->where('class_id', $classroom->id))->firstOrFail();
+
+        return DB::transaction(function () use ($actor, $classroom, $candidate, $version) {
+            [$class, $session] = $this->lockSession($classroom->id, $candidate->session_id);
+            Gate::forUser($actor)->authorize('update', $class);
+            $this->requireWritable($class, $session);
+            $record = AttendanceRecord::whereKey($candidate->id)->lockForUpdate()->firstOrFail();
+            if ($record->version !== $version) {
+                throw new ApiException('VERSION_CONFLICT', 'Điểm danh đã thay đổi. Hãy tải lại trước khi duyệt.');
+            }
+            if ($record->approved_at) {
+                return $record;
+            }
+            $before = $this->snapshot($record);
+            $record->forceFill(['approved_at' => now(), 'approved_by' => $actor->id, 'version' => $record->version + 1])->save();
+            $this->audit($record, $actor->id, 'approved', 'Giáo viên duyệt kết quả điểm danh.', $before);
 
             return $record;
         });
@@ -266,7 +294,7 @@ final class ManageAttendance
 
     private function snapshot(AttendanceRecord $record): array
     {
-        return ['status' => $record->status, 'recordedSource' => $record->recorded_source, 'checkedInAt' => $record->checked_in_at?->toISOString(), 'version' => $record->version];
+        return ['status' => $record->status, 'recordedSource' => $record->recorded_source, 'checkedInAt' => $record->checked_in_at?->toISOString(), 'version' => $record->version, 'approvedAt' => $record->approved_at?->toISOString(), 'approvedBy' => $record->approved_by];
     }
 
     private function audit(AttendanceRecord $record, ?string $actorId, string $action, ?string $reason, ?array $before): void

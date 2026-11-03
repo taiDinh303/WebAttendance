@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AttendanceRecord;
 use App\Models\AttendanceRoster;
 use App\Models\AttendanceWindow;
 use App\Models\ClassMembership;
@@ -102,7 +103,7 @@ final class ScheduleAttendanceTest extends TestCase
         $window = $this->open($classId, $sessionId);
         $token = $this->qr($teacher, $window);
         $first = $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertCreated()->assertJsonPath('data.status', 'present');
-        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertOk()->assertJsonPath('data.id', $first->json('data.id'))->assertJsonPath('data.checkedInAt', $first->json('data.checkedInAt'));
+        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
         $this->assertDatabaseCount('attendance_records', 1);
         $this->assertDatabaseCount('attendance_audits', 1);
         $this->getJson('/api/v1/me/attendance?pageSize=1')->assertOk()->assertJsonPath('data.totalItems', 1);
@@ -166,6 +167,10 @@ final class ScheduleAttendanceTest extends TestCase
         $this->putJson($url, ['status' => 'late', 'expectedVersion' => 1, 'reason' => 'Stale update'])->assertConflict();
         $this->getJson('/api/v1/classes/'.$classId.'/attendance/'.$record.'/audit')->assertOk()->assertJsonPath('data.totalItems', 2);
         $this->assertDatabaseHas('attendance_audits', ['record_id' => $record, 'actor_id' => $teacher->id, 'action' => 'manual_correction', 'reason' => 'Student device failed']);
+        $this->getJson('/api/v1/classes/'.$classId.'/attendance-summary')->assertOk()->assertJsonPath('data.totalItems', 0);
+        foreach (AttendanceRecord::all() as $entry) {
+            $this->postJson('/api/v1/classes/'.$classId.'/attendance/'.$entry->id.'/approve', ['expectedVersion' => $entry->version])->assertOk();
+        }
         $summary = $this->getJson('/api/v1/classes/'.$classId.'/attendance-summary')->assertOk()->assertJsonPath('data.totalItems', 2);
         $studentTotal = collect($summary->json('data.items'))->firstWhere('studentId', $student->id);
         $this->assertSame(1, $studentTotal['present']);
@@ -184,7 +189,7 @@ final class ScheduleAttendanceTest extends TestCase
             'status' => 'present', 'expectedVersion' => 0, 'reason' => 'Teacher confirmed presence',
         ])->assertOk()->assertJsonPath('data.recordedSource', 'manual');
         $token = $this->qr($teacher, $window);
-        $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertOk()->assertJsonPath('data.recordedSource', 'manual');
+        $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
         $this->actingAs($teacher)->postJson('/api/v1/attendance-windows/'.$window.'/close', ['expectedVersion' => 1])->assertOk();
         $this->assertDatabaseHas('attendance_records', ['student_id' => $student->id, 'status' => 'present', 'recorded_source' => 'manual', 'version' => 1]);
     }
@@ -242,7 +247,7 @@ final class ScheduleAttendanceTest extends TestCase
             }
         }
 
-        $summary = $this->getJson('/api/v1/classes/'.$classId.'/attendance-summary')->assertOk()->assertJsonPath('data.totalItems', 2);
+        $summary = $this->getJson('/api/v1/classes/'.$classId.'/attendance-summary')->assertOk()->assertJsonPath('data.totalItems', 0);
         foreach ($summary->json('data.items') as $row) {
             $this->assertSame(101, $row['absent']);
             $this->assertSame(101, $row['total']);
@@ -309,8 +314,8 @@ final class ScheduleAttendanceTest extends TestCase
         $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $old])->assertStatus(410);
         $fresh = $this->qr($teacher, $window);
         $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.status', 'present')->assertJsonPath('data.version', 2);
-        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.version', 2);
-        $this->actingAs($other)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertOk()->assertJsonPath('data.status', 'absent');
+        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
+        $this->actingAs($other)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
         $this->assertDatabaseCount('attendance_records', 2);
         $this->assertDatabaseHas('attendance_audits', ['action' => 'qr_check_in', 'reason' => 'Quét QR sau khi giáo viên mở lại điểm danh.']);
     }
@@ -346,7 +351,7 @@ final class ScheduleAttendanceTest extends TestCase
         $membership->update(['status' => 'active', 'joined_at' => now()]);
         $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window.'/roster')->assertOk()->assertJsonPath('data.totalItems', 3);
         $this->actingAs($new)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertCreated();
-        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertOk();
+        $this->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
         $this->assertDatabaseCount('attendance_records', 1);
         $missed = User::factory()->create();
         ClassMembership::create(['class_id' => $classId, 'student_id' => $missed->id, 'status' => 'active', 'requested_at' => now(), 'joined_at' => now()]);
@@ -366,5 +371,29 @@ final class ScheduleAttendanceTest extends TestCase
         $this->postJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance-windows', ['expectedVersion' => 2, 'opensAt' => now()->toISOString(), 'lateAfter' => now()->addMinutes(5)->toISOString(), 'closesAt' => now()->addMinutes(15)->toISOString()])->assertCreated();
         $fresh = $this->qr($teacher, $window);
         $this->actingAs($new)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $fresh])->assertCreated();
+    }
+
+    public function test_manual_attendance_approval_locks_record_and_requires_owner_and_version(): void
+    {
+        [$teacher, $student, $other, $classId, $sessionId] = $this->workspace();
+        $pending = User::factory()->create();
+        ClassMembership::create(['class_id' => $classId, 'student_id' => $pending->id, 'status' => 'pending', 'requested_at' => now()]);
+        $this->putJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance/'.$pending->id, ['status' => 'present', 'expectedVersion' => 0, 'reason' => 'Not approved member'])->assertNotFound();
+        $url = '/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance/'.$student->id;
+        $record = $this->putJson($url, ['status' => 'present', 'expectedVersion' => 0, 'reason' => 'Device unavailable'])->assertOk()->assertJsonPath('data.approvedAt', null)->json('data.id');
+        $approve = '/api/v1/classes/'.$classId.'/attendance/'.$record.'/approve';
+        $this->actingAs($student)->postJson($approve, ['expectedVersion' => 1])->assertNotFound();
+        $this->actingAs(User::factory()->create(['role' => 'teacher']))->postJson($approve, ['expectedVersion' => 1])->assertNotFound();
+        $this->actingAs($teacher)->postJson($approve, ['expectedVersion' => 99])->assertConflict();
+        $this->postJson($approve, ['expectedVersion' => 1])->assertOk()->assertJsonPath('data.version', 2)->assertJsonPath('data.approvedBy', $teacher->id);
+        $this->putJson($url, ['status' => 'absent', 'expectedVersion' => 2, 'reason' => 'Attempt locked edit'])->assertConflict()->assertJsonPath('code', 'ATTENDANCE_APPROVED');
+        $this->postJson($approve, ['expectedVersion' => 2])->assertOk()->assertJsonPath('data.version', 2);
+        $this->assertDatabaseHas('attendance_audits', ['record_id' => $record, 'action' => 'approved']);
+        $this->assertDatabaseCount('attendance_records', 1);
+        $window = AttendanceWindow::where('session_id', $sessionId)->firstOrFail();
+        $this->postJson('/api/v1/classes/'.$classId.'/sessions/'.$sessionId.'/attendance-windows', ['expectedVersion' => $window->version, 'opensAt' => now()->toISOString(), 'lateAfter' => now()->addMinutes(5)->toISOString(), 'closesAt' => now()->addMinutes(15)->toISOString()])->assertCreated();
+        $token = $this->qr($teacher, $window->id);
+        $this->actingAs($student)->postJson('/api/v1/attendance/check-ins', ['qrToken' => $token])->assertConflict()->assertJsonPath('code', 'ALREADY_CHECKED_IN');
+        $this->actingAs($teacher)->getJson('/api/v1/attendance-windows/'.$window->id.'/roster?checkedOnly=1&pageSize=1')->assertOk()->assertJsonPath('data.checkedInCount', 1)->assertJsonPath('data.totalItems', 1);
     }
 }

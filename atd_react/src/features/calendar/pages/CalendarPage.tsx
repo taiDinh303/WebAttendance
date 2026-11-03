@@ -433,7 +433,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
         error={query.error}
         retry={query.refetch}
       />
-      {qrSession ? <Modal title="Điểm danh QR" onClose={() => setQrSession(null)}><QrContent classId={qrSession.classId} sessionId={qrSession.id} onClose={() => setQrSession(null)} /></Modal> : null}
+      {qrSession ? <Modal wide title="Điểm danh QR" onClose={() => setQrSession(null)}><QrContent classId={qrSession.classId} sessionId={qrSession.id} onClose={() => setQrSession(null)} /></Modal> : null}
       <div className="panel">
         {editing ? (
           <SessionEditor

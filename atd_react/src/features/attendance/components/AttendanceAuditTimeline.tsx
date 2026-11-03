@@ -5,6 +5,7 @@ import { dateTime } from "../../../domain/format";
 import { Badge, Empty, Pagination, QueryState } from "../../../shared/ui";
 
 const actions: Record<string, string> = {
+  approved: "Giáo viên duyệt và khóa",
   qr_check_in: "Học sinh quét mã QR",
   manual_correction: "Giáo viên điều chỉnh",
   auto_absent: "Hệ thống chốt vắng",
