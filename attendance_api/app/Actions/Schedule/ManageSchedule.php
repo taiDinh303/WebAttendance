@@ -116,9 +116,11 @@ final class ManageSchedule
             $this->lockClass($actor, $classroom);
             $session = ClassSession::where('class_id', $classroom->id)->whereKey($id)->lockForUpdate()->firstOrFail();
             $this->requireVersion($session, $version);
-            if (AttendanceWindow::where('session_id', $id)->exists() || DB::table('attendance_records')->where('session_id', $id)->exists()) {
-                throw new ApiException('STATE_CONFLICT', 'Sessions with attendance history cannot be permanently deleted.');
+            $window = AttendanceWindow::where('session_id', $id)->lockForUpdate()->first();
+            if (DB::table('attendance_records')->where('session_id', $id)->exists() || ($window && DB::table('attendance_rosters')->where('window_id', $window->id)->exists())) {
+                throw new ApiException('SESSION_HAS_ATTENDANCE', 'Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn.');
             }
+            $window?->delete();
             $session->delete();
         });
     }

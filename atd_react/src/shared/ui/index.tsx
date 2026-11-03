@@ -177,10 +177,12 @@ export function AsyncForm({
   );
 }
 export function ActionButton({
+  errorPlacement = "inline",
   action,
   children,
   ...props
 }: {
+  errorPlacement?: "inline" | "popup";
   action: () => Promise<unknown>;
   children: ReactNode;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
@@ -207,7 +209,7 @@ export function ActionButton({
         {busy ? <LoaderCircle className="spin" size={16} /> : null}
         {children}
       </button>
-      <ErrorNotice error={error} />
+      {errorPlacement === "inline" ? <ErrorNotice error={error} /> : null}
     </span>
   );
 }

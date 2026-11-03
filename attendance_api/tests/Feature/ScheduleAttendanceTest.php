@@ -314,4 +314,23 @@ final class ScheduleAttendanceTest extends TestCase
         $this->assertDatabaseCount('attendance_records', 2);
         $this->assertDatabaseHas('attendance_audits', ['action' => 'qr_check_in', 'reason' => 'Quét QR sau khi giáo viên mở lại điểm danh.']);
     }
+
+    public function test_owner_can_delete_empty_qr_window_even_after_students_join_class(): void
+    {
+        foreach (['open', 'closed'] as $state) {
+            [$teacher, , , $classId, $sessionId] = $this->workspace();
+            ClassMembership::where('class_id', $classId)->update(['status' => 'removed']);
+            $window = $this->open($classId, $sessionId);
+            if ($state === 'closed') {
+                $this->postJson('/api/v1/attendance-windows/'.$window.'/close', ['expectedVersion' => 1])->assertOk();
+            }
+            ClassMembership::where('class_id', $classId)->update(['status' => 'active']);
+            $url = '/api/v1/classes/'.$classId.'/sessions/'.$sessionId;
+            $this->deleteJson($url, ['expectedVersion' => 99])->assertConflict();
+            $this->assertDatabaseHas('attendance_windows', ['id' => $window]);
+            $this->deleteJson($url, ['expectedVersion' => 1])->assertOk();
+            $this->assertDatabaseMissing('class_sessions', ['id' => $sessionId]);
+            $this->assertDatabaseMissing('attendance_windows', ['id' => $window]);
+        }
+    }
 }

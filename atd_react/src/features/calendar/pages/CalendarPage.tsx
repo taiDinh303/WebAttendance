@@ -502,6 +502,7 @@ export function CalendarContent({ classId }: { classId?: string }) {
                   Điểm danh QR
                 </button>
                 <ActionButton
+                  errorPlacement="popup"
                   className="button ghost small"
                   action={async () => {
                     if (!(await askDialog("Xóa vĩnh viễn buổi học này? Không thể hoàn tác."))) return;
