@@ -1,6 +1,15 @@
 * {
   box-sizing: border-box;
 }
+/* Keep the viewport width stable across short pages, long pages and scroll locks. */
+html {
+  scrollbar-gutter: stable;
+}
+@supports not (scrollbar-gutter: stable) {
+  html {
+    overflow-y: scroll;
+  }
+}
 body {
   margin: 0;
   font-size: 14px;

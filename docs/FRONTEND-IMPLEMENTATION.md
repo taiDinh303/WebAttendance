@@ -152,3 +152,7 @@ VERIFIED LOCAL DEC-041: typecheck/lint/Vitest29/build PASS; Edge6scenario teache
 ### 2026-11-03 — Sửa nhãn tiến độ buổi học theo thời gian
 
 IMPLEMENTED: API status=scheduled là trạng thái lịch chưa hủy, không chứng minh buổi còn ở tương lai. CalendarContent (lịch chung và lịch trong lớp) dùng sessionDisplayStatus: trước startsAt → Sắp diễn ra; startsAt≤now<endsAt → Đang diễn ra; now≥endsAt → Đã kết thúc. Giữ cancelled → Đã hủy ở mọi thời điểm và giữ nguyên trạng thái API, quyền/thao tác sửa/hủy/QR, không tự chốt điểm danh hoặc chuyển dữ liệu DB. Nhãn dựa trên instant UTC/offset so với đồng hồ thiết bị, cập nhật mỗi30giây và focus/visibilitychange. Nhãn chỉ là tiến độ theo thời gian, không xác nhận buổi học đã thực tế diễn ra. Kiểm chứng tại worklog; không gọi đã verified cloud.
+
+### 2026-11-03 — Header không dịch ngang khi scrollbar xuất hiện/ẩn
+
+IMPLEMENTED: root html dùng scrollbar-gutter:stable để giữ bề rộng viewport/layout giữa trang ngắn/dài và body scroll lock lúc mở modal. Fallback trình duyệt chưa hỗ trợ dùng html overflow-y:scroll. Không dùng width100vw hoặc bù padding cứng theo scrollbar hệ điều hành. Giữ nguyên header fixed và Modal lock/restore scroll. Kiểm chứng browser đo bounding boxes tại worklog.
