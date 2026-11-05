@@ -42,6 +42,17 @@ final class PortfolioDemo
 
     public function handle(): array
     {
+        $mailer = config('mail.default');
+        config(['mail.default' => 'array']);
+        try {
+            return $this->maintain();
+        } finally {
+            config(['mail.default' => $mailer]);
+        }
+    }
+
+    private function maintain(): array
+    {
         $this->guard();
 
         return DB::transaction(function () {

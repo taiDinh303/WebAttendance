@@ -7,6 +7,7 @@ use App\Models\Classroom;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -67,5 +68,26 @@ final class PortfolioDemoTest extends TestCase
         User::factory()->create(['email' => 'teacher@demo.attendance.test', 'role' => 'teacher']);
         $this->expectException(\RuntimeException::class);
         app(PortfolioDemo::class)->handle();
+    }
+
+    public function test_demo_maintenance_isolated_from_real_mail_and_restores_the_mailer(): void
+    {
+        Http::preventStrayRequests();
+        Http::fake();
+        config(['demo.portfolio_enabled' => true, 'mail.default' => 'brevo']);
+        app(PortfolioDemo::class)->handle();
+        $this->assertSame('brevo', config('mail.default'));
+        Http::assertNothingSent();
+    }
+
+    public function test_failed_demo_maintenance_restores_the_mailer(): void
+    {
+        config(['demo.portfolio_enabled' => false, 'mail.default' => 'brevo']);
+        try {
+            app(PortfolioDemo::class)->handle();
+            $this->fail('Demo must require opt-in.');
+        } catch (\RuntimeException) {
+            $this->assertSame('brevo', config('mail.default'));
+        }
     }
 }
