@@ -12,6 +12,7 @@ final class UserResource extends JsonResource
     {
         return ['portfolioDemo' => config('demo.portfolio_enabled') && app(PortfolioDemo::class)->contains($this->resource), 'studentCode' => $this->student_code, 'id' => $this->id, 'displayName' => $this->display_name, 'email' => $this->email,
             'role' => $this->role, 'accountStatus' => $this->account_status,
+            'googleLinked' => $this->google_subject !== null, 'hasPassword' => $this->password !== null,
             'emailVerified' => $this->hasVerifiedEmail(), 'phone' => $this->phone,
             'avatarKey' => $this->avatar_key, 'gender' => $this->gender, 'birthday' => $this->birthday,
             'locale' => $this->locale, 'timezone' => $this->timezone, 'version' => $this->version];

@@ -14,7 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 #[Fillable(['display_name', 'email', 'password', 'phone', 'locale', 'timezone'])]
-#[Hidden(['password', 'remember_token', 'auth_version'])]
+#[Hidden(['password', 'remember_token', 'auth_version', 'google_subject'])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */

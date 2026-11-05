@@ -64,8 +64,8 @@ Bộ demo tự khôi phục sau 24 giờ hoặc khi vượt ngưỡng dữ liệ
 
 | Hạng mục | Trạng thái |
 | --- | --- |
-| Đăng nhập/đăng ký Google | Chưa tích hợp OAuth |
-| Email xác minh/khôi phục trên demo | Chưa gửi email thật; dùng tài khoản được cung cấp để trải nghiệm |
+| Đăng nhập/đăng ký Google | Đã tích hợp GIS/ID token và liên kết tài khoản; kiểm chứng Google consent thật còn cần tài khoản của chủ dự án |
+| Email xác minh/khôi phục trên demo | Brevo đã cấu hình và mẫu đã Delivered; dữ liệu demo vẫn dùng mail giả |
 | Trắc nghiệm, chat riêng, realtime push | Chưa triển khai; thuộc kế hoạch tương lai |
 | Upload tệp trên tài khoản công khai | Tắt để hạn chế spam; bài nộp demo dùng ghi chú |
 | Camera trên mọi thiết bị | Có luồng quét QR; phụ thuộc quyền camera/HTTPS/phần cứng. Kiểm tra live của bản này dùng liên kết QR, không khẳng định đã kiểm tra mọi camera |
@@ -109,3 +109,7 @@ Kiểm tra frontend: npm run lint, npm test, npm run build. Backend: php artisan
 | scripts | Công cụ phát triển và kiểm tra |
 
 Tác giả: [Đinh Văn Tài](https://github.com/taiDinh303).
+
+## Google authentication
+
+Luồng Google đã có code (DEC-049): đăng ký chọn vai trò, đăng nhập bằng subject, liên kết chủ động trong Settings và thiết lập mật khẩu qua email trước khi ngắt Google. Cần OAuth Web Client ID ở frontend/backend và migration mới; tình trạng triển khai/kiểm chứng thật ở docs/worklog.md. Không cần Google Client Secret.

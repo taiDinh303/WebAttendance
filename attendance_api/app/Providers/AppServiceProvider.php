@@ -9,8 +9,10 @@ use App\Policies\AdminUserPolicy;
 use App\Policies\TeacherCatalogPolicy;
 use App\Support\ApiDocumentation;
 use App\Support\BrevoTransport;
+use App\Support\GoogleIdentityValidator;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
+use Google\Client;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -22,6 +24,16 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(GoogleIdentityValidator::class, function () {
+            $client = new Client;
+            $client->setHttpClient(new \GuzzleHttp\Client(['timeout' => 15, 'connect_timeout' => 5, 'allow_redirects' => false]));
+
+            return new GoogleIdentityValidator($client);
+        });
+    }
+
     /**
      * Bootstrap policies, rate limits and development API documentation.
      */
@@ -36,7 +48,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Semester::class, TeacherCatalogPolicy::class);
         Gate::policy(User::class, AdminUserPolicy::class);
         ResetPassword::createUrlUsing(fn ($user, string $token) => rtrim(config('app.frontend_url'), '/').'/reset-password?'.http_build_query(['token' => $token, 'email' => $user->email]));
-        foreach (['login' => 5, 'register' => 5, 'recovery' => 5, 'verification' => 2, 'join' => 10, 'check-in' => 30, 'upload' => 10, 'submit' => 10] as $name => $attempts) {
+        foreach (['google' => 10, 'login' => 5, 'register' => 5, 'recovery' => 5, 'verification' => 2, 'join' => 10, 'check-in' => 30, 'upload' => 10, 'submit' => 10] as $name => $attempts) {
             RateLimiter::for($name, function (Request $request) use ($attempts, $name) {
                 $perActor = in_array($name, ['check-in', 'upload', 'submit'], true);
                 $identity = $perActor ? (string) $request->user()?->id

@@ -76,3 +76,5 @@ IMPLEMENTED LOCAL: XLSX điểm danh/bảng điểm đã công bố + mẫu tr�
 2026-11-03 — TASK-017 / DEC-041: rà form toàn React, mở form nghiệp vụ bằng nút→modal, giữ bình luận nhập trực tiếp; scope/inventory ở 09-ui-design. Grade save/publish, hồ sơ/mật khẩu, assignment/files/submission, QR/config/correction, create/join và admin status dùng modal. Không coi việc đổi UI là hoàn thành toàn bộ các module chưa có backend. Chủ dự án giao push sau khi kiểm.
 
 2026-11-03 — TASK-017 / DEC-042: account preference API + frontend IMPLEMENTED, AccountsTest14/99 và React37/lint/build PASS; browser cross-context fixture PASS. Cần cập nhật backend/migration trước dùng production; chưa cloud verified.
+
+2026-11-05 — Google OAuth / DEC-049 IMPLEMENTED local: GIS popup login/register/chọn role, account link/unlink và password-setup qua recovery; server Google token verification/nonce/ownership. Không coi Client ID đã cấu hình hoặc có nút là real Google OAuth đã VERIFIED. Actual tests/rollout/manual-account limits ở worklog.

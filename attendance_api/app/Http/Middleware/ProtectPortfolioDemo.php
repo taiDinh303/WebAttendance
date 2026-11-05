@@ -20,7 +20,7 @@ final class ProtectPortfolioDemo
 
         return DB::transaction(function () use ($request, $next, $demo) {
             DB::table('demo_datasets')->where('name', PortfolioDemo::DATASET)->lockForUpdate()->first();
-            if ($request->is('api/v1/me/change-password', 'api/v1/me/profile', 'api/v1/classes/*/files')) {
+            if ($request->is('api/v1/me/change-password', 'api/v1/me/profile', 'api/v1/me/google', 'api/v1/classes/*/files')) {
                 throw new ApiException('DEMO_RESTRICTED', 'Tài khoản demo giữ nguyên hồ sơ và mật khẩu, không tải tệp lên. Bạn vẫn có thể thử nộp bài bằng ghi chú.', 403);
             }
             if (! $request->is('api/v1/auth/logout') && $demo->overLimit($demo->manifest())) {
