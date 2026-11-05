@@ -19,11 +19,13 @@ import { authApi } from "../../../infrastructure/authApi";
 import { AsyncForm, Field, PasswordInput } from "../../../shared/ui";
 import { text } from "../../../domain/format";
 import { useState } from "react";
+import { GoogleSignIn } from "../GoogleSignIn";
 export default function AuthPage() {
   const { pathname } = useLocation();
   const [search] = useSearchParams();
   const navigate = useNavigate();
-  const { login, user, loading } = useSession();
+  const { login, googleLogin, user, loading } = useSession();
+  const [role, setRole] = useState<"teacher" | "student">("teacher");
   const [done, setDone] = useState(false);
   const register = pathname === "/register",
     forgot = pathname === "/forgot-password",
@@ -39,11 +41,16 @@ export default function AuthPage() {
   const destination =
     next?.startsWith("/app") && !next.startsWith("//") ? next : "/app";
   if (!forgot && !reset && user) return <Navigate to={destination} replace />;
-  if (!forgot && !reset && loading) return <div className="startup" role="status">Đang kiểm tra phiên đăng nhập…</div>;
+  if (!forgot && !reset && loading)
+    return (
+      <div className="startup" role="status">
+        Đang kiểm tra phiên đăng nhập…
+      </div>
+    );
   return (
     <div className="auth-layout">
       <aside className="auth-story">
-        <Brand/>
+        <Brand />
         <div className="story-content">
           <p className="eyebrow">KHÔNG GIAN CHO VIỆC HỌC</p>
           <h1>
@@ -81,8 +88,11 @@ export default function AuthPage() {
         </div>
         <small>Attendance · Không gian lớp học của bạn.</small>
       </aside>
-      <main className="auth-main"><div className="auth-theme-control"><ThemeToggle/></div>
-        <Brand className="auth-mobile-brand"/>
+      <main className="auth-main">
+        <div className="auth-theme-control">
+          <ThemeToggle />
+        </div>
+        <Brand className="auth-mobile-brand" />
         <div className="auth-form">
           <span className="label-chip">CÙNG NHAU HỌC TỐT HƠN</span>
           <h1>{title}</h1>
@@ -95,7 +105,30 @@ export default function AuthPage() {
                   ? "Sử dụng mật khẩu mạnh để bảo vệ tài khoản."
                   : "Đăng nhập để tiếp tục hành trình học tập của bạn."}
           </p>
-          {!forgot && !reset && !done ? <div className="google-signin"><button type="button" className="button secondary wide" disabled title="Chưa cấu hình Google OAuth"><span aria-hidden="true">G</span>Tiếp tục với Google</button><small className="muted">Google sẽ mở sau khi cấu hình kết nối.</small><p className="muted">hoặc tiếp tục bằng email</p></div> : null}
+          {register && !done ? (
+            <Field label="Bạn tham gia với vai trò">
+              <select
+                value={role}
+                onChange={(event) =>
+                  setRole(event.target.value as "teacher" | "student")
+                }
+              >
+                <option value="teacher">Giáo viên</option>
+                <option value="student">Học sinh</option>
+              </select>
+            </Field>
+          ) : null}
+          {!forgot && !reset && !done ? (
+            <div className="google-signin">
+              <GoogleSignIn
+                onCredential={async (credential) => {
+                  await googleLogin(credential, register ? role : undefined);
+                  navigate(destination, { replace: true });
+                }}
+              />
+              <p className="muted">hoặc tiếp tục bằng email</p>
+            </div>
+          ) : null}
           {done ? (
             <div className="success panel">
               <ShieldCheck />
@@ -122,7 +155,7 @@ export default function AuthPage() {
                     email,
                     password,
                     passwordConfirmation: text(form, "passwordConfirmation"),
-                    role: text(form, "role"),
+                    role,
                   });
                   setDone(true);
                 } else if (forgot) {
@@ -152,12 +185,6 @@ export default function AuthPage() {
                       maxLength={120}
                       placeholder="Nguyễn Minh Anh"
                     />
-                  </Field>
-                  <Field label="Bạn tham gia với vai trò">
-                    <select name="role">
-                      <option value="teacher">Giáo viên</option>
-                      <option value="student">Học sinh</option>
-                    </select>
                   </Field>
                 </>
               ) : null}
@@ -220,13 +247,13 @@ export default function AuthPage() {
               </button>
             </AsyncForm>
           )}
-        <div className="auth-switch">
-          {register ? "Đã có tài khoản?" : "Chưa có tài khoản?"}{" "}
-          <Link to={register ? "/login" : "/register"}>
-            {register ? "Đăng nhập" : "Đăng ký miễn phí"}{" "}
-            <ArrowRight size={14} />
-          </Link>
-        </div>
+          <div className="auth-switch">
+            {register ? "Đã có tài khoản?" : "Chưa có tài khoản?"}{" "}
+            <Link to={register ? "/login" : "/register"}>
+              {register ? "Đăng nhập" : "Đăng ký miễn phí"}{" "}
+              <ArrowRight size={14} />
+            </Link>
+          </div>
           <div className="auth-footnote">
             <ShieldCheck size={16} /> Tài khoản của bạn. Lớp học của bạn.
           </div>

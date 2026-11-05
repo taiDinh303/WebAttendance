@@ -9,7 +9,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     queryKey: ["session"],
     queryFn: async ({ signal }) => {
       try {
-        return await authApi.me(AbortSignal.any([signal, AbortSignal.timeout(60000)]));
+        return await authApi.me(
+          AbortSignal.any([signal, AbortSignal.timeout(60000)]),
+        );
       } catch (e) {
         if (e instanceof ApiError && e.status === 401) return null;
         throw e;
@@ -40,6 +42,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     client.removeQueries({ queryKey: ["private"] });
     client.setQueryData(["session"], null);
   }
+  async function googleLogin(credential: string, role?: "teacher" | "student") {
+    const user = await authApi.google(credential, role);
+    await client.cancelQueries();
+    client.removeQueries({ queryKey: ["private"] });
+    client.setQueryData(["session"], user);
+    return user;
+  }
   async function reload() {
     await client.invalidateQueries({ queryKey: ["session"] });
   }
@@ -50,6 +59,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         loading: query.isLoading,
         error: query.error,
         login,
+        googleLogin,
         logout,
         reload,
       }}

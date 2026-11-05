@@ -4,6 +4,18 @@ export const authApi = {
   me: (signal?: AbortSignal) => request<User>("/me", { signal }),
   login: (body: unknown) =>
     request<User>("/auth/login", { method: "POST", body }),
+  googleChallenge: () =>
+    request<{ nonce: string; clientId: string }>("/auth/google/challenge", {
+      method: "POST",
+    }),
+  google: (credential: string, role?: "teacher" | "student") =>
+    request<User>("/auth/google", {
+      method: "POST",
+      body: { credential, role },
+    }),
+  linkGoogle: (credential: string) =>
+    request<User>("/me/google", { method: "POST", body: { credential } }),
+  unlinkGoogle: () => request<User>("/me/google", { method: "DELETE" }),
   register: (body: unknown) =>
     request<User>("/auth/register", { method: "POST", body }),
   logout: () => request<void>("/auth/logout", { method: "POST" }),

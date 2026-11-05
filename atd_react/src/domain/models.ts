@@ -1,5 +1,7 @@
 export type Role = "admin" | "teacher" | "student";
 export interface User {
+  googleLinked?: boolean;
+  hasPassword?: boolean;
   portfolioDemo?: boolean;
   studentCode?: string | null;
   id: string;

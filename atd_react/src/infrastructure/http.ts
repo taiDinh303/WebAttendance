@@ -54,7 +54,9 @@ async function performRequest<T>(
       method,
       headers,
       credentials: "include",
-      signal: options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000),
+      signal: options.signal
+        ? AbortSignal.any([options.signal, AbortSignal.timeout(60000)])
+        : AbortSignal.timeout(60000),
       body:
         options.body === undefined
           ? undefined
@@ -86,31 +88,71 @@ async function performRequest<T>(
       503: "Dịch vụ tạm thời chưa sẵn sàng.",
     };
     const scheduleMessages: Record<string, string> = {
-      DEMO_RESTRICTED: "Tài khoản demo giữ nguyên hồ sơ, mật khẩu và không tải tệp lên. Bạn có thể nộp bài bằng ghi chú.",
-      DEMO_LIMIT: "Bộ demo đạt giới hạn. Đăng xuất rồi đăng nhập lại để làm mới dữ liệu demo.",
-      ALREADY_CHECKED_IN: "Bạn đã có kết quả điểm danh cho buổi này. Nếu cần điều chỉnh, hãy liên hệ giáo viên.",
+      GOOGLE_LINK_REQUIRED:
+        "Email này đã có tài khoản. Hãy đăng nhập bằng mật khẩu rồi vào Settings → Account để liên kết Google.",
+      GOOGLE_REGISTRATION_REQUIRED:
+        "Tài khoản Google này chưa đăng ký. Hãy vào trang Đăng ký và chọn vai trò trước.",
+      GOOGLE_CHALLENGE_EXPIRED:
+        "Phiên xác minh Google đã hết hạn. Bấm Thử lại Google.",
+      INVALID_GOOGLE_TOKEN:
+        "Không xác minh được đăng nhập Google. Vui lòng thử lại.",
+      GOOGLE_EMAIL_MISMATCH:
+        "Hãy chọn tài khoản Google trùng email tài khoản AttendanceWeb.",
+      GOOGLE_ALREADY_LINKED:
+        "Tài khoản Google đã được liên kết. Hãy kiểm tra trong Settings.",
+      PASSWORD_REQUIRED:
+        "Hãy thiết lập mật khẩu và xác minh email trước khi ngắt Google.",
+      ACCOUNT_LOCKED: "Tài khoản đang bị khóa. Vui lòng liên hệ hỗ trợ.",
+      DEMO_RESTRICTED:
+        "Tài khoản demo giữ nguyên hồ sơ, mật khẩu và không tải tệp lên. Bạn có thể nộp bài bằng ghi chú.",
+      DEMO_LIMIT:
+        "Bộ demo đạt giới hạn. Đăng xuất rồi đăng nhập lại để làm mới dữ liệu demo.",
+      ALREADY_CHECKED_IN:
+        "Bạn đã có kết quả điểm danh cho buổi này. Nếu cần điều chỉnh, hãy liên hệ giáo viên.",
       ATTENDANCE_APPROVED: "Bản ghi đã duyệt và khóa, không thể chỉnh sửa.",
-      SESSION_HAS_ATTENDANCE: "Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn. Chỉ buổi chưa có dữ liệu hoặc có cửa sổ QR trống mới xóa được.",
-      NOT_IN_ATTENDANCE_ROSTER: "Máy chủ chưa cập nhật quy tắc điểm danh theo thành viên hiện tại. Hãy báo giáo viên cập nhật backend rồi thử lại.",
-      QR_EXPIRED: "Mã QR đã hết hạn hoặc đã được thay mới. Hãy quét hoặc lấy liên kết QR hiện tại từ giáo viên.",
-      WINDOW_CLOSED: "Điểm danh đã đóng hoặc chưa đến giờ mở. Hãy nhờ giáo viên kiểm tra và mở lại QR.",
-      INVALID_QR_TOKEN: "Mã QR không hợp lệ. Hãy quét lại mã hoặc sao chép liên kết mới từ giáo viên.",
-      INVALID_WINDOW: "Khoảng mở điểm danh phải bao gồm thời điểm hiện tại, không dài quá 24 giờ và chứa mốc tính muộn.",
-      INVALID_SCHEDULE: "Giờ kết thúc phải sau giờ bắt đầu và một buổi học không được dài quá 24 giờ. Để tạo nhiều buổi, hãy chọn Lặp hằng tuần.",
-      EMPTY_SERIES: "Không có buổi học phù hợp. Hãy kiểm tra khoảng ngày và các thứ đã chọn.",
-      SCHEDULE_CONFLICT: "Lịch này trùng với một buổi học khác. Hãy đổi thời gian hoặc chọn Chấp nhận trùng để tiếp tục.",
+      SESSION_HAS_ATTENDANCE:
+        "Buổi học đã có danh sách hoặc dữ liệu điểm danh nên không thể xóa vĩnh viễn. Chỉ buổi chưa có dữ liệu hoặc có cửa sổ QR trống mới xóa được.",
+      NOT_IN_ATTENDANCE_ROSTER:
+        "Máy chủ chưa cập nhật quy tắc điểm danh theo thành viên hiện tại. Hãy báo giáo viên cập nhật backend rồi thử lại.",
+      QR_EXPIRED:
+        "Mã QR đã hết hạn hoặc đã được thay mới. Hãy quét hoặc lấy liên kết QR hiện tại từ giáo viên.",
+      WINDOW_CLOSED:
+        "Điểm danh đã đóng hoặc chưa đến giờ mở. Hãy nhờ giáo viên kiểm tra và mở lại QR.",
+      INVALID_QR_TOKEN:
+        "Mã QR không hợp lệ. Hãy quét lại mã hoặc sao chép liên kết mới từ giáo viên.",
+      INVALID_WINDOW:
+        "Khoảng mở điểm danh phải bao gồm thời điểm hiện tại, không dài quá 24 giờ và chứa mốc tính muộn.",
+      INVALID_SCHEDULE:
+        "Giờ kết thúc phải sau giờ bắt đầu và một buổi học không được dài quá 24 giờ. Để tạo nhiều buổi, hãy chọn Lặp hằng tuần.",
+      EMPTY_SERIES:
+        "Không có buổi học phù hợp. Hãy kiểm tra khoảng ngày và các thứ đã chọn.",
+      SCHEDULE_CONFLICT:
+        "Lịch này trùng với một buổi học khác. Hãy đổi thời gian hoặc chọn Chấp nhận trùng để tiếp tục.",
     };
     const qrFields: Record<string, string> = {
       opensAt: "Giờ mở phải bằng hoặc trước thời điểm hiện tại.",
-      lateAfter: "Mốc tính muộn phải bằng hoặc sau giờ mở và không sau giờ đóng.",
+      lateAfter:
+        "Mốc tính muộn phải bằng hoặc sau giờ mở và không sau giờ đóng.",
       closesAt: "Giờ đóng phải sau thời điểm hiện tại và sau giờ mở.",
     };
-    const fields = Object.fromEntries(Object.entries(body?.errors ?? {}).map(([key, value]) => [key, qrFields[key] ? [qrFields[key]] : Array.isArray(value) ? value.map(String) : [String(value)]]));
+    const fields = Object.fromEntries(
+      Object.entries(body?.errors ?? {}).map(([key, value]) => [
+        key,
+        qrFields[key]
+          ? [qrFields[key]]
+          : Array.isArray(value)
+            ? value.map(String)
+            : [String(value)],
+      ]),
+    );
     throw new ApiError(
       response.status,
       body?.code ?? "REQUEST_FAILED",
-      scheduleMessages[body?.code] ?? messages[response.status] ??
-        (body?.message === "Please check the submitted fields." ? "Vui lòng kiểm tra thông tin đã nhập." : body?.message) ??
+      scheduleMessages[body?.code] ??
+        messages[response.status] ??
+        (body?.message === "Please check the submitted fields."
+          ? "Vui lòng kiểm tra thông tin đã nhập."
+          : body?.message) ??
         "Không thể hoàn tất thao tác.",
       fields,
       body?.traceId,
@@ -129,13 +171,53 @@ export const params = (
 export const fileUrl = (id: string) =>
   origin + "/api/v1/files/" + encodeURIComponent(id) + "/download";
 
-export const exportUrl = (classId:string,kind:"attendance"|"grades",template=false) => origin+"/api/v1/classes/"+encodeURIComponent(classId)+"/"+kind+"/export"+(template?"?template=1":"");
+export const exportUrl = (
+  classId: string,
+  kind: "attendance" | "grades",
+  template = false,
+) =>
+  origin +
+  "/api/v1/classes/" +
+  encodeURIComponent(classId) +
+  "/" +
+  kind +
+  "/export" +
+  (template ? "?template=1" : "");
 
-export async function downloadReport(classId:string,kind:"attendance"|"grades",template=false):Promise<Blob>{
-    const response=await fetch(exportUrl(classId,kind,template),{credentials:"include",cache:"no-store",signal:AbortSignal.timeout(60000)});
-    if(!response.ok || !response.headers.get("Content-Type")?.includes("spreadsheetml")) throw new Error("Không xuất được Excel. Kiểm tra quyền truy cập rồi thử lại.");
+export async function downloadReport(
+  classId: string,
+  kind: "attendance" | "grades",
+  template = false,
+): Promise<Blob> {
+  const response = await fetch(exportUrl(classId, kind, template), {
+    credentials: "include",
+    cache: "no-store",
+    signal: AbortSignal.timeout(60000),
+  });
+  if (
+    !response.ok ||
+    !response.headers.get("Content-Type")?.includes("spreadsheetml")
+  )
+    throw new Error(
+      "Không xuất được Excel. Kiểm tra quyền truy cập rồi thử lại.",
+    );
 
-return response.blob();
+  return response.blob();
 }
 
-export function request<T>(path:string,options:Parameters<typeof performRequest>[1]={}):Promise<T>{const method=options?.method??"GET";if(method==="GET"||method==="HEAD")return performRequest<T>(path,options);return trackMutation(method==="DELETE"?"Xóa":method==="PATCH"||method==="PUT"?"Lưu thay đổi":"Gửi yêu cầu",()=>performRequest<T>(path,options));}
+export function request<T>(
+  path: string,
+  options: Parameters<typeof performRequest>[1] = {},
+): Promise<T> {
+  const method = options?.method ?? "GET";
+  if (method === "GET" || method === "HEAD")
+    return performRequest<T>(path, options);
+  return trackMutation(
+    method === "DELETE"
+      ? "Xóa"
+      : method === "PATCH" || method === "PUT"
+        ? "Lưu thay đổi"
+        : "Gửi yêu cầu",
+    () => performRequest<T>(path, options),
+  );
+}

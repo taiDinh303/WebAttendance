@@ -15,9 +15,11 @@ import { useSession } from "../../../application/sessionContext";
 import { authApi } from "../../../infrastructure/authApi";
 import { AsyncForm, Field, PasswordInput } from "../../../shared/ui";
 import { text } from "../../../domain/format";
+import { GoogleSignIn } from "../../auth/GoogleSignIn";
 export default function SettingsPage() {
   const [editing, setEditing] = useState(false);
   const [passwordEditing, setPasswordEditing] = useState(false);
+  const [googleLinking, setGoogleLinking] = useState(false);
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") === "account" ? "account" : "profile";
   const { user, reload } = useSession();
@@ -257,83 +259,138 @@ export default function SettingsPage() {
                 <Link2 size={21} />
               </span>
               <strong>Tài khoản liên kết</strong>
-              <span>Google</span>
-              <button
-                className="button secondary small"
-                disabled
-                title="Chưa cấu hình Google"
-              >
-                Chưa khả dụng
-              </button>
+              <span>{user.googleLinked ? "Google đã liên kết" : "Google"}</span>
+              {user.googleLinked ? (
+                <AsyncForm
+                  onSubmit={async () => {
+                    if (
+                      window.confirm("Ngắt liên kết Google khỏi tài khoản?")
+                    ) {
+                      await authApi.unlinkGoogle();
+                      await reload();
+                    }
+                  }}
+                >
+                  <button
+                    className="button secondary small"
+                    disabled={user.portfolioDemo}
+                  >
+                    Ngắt liên kết
+                  </button>
+                </AsyncForm>
+              ) : (
+                <button
+                  type="button"
+                  className="button secondary small"
+                  disabled={user.portfolioDemo}
+                  onClick={() => setGoogleLinking(true)}
+                >
+                  Liên kết Google
+                </button>
+              )}
             </div>
             <div className="account-setting-row">
               <span className="setting-icon">
                 <KeyRound size={21} />
               </span>
               <strong>Mật khẩu</strong>
-              <span>••••••••</span>
+              <span>
+                {user.hasPassword === false ? "Chưa thiết lập" : "••••••••"}
+              </span>
               <button
                 className="button secondary small"
                 onClick={() => setPasswordEditing(true)}
               >
-                Đổi mật khẩu
+                {user.hasPassword === false
+                  ? "Thiết lập mật khẩu"
+                  : "Đổi mật khẩu"}
               </button>
             </div>
+            {googleLinking ? (
+              <Modal
+                title="Liên kết Google"
+                onClose={() => setGoogleLinking(false)}
+              >
+                <p>Chọn tài khoản Google có email {user.email}.</p>
+                <GoogleSignIn
+                  onCredential={async (credential) => {
+                    await authApi.linkGoogle(credential);
+                    await reload();
+                    setGoogleLinking(false);
+                  }}
+                />
+              </Modal>
+            ) : null}
             {passwordEditing ? (
               <Modal
-                title="Đổi mật khẩu"
+                title={user.hasPassword === false ? "Thiết lập mật khẩu" : "Đổi mật khẩu"}
                 onClose={() => setPasswordEditing(false)}
               >
-                <AsyncForm
-                  success="Đã đổi mật khẩu. Vui lòng đăng nhập lại nếu được yêu cầu."
-                  onSubmit={async (f) => {
-                    await authApi.password({
-                      currentPassword: text(f, "currentPassword"),
-                      password: text(f, "password"),
-                      passwordConfirmation: text(f, "passwordConfirmation"),
-                    });
-                    await reload();
-                    setPasswordEditing(false);
-                  }}
-                >
-                  <Field label="Mật khẩu hiện tại">
-                    <PasswordInput
-                      name="currentPassword"
-                      autoComplete="current-password"
-                      required
-                    />
-                  </Field>
-                  <Field
-                    label="Mật khẩu mới"
-                    hint="Ít nhất 12 ký tự, có chữ hoa, chữ thường và chữ số."
+                {user.hasPassword === false ? (
+                  <AsyncForm
+                    success="Đã yêu cầu email thiết lập mật khẩu. Hãy kiểm tra hộp thư."
+                    onSubmit={async () => {
+                      await authApi.forgot({ email: user.email });
+                    }}
                   >
-                    <PasswordInput
-                      name="password"
-                      autoComplete="new-password"
-                      minLength={12}
-                      maxLength={128}
-                      required
-                    />
-                  </Field>
-                  <Field label="Nhập lại mật khẩu mới">
-                    <PasswordInput
-                      name="passwordConfirmation"
-                      autoComplete="new-password"
-                      minLength={12}
-                      required
-                    />
-                  </Field>
-                  <footer className="modal-actions">
-                    <button
-                      type="button"
-                      className="button secondary"
-                      onClick={() => setPasswordEditing(false)}
+                    <p>
+                      Gửi liên kết đến email tài khoản để thiết lập mật khẩu
+                      trước khi ngắt Google.
+                    </p>
+                    <button className="button">Gửi liên kết thiết lập</button>
+                  </AsyncForm>
+                ) : (
+                  <AsyncForm
+                    success="Đã đổi mật khẩu. Vui lòng đăng nhập lại nếu được yêu cầu."
+                    onSubmit={async (f) => {
+                      await authApi.password({
+                        currentPassword: text(f, "currentPassword"),
+                        password: text(f, "password"),
+                        passwordConfirmation: text(f, "passwordConfirmation"),
+                      });
+                      await reload();
+                      setPasswordEditing(false);
+                    }}
+                  >
+                    <Field label="Mật khẩu hiện tại">
+                      <PasswordInput
+                        name="currentPassword"
+                        autoComplete="current-password"
+                        required
+                      />
+                    </Field>
+                    <Field
+                      label="Mật khẩu mới"
+                      hint="Ít nhất 12 ký tự, có chữ hoa, chữ thường và chữ số."
                     >
-                      Đóng
-                    </button>
-                    <button className="button">Đổi mật khẩu</button>
-                  </footer>
-                </AsyncForm>
+                      <PasswordInput
+                        name="password"
+                        autoComplete="new-password"
+                        minLength={12}
+                        maxLength={128}
+                        required
+                      />
+                    </Field>
+                    <Field label="Nhập lại mật khẩu mới">
+                      <PasswordInput
+                        name="passwordConfirmation"
+                        autoComplete="new-password"
+                        minLength={12}
+                        required
+                      />
+                    </Field>
+                    <footer className="modal-actions">
+                      <button
+                        type="button"
+                        className="button secondary"
+                        onClick={() => setPasswordEditing(false)}
+                      >
+                        Đóng
+                      </button>
+                      <button className="button">Đổi mật khẩu</button>
+                    </footer>
+                  </AsyncForm>
+                )}
               </Modal>
             ) : null}
           </section>

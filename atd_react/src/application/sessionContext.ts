@@ -5,6 +5,10 @@ export interface SessionState {
   loading: boolean;
   error: Error | null;
   login: (email: string, password: string) => Promise<User>;
+  googleLogin: (
+    credential: string,
+    role?: "teacher" | "student",
+  ) => Promise<User>;
   logout: () => Promise<void>;
   reload: () => Promise<void>;
 }
