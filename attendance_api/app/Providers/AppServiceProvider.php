@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Policies\AdminUserPolicy;
 use App\Policies\TeacherCatalogPolicy;
 use App\Support\ApiDocumentation;
+use App\Support\BrevoTransport;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -15,6 +16,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Mail::extend('brevo', fn (array $config) => new BrevoTransport((string) ($config['key'] ?? '')));
         JsonResource::withoutWrapping();
         if (class_exists(Scramble::class)) {
             Scramble::afterOpenApiGenerated(fn (OpenApi $api) => ApiDocumentation::transform($api));

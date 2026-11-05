@@ -31,3 +31,20 @@ FILE_SCANNER=local_validation (mặc định config/filesafety.php) chỉ cho lo
 Seed allowlist: demo/local→attendance_demo; testing→attendance_test/attendance_ci_test; http-smoke→attendance_http_test. Những DB khác/production/mail thật/không opt-in đều từ chối trước khi ghi. DatabaseSeeder mặc định vẫn trống.
 
 app:diagnose --json kiểm PHP/extensions/key/debug/MySQL/schema và đường dẫn writable; production kiểm thêm demo-disabled/HTTPS/secure encrypted cookie/scanner/mail config. Exit1 nếu có checkfalse, không in secret. Checktrue của production-only trong local nghĩa điều kiện không áp dụng, không chứng minh TLS/SMTP/ClamAV đang chạy. Không sửa config cache đang tồn tại để chạy demo: launcher từ chối và yêu cầu xử lý cache đúng môi trường.
+
+## Brevo HTTPS email — 2026-11-05
+
+IMPLEMENTED local: Laravel custom transport `brevo` gửi qua HTTPS API, không cần SMTP/package mới. Biến cấu hình trên service AttendanceWeb (khác tên .NET của NoteTatCa):
+
+```dotenv
+MAIL_MAILER=brevo
+BREVO_API_KEY=
+MAIL_FROM_ADDRESS=verified-sender@example.test
+MAIL_FROM_NAME=AttendanceWeb
+```
+
+`BREVO_API_KEY` là secret nhập trực tiếp trên Render; chủ dự án chọn dùng chung giá trị `EMAIL__BREVO__APIKEY` của NoteTatCa. Không đưa key vào docs/Git hoặc frontend. Sender phải được Brevo xác minh. Local/test giữ `MAIL_MAILER=array`. Transport timeout30s/connect10s, không redirect/retry HTTP tự động, yêu cầu201+messageId; lỗi không chứa key/body provider. Chưa hỗ trợ attachments; từ chối rõ để không bỏ mất file.
+
+Render `attendanceweb-api`: sender/name đã Save only; chủ dự án đã dán và lưu key, UI xác nhận biến có mặt và được che. Chưa chuyển mailer hoặc deploy code từ tác vụ cấu hình. Chỉ bật `MAIL_MAILER=brevo` khi triển khai code hỗ trợ; config cache/worker phải nhận cùng env. VerifyAccountEmail và ResetAccountPassword dùng queue: nếu `QUEUE_CONNECTION=database` cần queue worker; web entrypoint hiện chỉ chạy scheduler, không chạy queue worker. Không coi Save only là gửi mail thành công. Chưa thử email thật/kiểm hộp thư hoặc xác minh key production.
+
+Tham khảo: [Brevo send API](https://developers.brevo.com/reference/send-transac-email), [Laravel custom transports](https://laravel.com/docs/13.x/mail#custom-transports), [Render environment](https://render.com/docs/configure-environment-variables).
